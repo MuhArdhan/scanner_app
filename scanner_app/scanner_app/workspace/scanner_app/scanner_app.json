@@ -1,0 +1,46 @@
+{
+  "app": "scanner_app",
+  "charts": [],
+  "content": "[{\"id\":\"ScannerHdr1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Scanner App</b></span>\",\"col\":12}},{\"id\":\"ScannerScanDN1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Scan Delivery Note\",\"col\":3}}]",
+  "custom_blocks": [],
+  "docstatus": 0,
+  "doctype": "Workspace",
+  "for_user": "",
+  "hide_custom": 0,
+  "icon": "scan-barcode",
+  "idx": 0,
+  "is_hidden": 0,
+  "label": "Scanner App",
+  "links": [],
+  "module": "Scanner App",
+  "name": "Scanner App",
+  "number_cards": [],
+  "parent_page": "",
+  "public": 1,
+  "quick_lists": [],
+  "restrict_to_domain": "",
+  "roles": [
+    {
+      "role": "Stock User"
+    },
+    {
+      "role": "Delivery User"
+    },
+    {
+      "role": "Delivery Manager"
+    },
+    {
+      "role": "System Manager"
+    }
+  ],
+  "sequence_id": 22.0,
+  "shortcuts": [
+    {
+      "label": "Scan Delivery Note",
+      "link_to": "delivery_note_scan",
+      "type": "Page"
+    }
+  ],
+  "title": "Scanner App",
+  "type": "Workspace"
+}

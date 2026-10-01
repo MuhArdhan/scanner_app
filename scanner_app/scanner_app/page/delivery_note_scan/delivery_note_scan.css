@@ -1,0 +1,49 @@
+.dns-root {
+	width: 100%;
+	min-width: 0;
+	max-width: 900px;
+	padding: 24px 32px 56px;
+	margin: 0 auto;
+}
+
+.dns-intro {
+	margin-bottom: 18px;
+}
+
+.dns-actions {
+	margin-bottom: 24px;
+}
+
+.dns-manual {
+	max-width: 520px;
+}
+
+.dns-manual label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: 500;
+}
+
+.dns-input-row {
+	display: flex;
+	gap: 8px;
+}
+
+.dns-input-row .form-control {
+	min-width: 0;
+}
+
+.dns-feedback {
+	min-height: 24px;
+	margin-top: 16px;
+}
+
+@media (max-width: 640px) {
+	.dns-root {
+		padding: 16px 16px 40px;
+	}
+
+	.dns-input-row {
+		flex-direction: column;
+	}
+}

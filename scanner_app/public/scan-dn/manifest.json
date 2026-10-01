@@ -1,0 +1,35 @@
+{
+	"name": "Scan Delivery Note",
+	"short_name": "Scan DN",
+	"description": "Scan QR Delivery Note untuk menandai stop terkirim di Delivery Trip",
+	"start_url": "/scan-dn",
+	"scope": "/scan-dn",
+	"display": "standalone",
+	"orientation": "portrait",
+	"background_color": "#0f0f0f",
+	"theme_color": "#171717",
+	"lang": "id",
+	"icons": [
+		{
+			"src": "/assets/scanner_app/scan-dn/icon-192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "/assets/scanner_app/scan-dn/icon-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any maskable"
+		}
+	],
+	"categories": ["business", "productivity"],
+	"shortcuts": [
+		{
+			"name": "Scan QR",
+			"short_name": "Scan",
+			"description": "Buka scanner kamera",
+			"url": "/scan-dn"
+		}
+	]
+}

@@ -76,17 +76,16 @@ app_license = "mit"
 # Jinja
 # ----------
 
-# add methods and filters to jinja environment
-# jinja = {
-# 	"methods": "scanner_app.utils.jinja_methods",
-# 	"filters": "scanner_app.utils.jinja_filters"
-# }
+jinja = {
+	"methods": "scanner_app.print_qr",
+}
 
 # Installation
 # ------------
 
 # before_install = "scanner_app.install.before_install"
-# after_install = "scanner_app.install.after_install"
+after_install = "scanner_app.upgrade.apply"
+after_migrate = ["scanner_app.upgrade.apply"]
 
 # Uninstallation
 # ------------
@@ -261,4 +260,3 @@ app_license = "mit"
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-

@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="id" dir="ltr">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+	<meta name="theme-color" content="#171717" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+	<meta name="apple-mobile-web-app-title" content="Scan DN" />
+	<meta name="description" content="Scan QR Delivery Note untuk menandai stop terkirim" />
+
+	<title>Scan Delivery Note</title>
+
+	<link rel="manifest" href="/assets/scanner_app/scan-dn/manifest.json" />
+	<link rel="apple-touch-icon" href="/assets/scanner_app/scan-dn/icon-192.png" />
+	<link rel="icon" type="image/png" sizes="192x192" href="/assets/scanner_app/scan-dn/icon-192.png" />
+	<script>window.frappe = window.frappe || {};</script>
+	<!-- csrf_token -->
+
+	<style>
+		:root {
+			--bg: #0f0f0f;
+			--surface: #1c1c1c;
+			--border: #2e2e2e;
+			--primary: #4f8ef7;
+			--primary-dark: #3a6fd8;
+			--success: #22c55e;
+			--warning: #f59e0b;
+			--danger: #ef4444;
+			--text: #f5f5f5;
+			--text-muted: #9ca3af;
+			--radius: 14px;
+			--shadow: 0 4px 24px rgba(0,0,0,0.5);
+		}
+
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+			background: var(--bg);
+			color: var(--text);
+			min-height: 100dvh;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		/* ── Header ── */
+		.app-header {
+			width: 100%;
+			max-width: 480px;
+			padding: 18px 20px 12px;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			border-bottom: 1px solid var(--border);
+		}
+		.app-header .app-icon {
+			width: 36px; height: 36px;
+			background: var(--primary);
+			border-radius: 10px;
+			display: flex; align-items: center; justify-content: center;
+			flex-shrink: 0;
+		}
+		.app-header .app-icon svg { width: 20px; height: 20px; fill: white; }
+		.app-header h1 { font-size: 17px; font-weight: 600; line-height: 1.2; }
+		.app-header .user-badge {
+			margin-left: auto;
+			font-size: 12px;
+			color: var(--text-muted);
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 20px;
+			padding: 4px 10px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			max-width: 130px;
+		}
+
+		/* ── Main ── */
+		.main {
+			width: 100%;
+			max-width: 480px;
+			padding: 20px 16px;
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			gap: 20px;
+		}
+
+		/* ── Camera section ── */
+		.camera-section {
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			overflow: hidden;
+			position: relative;
+		}
+		#video-container {
+			position: relative;
+			width: 100%;
+			aspect-ratio: 1;
+			background: #000;
+			display: none;
+		}
+		#video-container.active { display: block; }
+		#video {
+			width: 100%; height: 100%;
+			object-fit: cover;
+			display: block;
+		}
+		/* scan reticle */
+		.reticle {
+			position: absolute;
+			inset: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			pointer-events: none;
+		}
+		.reticle-box {
+			width: 55%; aspect-ratio: 1;
+			border: 2px solid var(--primary);
+			border-radius: 12px;
+			box-shadow: 0 0 0 999px rgba(0,0,0,0.45);
+			animation: pulse 2s ease-in-out infinite;
+		}
+		@keyframes pulse {
+			0%, 100% { border-color: var(--primary); }
+			50% { border-color: #a0c4ff; }
+		}
+		.scan-hint {
+			position: absolute;
+			bottom: 14px;
+			left: 0; right: 0;
+			text-align: center;
+			font-size: 13px;
+			color: rgba(255,255,255,0.8);
+			pointer-events: none;
+		}
+
+		/* camera button area */
+		.camera-btn-area {
+			padding: 18px;
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			align-items: center;
+		}
+		#btn-camera {
+			width: 100%;
+			padding: 14px;
+			background: var(--primary);
+			color: white;
+			border: none;
+			border-radius: 10px;
+			font-size: 15px;
+			font-weight: 600;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			transition: background 0.15s;
+		}
+		#btn-camera:hover { background: var(--primary-dark); }
+		#btn-camera:active { opacity: 0.85; }
+		#btn-camera svg { width: 20px; height: 20px; fill: white; }
+		#btn-stop-camera {
+			background: none;
+			border: 1px solid var(--border);
+			color: var(--text-muted);
+			border-radius: 8px;
+			padding: 8px 16px;
+			font-size: 13px;
+			cursor: pointer;
+			display: none;
+		}
+		#btn-stop-camera.visible { display: inline-block; }
+
+		/* ── Manual input ── */
+		.manual-section {
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			padding: 18px;
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+		}
+		.manual-section label {
+			font-size: 13px;
+			font-weight: 500;
+			color: var(--text-muted);
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+		}
+		.input-row {
+			display: flex;
+			gap: 8px;
+		}
+		#input-dn {
+			flex: 1;
+			background: var(--bg);
+			border: 1px solid var(--border);
+			border-radius: 9px;
+			color: var(--text);
+			font-size: 15px;
+			padding: 12px 14px;
+			outline: none;
+			transition: border-color 0.15s;
+		}
+		#input-dn:focus { border-color: var(--primary); }
+		#btn-submit {
+			padding: 12px 18px;
+			background: var(--primary);
+			color: white;
+			border: none;
+			border-radius: 9px;
+			font-size: 14px;
+			font-weight: 600;
+			cursor: pointer;
+			white-space: nowrap;
+			transition: background 0.15s;
+		}
+		#btn-submit:hover { background: var(--primary-dark); }
+		#btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+		/* ── Feedback ── */
+		#feedback {
+			border-radius: 10px;
+			padding: 14px 16px;
+			font-size: 14px;
+			font-weight: 500;
+			line-height: 1.5;
+			display: none;
+			border: 1px solid transparent;
+		}
+		#feedback.show { display: block; }
+		#feedback.success {
+			background: rgba(34,197,94,0.1);
+			border-color: rgba(34,197,94,0.3);
+			color: var(--success);
+		}
+		#feedback.error {
+			background: rgba(239,68,68,0.1);
+			border-color: rgba(239,68,68,0.3);
+			color: var(--danger);
+		}
+		#feedback.info {
+			background: rgba(79,142,247,0.1);
+			border-color: rgba(79,142,247,0.3);
+			color: var(--primary);
+		}
+		#feedback.warning {
+			background: rgba(245,158,11,0.1);
+			border-color: rgba(245,158,11,0.3);
+			color: var(--warning);
+		}
+
+		/* ── Recent scans ── */
+		.history-section { display: flex; flex-direction: column; gap: 10px; }
+		.history-section h2 {
+			font-size: 13px;
+			font-weight: 600;
+			color: var(--text-muted);
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+		}
+		#history-list { display: flex; flex-direction: column; gap: 8px; }
+		.history-item {
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 10px;
+			padding: 12px 14px;
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-start;
+			gap: 12px;
+		}
+		.history-item .hi-left { flex: 1; }
+		.history-item .hi-dn { font-size: 14px; font-weight: 600; color: var(--text); }
+		.history-item .hi-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+		.history-item .hi-badge {
+			font-size: 11px;
+			font-weight: 600;
+			padding: 3px 9px;
+			border-radius: 20px;
+			flex-shrink: 0;
+		}
+		.hi-badge.success { background: rgba(34,197,94,0.15); color: var(--success); }
+		.hi-badge.warning { background: rgba(245,158,11,0.15); color: var(--warning); }
+
+		/* ── Login overlay ── */
+		#login-overlay {
+			position: fixed; inset: 0;
+			background: var(--bg);
+			display: flex; flex-direction: column;
+			align-items: center; justify-content: center;
+			gap: 20px; padding: 32px; z-index: 100;
+		}
+		#login-overlay.hidden { display: none; }
+		#login-overlay svg { width: 48px; height: 48px; fill: var(--primary); }
+		#login-overlay h2 { font-size: 20px; font-weight: 700; text-align: center; }
+		#login-overlay p { font-size: 14px; color: var(--text-muted); text-align: center; }
+		#btn-login {
+			padding: 14px 32px;
+			background: var(--primary);
+			color: white;
+			border: none;
+			border-radius: 10px;
+			font-size: 16px;
+			font-weight: 600;
+			cursor: pointer;
+			width: 100%;
+			max-width: 300px;
+		}
+
+		/* ── Install banner ── */
+		#install-banner {
+			width: 100%;
+			max-width: 480px;
+			margin: 0 16px 8px;
+			background: var(--surface);
+			border: 1px solid var(--primary);
+			border-radius: 12px;
+			padding: 14px 16px;
+			display: none;
+			align-items: center;
+			gap: 12px;
+		}
+		#install-banner.show { display: flex; }
+		#install-banner p { flex: 1; font-size: 13px; color: var(--text-muted); }
+		#install-banner strong { color: var(--text); }
+		#btn-install {
+			background: var(--primary);
+			color: white;
+			border: none;
+			border-radius: 8px;
+			padding: 8px 14px;
+			font-size: 13px;
+			font-weight: 600;
+			cursor: pointer;
+			white-space: nowrap;
+		}
+		#btn-dismiss-install {
+			background: none; border: none;
+			color: var(--text-muted); font-size: 18px;
+			cursor: pointer; padding: 0 4px;
+		}
+
+		/* spinner */
+		@keyframes spin { to { transform: rotate(360deg); } }
+		.spinner {
+			width: 18px; height: 18px;
+			border: 2px solid rgba(255,255,255,0.3);
+			border-top-color: white;
+			border-radius: 50%;
+			animation: spin 0.7s linear infinite;
+			flex-shrink: 0;
+		}
+
+		/* canvas for QR processing (hidden) */
+		#qr-canvas { display: none; }
+	</style>
+</head>
+<body>
+
+<!-- Login overlay -->
+<div id="login-overlay">
+	<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+	<h2>Scan Delivery Note</h2>
+	<p>Anda perlu login terlebih dahulu untuk menggunakan aplikasi ini.</p>
+	<button id="btn-login">Login ke ERPNext</button>
+</div>
+
+<!-- Install banner -->
+<div id="install-banner">
+	<p><strong>Install Aplikasi</strong><br/>Tambahkan ke homescreen untuk akses lebih cepat.</p>
+	<button id="btn-install">Install</button>
+	<button id="btn-dismiss-install" aria-label="Tutup">×</button>
+</div>
+
+<!-- Header -->
+<header class="app-header">
+	<div class="app-icon">
+		<svg viewBox="0 0 24 24"><path d="M3 11h3v3H3v-3zm0-4h3v3H3V7zm0 8h3v3H3v-3zm4 0h14v3H7v-3zm0-4h14v3H7v-3zm0-4h14v3H7V7z"/></svg>
+	</div>
+	<h1>Scan Delivery Note</h1>
+	<span class="user-badge" id="user-badge">...</span>
+</header>
+
+<!-- Main content -->
+<main class="main">
+
+	<!-- Feedback -->
+	<div id="feedback" role="status" aria-live="polite"></div>
+
+	<!-- Camera section -->
+	<section class="camera-section">
+		<div id="video-container">
+			<video id="video" autoplay playsinline muted></video>
+			<canvas id="qr-canvas"></canvas>
+			<div class="reticle"><div class="reticle-box"></div></div>
+			<div class="scan-hint">Arahkan QR Code ke dalam kotak</div>
+		</div>
+		<div class="camera-btn-area">
+			<button id="btn-camera">
+				<svg viewBox="0 0 24 24"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/><path d="M12 9.5A2.5 2.5 0 1 0 12 14.5 2.5 2.5 0 0 0 12 9.5z"/></svg>
+				Scan dengan Kamera
+			</button>
+			<button id="btn-stop-camera">Hentikan Kamera</button>
+		</div>
+	</section>
+
+	<!-- Manual input -->
+	<section class="manual-section">
+		<label for="input-dn">Atau ketik / scan dengan handheld</label>
+		<div class="input-row">
+			<input id="input-dn" type="text" placeholder="Nomor Delivery Note" autocomplete="off" autocorrect="off" />
+			<button id="btn-submit">Tandai</button>
+		</div>
+	</section>
+
+	<!-- Recent scans -->
+	<section class="history-section" id="history-section" style="display:none">
+		<h2>Scan Terakhir</h2>
+		<div id="history-list"></div>
+	</section>
+
+</main>
+
+<!-- jsQR for QR decoding -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+<script>
+(function () {
+	'use strict';
+
+	/* ── helpers ── */
+	const $ = id => document.getElementById(id);
+	const CSRF_KEY = 'csrf_token';
+
+	function getCsrf() {
+		if (window.frappe.csrf_token) return window.frappe.csrf_token;
+		return document.cookie.split(';').reduce((acc, c) => {
+			const [k, v] = c.trim().split('=');
+			return k === CSRF_KEY ? decodeURIComponent(v) : acc;
+		}, '');
+	}
+
+	/* ── Auth check ── */
+	async function checkAuth() {
+		try {
+			const r = await fetch('/api/method/frappe.auth.get_logged_user', {
+				credentials: 'include',
+				headers: { 'Accept': 'application/json' }
+			});
+			if (!r.ok) return null;
+			const data = await r.json();
+			return data.message || null;
+		} catch { return null; }
+	}
+
+	/* ── API call ── */
+	async function markVisited(deliveryNote) {
+		const csrf = getCsrf();
+		const r = await fetch('/api/method/scanner_app.scanner_app.delivery_note_scan.mark_stop_visited', {
+			method: 'POST',
+			credentials: 'include',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+				'Accept': 'application/json',
+				'X-Frappe-CSRF-Token': csrf,
+			},
+			body: new URLSearchParams({ delivery_note: deliveryNote }),
+		});
+		const data = await r.json();
+		if (!r.ok) {
+			const msg = data._server_messages
+				? JSON.parse(JSON.parse(data._server_messages)[0]).message
+				: (data.exc_type || 'Terjadi kesalahan');
+			throw new Error(msg);
+		}
+		return data.message;
+	}
+
+	/* ── History ── */
+	const MAX_HISTORY = 10;
+	function loadHistory() {
+		try { return JSON.parse(localStorage.getItem('scan_dn_history') || '[]'); } catch { return []; }
+	}
+	function saveHistory(h) {
+		localStorage.setItem('scan_dn_history', JSON.stringify(h.slice(0, MAX_HISTORY)));
+	}
+	function addHistory(entry) {
+		const h = loadHistory();
+		h.unshift({ ...entry, ts: new Date().toISOString() });
+		saveHistory(h);
+		renderHistory();
+	}
+	function renderHistory() {
+		const h = loadHistory();
+		const section = $('history-section');
+		const list = $('history-list');
+		if (!h.length) { section.style.display = 'none'; return; }
+		section.style.display = 'flex';
+		list.innerHTML = h.map(e => {
+			const time = new Date(e.ts).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+			const date = new Date(e.ts).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+			const badge = e.already_visited
+				? '<span class="hi-badge warning">Sudah</span>'
+				: '<span class="hi-badge success">✓ Visited</span>';
+			return `<div class="history-item">
+				<div class="hi-left">
+					<div class="hi-dn">${escapeHtml(e.delivery_note || e.dn)}</div>
+					<div class="hi-meta">${escapeHtml(e.customer || '')} · ${escapeHtml(e.trip || '')} · ${date} ${time}</div>
+				</div>
+				${badge}
+			</div>`;
+		}).join('');
+	}
+	function escapeHtml(value) {
+		return String(value || '').replace(/[&<>"']/g, char => ({
+			'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+		})[char]);
+	}
+
+	/* ── Feedback ── */
+	function showFeedback(msg, kind = 'info') {
+		const el = $('feedback');
+		el.textContent = msg;
+		el.className = 'show ' + kind;
+		// auto-clear success after 5s
+		if (kind === 'success') setTimeout(() => { el.className = ''; }, 6000);
+	}
+	function clearFeedback() { $('feedback').className = ''; }
+
+	/* ── Submit ── */
+	let busy = false;
+	async function handleSubmit(value) {
+		const dn = String(value || '').trim();
+		if (!dn || busy) return;
+		busy = true;
+		const submitBtn = $('btn-submit');
+		submitBtn.disabled = true;
+		submitBtn.innerHTML = '<div class="spinner"></div>';
+		clearFeedback();
+
+		try {
+			const result = await markVisited(dn);
+			const msg = result.already_visited
+				? `⚠️ Sudah ditandai: ${result.customer} · ${result.trip} [${result.trip_status}]`
+				: `✅ Berhasil: ${result.customer} · ${result.trip} [${result.trip_status}]`;
+			showFeedback(msg, result.already_visited ? 'warning' : 'success');
+			addHistory({ ...result, dn });
+			$('input-dn').value = '';
+			$('input-dn').focus();
+		} catch (e) {
+			showFeedback('❌ ' + e.message, 'error');
+		} finally {
+			busy = false;
+			submitBtn.disabled = false;
+			submitBtn.textContent = 'Tandai';
+		}
+	}
+
+	/* ── Camera / QR ── */
+	let stream = null;
+	let rafId = null;
+	let scanCooldown = false;
+
+	async function startCamera() {
+		try {
+			stream = await navigator.mediaDevices.getUserMedia({
+				video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 1280 } }
+			});
+			const video = $('video');
+			video.srcObject = stream;
+			$('video-container').classList.add('active');
+			$('btn-camera').style.display = 'none';
+			$('btn-stop-camera').classList.add('visible');
+			video.addEventListener('loadedmetadata', () => { scanLoop(); }, { once: true });
+		} catch (e) {
+			showFeedback('Kamera tidak dapat diakses: ' + e.message, 'error');
+		}
+	}
+
+	function stopCamera() {
+		if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+		if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+		$('video').srcObject = null;
+		$('video-container').classList.remove('active');
+		$('btn-camera').style.display = '';
+		$('btn-stop-camera').classList.remove('visible');
+	}
+
+	function scanLoop() {
+		const video = $('video');
+		const canvas = $('qr-canvas');
+		const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+		function tick() {
+			if (!stream) return;
+			if (video.readyState === video.HAVE_ENOUGH_DATA) {
+				canvas.width = video.videoWidth;
+				canvas.height = video.videoHeight;
+				ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+				if (!scanCooldown) {
+					const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+					const code = jsQR(imageData.data, imageData.width, imageData.height, {
+						inversionAttempts: 'dontInvert'
+					});
+					if (code && code.data) {
+						scanCooldown = true;
+						handleSubmit(code.data);
+						setTimeout(() => { scanCooldown = false; }, 2500);
+					}
+				}
+			}
+			rafId = requestAnimationFrame(tick);
+		}
+		tick();
+	}
+
+	/* ── PWA: Install prompt ── */
+	let deferredPrompt = null;
+	window.addEventListener('beforeinstallprompt', e => {
+		e.preventDefault();
+		deferredPrompt = e;
+		if (!localStorage.getItem('install_dismissed')) {
+			$('install-banner').classList.add('show');
+		}
+	});
+	$('btn-install').addEventListener('click', async () => {
+		if (!deferredPrompt) return;
+		deferredPrompt.prompt();
+		const { outcome } = await deferredPrompt.userChoice;
+		if (outcome === 'accepted') $('install-banner').classList.remove('show');
+		deferredPrompt = null;
+	});
+	$('btn-dismiss-install').addEventListener('click', () => {
+		$('install-banner').classList.remove('show');
+		localStorage.setItem('install_dismissed', '1');
+	});
+
+	/* ── Service Worker ── */
+	if ('serviceWorker' in navigator) {
+		navigator.serviceWorker.register('/assets/scanner_app/scan-dn/sw.js')
+			.catch(err => console.warn('SW registration failed:', err));
+	}
+
+	/* ── Init ── */
+	async function init() {
+		const user = await checkAuth();
+		if (!user || user === 'Guest') {
+			$('login-overlay').classList.remove('hidden');
+			$('btn-login').addEventListener('click', () => {
+				window.location.href = '/login?redirect-to=' + encodeURIComponent(window.location.pathname);
+			});
+			return;
+		}
+		$('login-overlay').classList.add('hidden');
+		$('user-badge').textContent = user.split('@')[0];
+
+		renderHistory();
+
+		$('btn-camera').addEventListener('click', startCamera);
+		$('btn-stop-camera').addEventListener('click', stopCamera);
+		$('btn-submit').addEventListener('click', () => handleSubmit($('input-dn').value));
+		$('input-dn').addEventListener('keydown', e => {
+			if (e.key === 'Enter') { e.preventDefault(); handleSubmit($('input-dn').value); }
+		});
+	}
+
+	init();
+})();
+</script>
+</body>
+</html>

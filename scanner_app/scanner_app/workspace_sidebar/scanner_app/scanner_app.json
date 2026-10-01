@@ -1,0 +1,28 @@
+{
+  "doctype": "Workspace Sidebar",
+  "name": "Scanner App",
+  "title": "Scanner App",
+  "app": "scanner_app",
+  "standard": 1,
+  "header_icon": "scan-barcode",
+  "items": [
+    {
+      "doctype": "Workspace Sidebar Item",
+      "label": "Scanner App",
+      "link_to": "Scanner App",
+      "link_type": "Workspace",
+      "type": "Link",
+      "icon": "scan-barcode",
+      "idx": 1
+    },
+    {
+      "doctype": "Workspace Sidebar Item",
+      "label": "Scan Delivery Note",
+      "link_to": "delivery_note_scan",
+      "link_type": "Page",
+      "type": "Link",
+      "icon": "scan-barcode",
+      "idx": 2
+    }
+  ]
+}

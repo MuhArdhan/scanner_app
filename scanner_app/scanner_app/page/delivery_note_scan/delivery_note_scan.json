@@ -1,0 +1,23 @@
+{
+ "doctype": "Page",
+ "name": "delivery_note_scan",
+ "page_name": "delivery_note_scan",
+ "title": "Scan Delivery Note",
+ "module": "Scanner App",
+ "standard": "Yes",
+ "system_page": 0,
+ "roles": [
+  {
+   "role": "Stock User"
+  },
+  {
+   "role": "Delivery User"
+  },
+  {
+   "role": "Delivery Manager"
+  },
+  {
+   "role": "System Manager"
+  }
+ ]
+}
