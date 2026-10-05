@@ -7,6 +7,7 @@ SIDEBAR = "Scanner App"
 ITEMS = [
 	{"label": "Scanner App", "link_to": "Scanner App", "link_type": "Workspace", "type": "Link", "icon": "scan-barcode", "idx": 1},
 	{"label": "Scan Delivery Note", "link_to": "delivery_note_scan", "link_type": "Page", "type": "Link", "icon": "scan-barcode", "idx": 2},
+	{"label": "Scanner PWA", "url": "/scanner/", "link_type": "URL", "type": "Link", "icon": "scan-barcode", "idx": 3},
 ]
 
 
@@ -24,10 +25,10 @@ def apply():
 		sidebar = frappe.get_doc("Workspace Sidebar", SIDEBAR)
 		if sidebar.app == "scanner_app" and sidebar.standard:
 			current = [
-				{key: row.get(key) for key in ITEMS[0]}
-				for row in sorted(sidebar.items, key=lambda row: row.idx or 0)
+				{key: row.get(key) for key in item}
+				for item, row in zip(ITEMS, sorted(sidebar.items, key=lambda row: row.idx or 0), strict=False)
 			]
-			if current != ITEMS or sidebar.header_icon != "scan-barcode":
+			if len(sidebar.items) != len(ITEMS) or current != ITEMS or sidebar.header_icon != "scan-barcode":
 				sidebar.header_icon = "scan-barcode"
 				sidebar.set("items", [dict(item, doctype="Workspace Sidebar Item") for item in ITEMS])
 				sidebar.save(ignore_permissions=True)

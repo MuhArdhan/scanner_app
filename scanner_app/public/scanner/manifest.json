@@ -1,0 +1,16 @@
+{
+  "name": "Scanner App",
+  "short_name": "Scanner",
+  "description": "Scan barang untuk dokumen ERPNext",
+  "start_url": "/scanner/",
+  "scope": "/scanner/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f0f0f",
+  "theme_color": "#171717",
+  "lang": "id",
+  "icons": [
+    {"src": "/assets/scanner_app/scanner/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "/assets/scanner_app/scanner/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}

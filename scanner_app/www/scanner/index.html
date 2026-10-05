@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#171717">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Scanner App</title>
+<link rel="manifest" href="/assets/scanner_app/scanner/manifest.json">
+<link rel="apple-touch-icon" href="/assets/scanner_app/scanner/icon-192.png">
+<script>window.frappe = window.frappe || {};</script>
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('scanner-theme') === 'light' ? 'light' : 'dark'; } catch { document.documentElement.dataset.theme = 'dark'; }</script>
+<!-- csrf_token -->
+<style>
+:root{color-scheme:dark;--bg:#0f0f0f;--card:#1c1c1c;--line:#333;--text:#f5f5f5;--muted:#a5a5a5;--blue:#4f8ef7;--red:#f87171;--green:#4ade80}
+:root[data-theme="light"]{color-scheme:light;--bg:#f4f6fa;--card:#fff;--line:#d8deea;--text:#172033;--muted:#5b6678;--blue:#2563eb;--red:#dc2626;--green:#16a34a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px system-ui,-apple-system,sans-serif}main{max-width:520px;margin:auto;padding:20px 16px 64px}h1{font-size:21px;margin:0 0 5px}h2{font-size:17px;margin:0 0 14px}p{color:var(--muted);line-height:1.45;margin:0 0 18px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:16px 0}.hidden{display:none!important}label{display:block;color:var(--muted);font-size:13px;margin:13px 0 6px}select,input{width:100%;background:#111;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:12px;font:inherit;min-width:0}input:focus,select:focus{outline:2px solid var(--blue)}button,.button{background:var(--blue);border:0;border-radius:9px;color:white;font:600 14px system-ui;padding:12px 16px;cursor:pointer;text-decoration:none;text-align:center}button:disabled{opacity:.5;cursor:wait}.secondary{background:#303030}.danger{background:#6c2525}.row{display:flex;gap:8px;align-items:center}.row>*{min-width:0}.row input{flex:1}.row button{flex:none}.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice{background:#292929;text-align:left;min-height:70px}.choice.active{outline:2px solid var(--blue);background:#213652}.full{width:100%;display:block}.bar{display:flex;align-items:center;justify-content:space-between;gap:12px}.bar button{flex:none}.status{border-radius:9px;padding:12px;line-height:1.4;margin:14px 0;background:#213652}.status.error{background:#572020;color:#ffd7d7}.status.success{background:#173b29;color:#c3ffd8}.item{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding:12px 0}.item:first-child{border-top:0}.item-info{flex:1;min-width:0}.item-info strong{display:block;overflow-wrap:anywhere}.item-info small{color:var(--muted)}.item input{width:78px;text-align:center;padding:9px}.item button{background:#6c2525;padding:9px}.count{font-size:13px;color:var(--muted)}#scanner-camera{width:100%;background:#000;border-radius:10px;margin:12px 0;overflow:hidden}#scanner-camera video{width:100%}a{color:#a9c8ff}#login{position:fixed;inset:0;background:var(--bg);display:grid;place-content:center;padding:30px;z-index:20;text-align:center}#login .button{display:block}
+.camera-modal{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.86);display:flex;align-items:center;justify-content:center;padding:12px}.camera-panel{position:relative;width:min(100%,520px);max-height:calc(100dvh - 24px);overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}.camera-panel h2{margin:0}.camera-panel p{margin:12px 0}.camera-panel #scanner-camera{margin:12px 0;min-height:240px}.camera-panel #scanner-camera video{border-radius:10px}.scan-toasts{position:absolute;top:58px;left:24px;right:24px;z-index:5;display:flex;flex-direction:column;gap:8px;pointer-events:none}.scan-toast{padding:12px 14px;border-radius:10px;background:#17432e;color:#e7fff0;box-shadow:0 6px 22px #0009;animation:toast-fade 2.6s ease-out forwards}.scan-toast.error{background:#622525;color:#fff0f0}@keyframes toast-fade{0%{opacity:0;transform:translateY(-8px)}10%,65%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-12px)}}body.scanning{overflow:hidden}
+.guide-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.guide-row:first-child{border-top:0}.guide-check{width:30px;height:30px;flex:none;border:2px solid #777;border-radius:9px;display:grid;place-items:center;color:transparent;font-weight:700}.guide-row.done .guide-check{background:var(--green);border-color:var(--green);color:#092114}.guide-info{flex:1;min-width:0}.guide-info strong{display:block}.guide-info small{color:var(--muted)}.guide-progress{font-size:13px;color:var(--muted);text-align:right}.guide-row.done .guide-progress{color:var(--green)}.source-actions{display:flex;gap:8px;margin-top:14px}.source-actions button{flex:1}.source-note{font-size:13px;margin:10px 0 0}
+.source-modal{position:fixed;inset:0;z-index:25;background:rgba(0,0,0,.86);display:flex;align-items:center;justify-content:center;padding:12px}.source-panel{width:min(100%,520px);max-height:calc(100dvh - 24px);overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}.source-panel h2{margin:0}.source-panel .source-actions{margin-top:18px}.source-summary{color:var(--muted);font-size:13px;margin:9px 0 0}
+#theme-toggle{white-space:nowrap;padding:9px 11px;font-size:12px}
+:root[data-theme="light"] select,:root[data-theme="light"] input{background:#fff;color:var(--text)}
+:root[data-theme="light"] .secondary{background:#e8edf5;color:var(--text)}
+:root[data-theme="light"] .choice{background:#edf2fa;color:var(--text)}
+:root[data-theme="light"] .choice.active{background:#dbeafe}
+:root[data-theme="light"] .status{background:#dbeafe;color:#1e3a8a}
+:root[data-theme="light"] .status.error{background:#fee2e2;color:#991b1b}
+:root[data-theme="light"] .status.success{background:#dcfce7;color:#166534}
+:root[data-theme="light"] a{color:#1d4ed8}
+:root[data-theme="light"] .item button{background:#b91c1c;color:white}
+:root[data-theme="light"] .guide-check{border-color:#94a3b8}
+:root[data-theme="light"] .guide-row.done .guide-check{color:white}
+.app-header{margin:4px 0 28px}.brand-lockup{display:flex;align-items:center;gap:11px}.brand-mark{width:40px;height:40px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--blue) 30%,var(--line));border-radius:13px;background:color-mix(in srgb,var(--blue) 13%,var(--card));color:var(--blue)}.brand-mark svg{width:21px;height:21px}.app-header h1{font-size:17px;letter-spacing:-.02em}.app-header .count{margin-top:3px}.theme-icon{width:16px;height:16px;vertical-align:-3px;margin-right:5px}
+.home{margin:0;padding:12px 0 40px;border:0;background:transparent}.home-intro{margin:0 2px 24px}.home-eyebrow{display:inline-flex;align-items:center;gap:7px;margin:0 0 13px;color:var(--blue);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.home-eyebrow svg{width:15px;height:15px}.home-intro h2{font-size:29px;line-height:1.15;letter-spacing:-.045em;margin:0 0 9px}.home-intro p{max-width:360px;margin:0;font-size:14px}.destination-list{display:grid;gap:12px}.destination-card{width:100%;min-height:88px;display:grid;grid-template-columns:50px minmax(0,1fr) 20px;align-items:center;gap:14px;padding:15px;background:var(--card);border:1px solid var(--line);border-radius:16px;color:var(--text);text-align:left;text-decoration:none;transition:border-color .18s ease,transform .18s ease,background .18s ease}.destination-card:hover{border-color:color-mix(in srgb,var(--blue) 65%,var(--line));transform:translateY(-1px)}.destination-card:focus-visible{outline:3px solid color-mix(in srgb,var(--blue) 55%,transparent);outline-offset:2px}.destination-icon{width:50px;height:50px;display:grid;place-items:center;border-radius:14px;background:color-mix(in srgb,var(--blue) 14%,var(--card));color:var(--blue)}.destination-icon.delivery{background:color-mix(in srgb,#22c55e 13%,var(--card));color:#4ade80}.destination-icon svg{width:25px;height:25px}.destination-copy strong{display:block;font-size:15px;line-height:1.3;font-weight:650}.destination-copy small{display:block;margin-top:4px;color:var(--muted);font-size:12px;line-height:1.4}.destination-arrow{width:18px;height:18px;color:var(--muted)}
+:root[data-theme="light"] .destination-icon.delivery{background:#dcfce7;color:#15803d}
+</style>
+</head>
+<body>
+<div id="login"><h1>Scanner App</h1><p>Login ke ERPNext untuk mulai memindai.</p><a class="button" href="/login?redirect-to=%2Fscanner%2F">Login ke ERPNext</a></div>
+<main>
+<div class="bar app-header"><div class="brand-lockup"><div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3M7 12h10M12 7v10"/></svg></div><div><h1>Scanner App</h1><div class="count" id="user"></div></div></div><button id="theme-toggle" class="secondary" type="button" role="switch" aria-label="Mode terang" aria-checked="false"></button></div>
+<div id="status" class="status hidden" role="status" aria-live="polite"></div>
+<section id="home" class="home">
+<div class="home-intro"><div class="home-eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M8 12h8"/></svg> Menu scanner</div><h2>Pilih tujuan scan</h2><p>Pilih alur kerja untuk mulai memindai barang.</p></div>
+<div class="destination-list">
+<button id="choose-stock" class="destination-card" type="button"><span class="destination-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 8 4.2v9.6L12 21l-8-4.2V7.2L12 3Z"/><path d="m4.3 7.4 7.7 4.1 7.7-4.1M12 11.5V21M8.1 5l7.8 4.1"/></svg></span><span class="destination-copy"><strong>Stock Entry</strong><small>Penerimaan, pengeluaran, dan perpindahan stok</small></span><svg class="destination-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+<a class="destination-card" href="/scan-dn"><span class="destination-icon delivery" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h11v11H3zM14 10h4l3 3.5V17h-7z"/><circle cx="7.5" cy="18" r="1.8"/><circle cx="18" cy="18" r="1.8"/><path d="M6 9h5M6 12h3"/></svg></span><span class="destination-copy"><strong>Delivery Note</strong><small>Pemindaian barang untuk pengiriman</small></span><svg class="destination-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+</div>
+</section>
+<section id="stock" class="hidden">
+<div class="card"><button id="open-source" class="full">Get Items From</button><div id="source-summary" class="source-summary hidden"></div><button id="clear-source" class="secondary full hidden" style="margin-top:10px">Hapus Sumber</button></div>
+<div class="card"><div class="bar"><h2>Stock Entry</h2><button id="back" class="secondary">Kembali</button></div>
+<label for="purpose">Jenis transaksi</label><select id="purpose"><option value="Material Receipt">Material Receipt</option><option value="Material Issue">Material Issue</option><option value="Material Transfer">Material Transfer</option></select>
+<label for="company">Perusahaan</label><select id="company"></select>
+<div id="source-wrap"><label for="source">Gudang asal</label><select id="source"></select></div>
+<div id="target-wrap"><label for="target">Gudang tujuan</label><select id="target"></select></div>
+</div>
+<section id="guide-section" class="card hidden"><div class="bar"><h2>Panduan item</h2><span id="guide-count" class="count"></span></div><div id="guide-list"></div></section>
+<div class="card"><h2>Scan barang</h2>
+<div id="warehouse-context" class="status hidden"></div><button id="clear-warehouse" class="secondary hidden" type="button">Hapus gudang hasil scan</button>
+<button id="camera-button" class="full">Buka Kamera</button></div>
+<div class="card"><div class="bar"><h2>Daftar barang</h2><span class="count" id="count">0 item</span></div><div id="items"></div><button id="save" class="full" disabled>Selesai · Submit Stock Entry</button></div>
+</section>
+</main>
+<div id="source-modal" class="source-modal hidden" role="dialog" aria-modal="true" aria-labelledby="source-title">
+ <div class="source-panel"><div class="bar"><h2 id="source-title">Get Items From</h2><button id="close-source" class="secondary" type="button">Tutup</button></div>
+<div id="source-error" class="status error hidden" role="alert"></div>
+<label for="source-type">Sumber item</label><select id="source-type"><option value="">Pilih sumber item</option></select>
+<div id="source-document-fields" class="hidden"><label for="source-search">Cari dokumen sumber</label><input id="source-search" type="search" placeholder="Cari nomor dokumen">
+<label for="source-document">Dokumen</label><select id="source-document"></select></div>
+<div id="source-purpose-fields" class="hidden"><label for="source-purpose">Aksi untuk sumber ini</label><select id="source-purpose"></select></div>
+<div id="source-company-fields" class="hidden"><label for="source-company">Perusahaan</label><select id="source-company"></select></div>
+<div id="source-qty-fields" class="hidden"><label for="source-qty">Jumlah produksi / BOM</label><input id="source-qty" type="number" min="0.001" step="any"><label id="source-exploded-wrap"><input id="source-exploded" type="checkbox" checked style="width:auto"> Termasuk sub-assembly</label></div>
+<div class="source-actions"><button id="fetch-source" class="full" type="button">Get Items</button></div>
+<p class="source-note">Item dari sumber menjadi panduan scan dan ikut dipetakan ke Stock Entry yang disubmit.</p>
+ </div>
+</div>
+<div id="camera-modal" class="camera-modal hidden" role="dialog" aria-modal="true" aria-labelledby="camera-title">
+ <div class="camera-panel">
+  <div class="bar"><h2 id="camera-title">Scan barang</h2><span id="camera-count" class="count">0 baris</span></div>
+  <div id="scan-toasts" class="scan-toasts" role="status" aria-live="polite"></div>
+  <div id="scanner-camera"></div>
+  <p>Arahkan kamera ke barcode atau QR. Jauhkan kode sejenak sebelum memindai kode yang sama lagi.</p>
+  <button id="finish-camera" class="full">Selesai</button>
+ </div>
+</div>
+<script src="/assets/frappe/node_modules/html5-qrcode/html5-qrcode.min.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const api = 'scanner_app.scanner_app.stock_entry_scan.';
+let setup, rows = new Map(), rowId = 0, scannedWarehouse = '', sourceGuide = null, sourceSearchTimer = null, sourceListRequest = 0, busy = false, camera = null, cameraActive = false, lastCode = '', lastSeen = 0, scanTask = null;
+const scanQueue = [];
+const SOURCE_PURPOSES = {
+ from: new Set(['Material Issue','Material Transfer','Send to Subcontractor','Material Transfer for Manufacture','Material Consumption for Manufacture','Return Raw Material to Customer','Subcontracting Delivery']),
+ to: new Set(['Material Receipt','Material Transfer','Send to Subcontractor','Material Transfer for Manufacture','Receive from Customer','Subcontracting Return']),
+ manual: new Set(['Material Receipt','Material Issue','Material Transfer'])
+};
+function applyTheme(theme) {
+ const light=theme==='light';
+ document.documentElement.dataset.theme=light?'light':'dark';
+ const themeIcon=light?'<path d="M12 3v2M12 19v2M5.64 5.64l1.42 1.42m9.88 9.88 1.42 1.42M3 12h2m14 0h2M5.64 18.36l1.42-1.42m9.88-9.88 1.42-1.42"/><circle cx="12" cy="12" r="4"/>':'<path d="M20.2 15.1A8.5 8.5 0 0 1 8.9 3.8 8.6 8.6 0 1 0 20.2 15.1Z"/>';
+ $('theme-toggle').innerHTML='<svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+themeIcon+'</svg>'+(light?'Terang':'Gelap');
+ $('theme-toggle').setAttribute('aria-checked',String(light));
+ document.querySelector('meta[name="theme-color"]').content=light?'#f4f6fa':'#171717';
+}
+applyTheme(document.documentElement.dataset.theme);
+function message(text, kind = '') { const el = $('status'); el.textContent = text; el.className = 'status ' + kind; }
+function csrf() { return window.frappe.csrf_token || document.cookie.split('; ').find(v => v.startsWith('csrf_token='))?.split('=')[1] || ''; }
+async function call(method, args = {}, post = false) {
+ const body = new URLSearchParams(); Object.entries(args).forEach(([k,v]) => body.set(k, typeof v === 'object' ? JSON.stringify(v) : v));
+ const response = await fetch('/api/method/' + api + method + (post ? '' : '?' + body), {method:post?'POST':'GET', credentials:'include', headers:{'Accept':'application/json','X-Frappe-CSRF-Token':csrf(), ...(post?{'Content-Type':'application/x-www-form-urlencoded'}:{})}, body:post?body:undefined});
+ const data = await response.json();
+ if (!response.ok) {
+  let msg = data.message || data.exc_type || 'Terjadi kesalahan';
+  try {
+   const messages = JSON.parse(data._server_messages || '[]').map(entry => JSON.parse(entry));
+   const failure = messages.filter(entry => entry.raise_exception).pop() || messages.at(-1);
+   if (failure?.message) msg = failure.message;
+  } catch {}
+  throw new Error(String(msg).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim());
+ }
+ return data.message;
+}
+function fill(select, options, placeholder) { const old = select.value; select.replaceChildren(new Option(placeholder, '')); options.forEach(x => select.add(new Option(x, x))); if (options.includes(old)) select.value = old; }
+function fillPurposes() {
+ const purpose=$('purpose').value || 'Material Receipt';
+ $('purpose').replaceChildren(...setup.purposes.map(value=>new Option(value,value)));
+ $('source-purpose').replaceChildren(new Option('Pilih aksi sumber',''));
+ $('purpose').value=setup.purposes.includes(purpose)?purpose:setup.purposes[0];
+}
+function updateWarehouses() {
+ const company = $('company').value; const options = setup.warehouses.filter(x => x.company === company).map(x => x.name);
+ fill($('source'), options, 'Pilih gudang asal'); fill($('target'), options, 'Pilih gudang tujuan');
+ scannedWarehouse = ''; renderWarehouse();
+}
+function updatePurpose() {
+ const p=$('purpose').value;
+ const mixed=['Manufacture','Repack','Disassemble'].includes(p);
+ $('source-wrap').classList.toggle('hidden',!SOURCE_PURPOSES.from.has(p) && !mixed);
+ $('target-wrap').classList.toggle('hidden',!SOURCE_PURPOSES.to.has(p) && !mixed);
+ $('camera-button').disabled=!SOURCE_PURPOSES.manual.has(p) && !sourceGuide;
+ $('camera-button').title=$('camera-button').disabled?'Ambil item lewat Get Items From terlebih dahulu.':'';
+ scannedWarehouse=''; renderWarehouse();
+}
+function renderWarehouse() { $('warehouse-context').textContent = scannedWarehouse ? 'Gudang hasil scan untuk barang berikutnya: ' + scannedWarehouse : ''; $('warehouse-context').classList.toggle('hidden', !scannedWarehouse); $('clear-warehouse').classList.toggle('hidden', !scannedWarehouse); }
+function updateSourceTypes() {
+ const options=[...new Set(Object.values(setup?.sources || {}).flat())];
+ const selected=$('source-type').value;
+ $('source-type').replaceChildren(new Option('Pilih sumber item',''));
+ options.forEach(type=>$('source-type').add(new Option(type,type)));
+ if(options.includes(selected)) $('source-type').value=selected;
+ else if(selected) $('source-search').value='';
+ updateSourceFields();
+}
+function updateSourceFields() {
+ const type=$('source-type').value;
+ $('source-document-fields').classList.toggle('hidden', !type || type==='Expired Batches');
+ const hasPurpose=['BOM','Work Order'].includes(type);
+ $('source-purpose-fields').classList.toggle('hidden', !hasPurpose);
+ if(hasPurpose) {
+  const current=$('source-purpose').value, compatible=setup.purposes.filter(value=>(setup.sources[value] || []).includes(type));
+  $('source-purpose').replaceChildren(...compatible.map(value=>new Option(value,value)));
+  const preferred=compatible.includes('Manufacture')?'Manufacture':compatible[0] || '';
+  $('source-purpose').value=compatible.includes(current)?current:preferred;
+ } else $('source-purpose').replaceChildren(new Option('Pilih aksi sumber',''));
+ $('source-company-fields').classList.toggle('hidden', type!=='Expired Batches');
+ const hasQty=['BOM','Work Order','Source Stock Entry'].includes(type);
+ $('source-qty-fields').classList.toggle('hidden',!hasQty);
+ $('source-exploded-wrap').classList.toggle('hidden',type!=='BOM');
+ if(type==='BOM') $('source-qty').previousElementSibling.textContent='Jumlah BOM';
+ else if(type==='Work Order' && $('source-purpose').value==='Disassemble') {
+  $('source-qty').previousElementSibling.textContent='Jumlah yang dibongkar';
+  if(!$('source-qty').value) $('source-qty').value='1';
+ }
+ else if(type==='Work Order') $('source-qty').previousElementSibling.textContent='Jumlah produksi (kosong = sisa Work Order)';
+ else if(type==='Source Stock Entry') $('source-qty').previousElementSibling.textContent='Jumlah yang dibongkar';
+ $('fetch-source').disabled=!type;
+ if (type && type!=='Expired Batches') loadSourceNames();
+}
+async function loadSourceNames() {
+ const type=$('source-type').value;
+ if (!type || type==='Expired Batches' || $('source-modal').classList.contains('hidden')) return;
+ const request=++sourceListRequest;
+ try {
+  const action=['BOM','Work Order'].includes(type)?$('source-purpose').value:'';
+  const names=await call('list_sources',{source_type:type,company:$('company').value,purpose:action,query:$('source-search').value});
+  if (request!==sourceListRequest) return;
+  fill($('source-document'),names,'Pilih dokumen');
+ } catch(e) { if (request===sourceListRequest) sourceMessage(e.message); }
+}
+function sourceMessage(text) { $('source-error').textContent=text; $('source-error').classList.toggle('hidden',!text); }
+function openSource() {
+ if (sourceGuide) return;
+ $('source-company').value=$('company').value;
+ sourceMessage(''); $('source-modal').classList.remove('hidden'); document.body.classList.add('scanning');
+ updateSourceTypes(); $('source-type').focus();
+}
+function closeSource() {
+ sourceListRequest++; sourceMessage(''); $('source-modal').classList.add('hidden'); document.body.classList.remove('scanning');
+ $('open-source').focus();
+}
+function sourceOptions() {
+ const type=$('source-type').value, value=$('source-qty').value;
+ const qty=value?Number(value):(type==='Work Order' && $('source-purpose').value!=='Disassemble'?null:1);
+ return {qty,fetch_exploded:$('source-exploded').checked?1:0};
+}
+async function fetchSource() {
+ const type=$('source-type').value, name=type==='Expired Batches'?'':$('source-document').value;
+ if (!type || (type!=='Expired Batches' && !name)) { sourceMessage('Pilih dokumen sumber terlebih dahulu.'); return; }
+ if (rows.size) { sourceMessage('Hapus daftar scan sebelum mengambil item dari sumber.'); return; }
+ const button=$('fetch-source'); button.disabled=true; button.textContent='Memuat...';
+ try {
+  const options=sourceOptions();
+  const action=['BOM','Work Order'].includes(type)?$('source-purpose').value:'';
+  const data=await call('get_source_items',{source_type:type,source_name:name,company:type==='Expired Batches' ? $('source-company').value : $('company').value,purpose:action,options});
+  if (![...$('company').options].some(option=>option.value===data.company)) throw new Error('Perusahaan sumber tidak tersedia untuk pengguna ini.');
+  $('company').value=data.company; updateWarehouses();
+  $('source').value=''; $('target').value='';
+  $('purpose').value=data.purpose; updatePurpose();
+  sourceGuide={type,name,options,items:data.items};
+  updatePurpose();
+  if (data.from_warehouse && [...$('source').options].some(option=>option.value===data.from_warehouse)) $('source').value=data.from_warehouse;
+  if (data.to_warehouse && [...$('target').options].some(option=>option.value===data.to_warehouse)) $('target').value=data.to_warehouse;
+  for (const id of ['company','purpose']) $(id).disabled=true;
+  $('open-source').disabled=true; $('clear-source').classList.remove('hidden');
+  $('source-summary').textContent=type+(name ? ' · '+name : '')+' · '+data.purpose+' · '+data.company;
+  $('source-summary').classList.remove('hidden');
+  closeSource(); render(); message(data.items.length+' baris item dimuat sebagai panduan scan.','success');
+ } catch(e) { sourceMessage(e.message); }
+ finally { button.disabled=!!sourceGuide || !type; button.textContent='Get Items'; }
+}
+function clearSource() {
+ if (rows.size && !window.confirm('Hapus sumber dan seluruh hasil scan saat ini?')) return;
+ sourceGuide=null; rows.clear(); scannedWarehouse=''; renderWarehouse();
+ updatePurpose();
+ for (const id of ['company','purpose']) $(id).disabled=false;
+ $('open-source').disabled=false; $('clear-source').classList.add('hidden'); $('source-summary').classList.add('hidden');
+  $('source-type').value=''; $('source-search').value=''; $('source-document').replaceChildren(); $('source-purpose').replaceChildren(new Option('Pilih aksi sumber','')); updateSourceTypes(); render(); clearStatus();
+}
+function guideProgress(key) {
+ let total=0;
+ rows.forEach(row=>{if(row.guide_key===key) total+=row.qty*row.conversion_factor;});
+ return total;
+}
+function applySourceWarehouse(field) {
+ if (!sourceGuide) return;
+ const selected=$(field==='s_warehouse'?'source':'target').value;
+ rows.forEach(row=>{
+  const guide=sourceGuide.items.find(item=>item.key===row.guide_key);
+  if (guideNeedsWarehouse(guide,$('purpose').value,field)) row[field]=selected || guide?.[field] || '';
+ });
+ scannedWarehouse=''; renderWarehouse(); render();
+}
+function guideNeedsWarehouse(guide,purpose,field) {
+ if (!guide) return field==='s_warehouse'?SOURCE_PURPOSES.from.has(purpose):SOURCE_PURPOSES.to.has(purpose);
+ if (purpose==='Manufacture' || purpose==='Repack') {
+  const output=guide.is_finished_item || guide.secondary_item_type || guide.valuation_type;
+  return field===(output?'t_warehouse':'s_warehouse');
+ }
+ if (purpose==='Disassemble') {
+  const from=Boolean(guide.s_warehouse || guide.is_finished_item || guide.secondary_item_type || guide.valuation_type);
+  return field===(from?'s_warehouse':'t_warehouse');
+ }
+ return field==='s_warehouse'?SOURCE_PURPOSES.from.has(purpose):SOURCE_PURPOSES.to.has(purpose);
+}
+function scanWarehouseField(guide) {
+ const purpose=$('purpose').value;
+ if (purpose==='Manufacture' || purpose==='Repack') return guideNeedsWarehouse(guide,purpose,'t_warehouse')?'t_warehouse':'s_warehouse';
+ if (purpose==='Disassemble') return guideNeedsWarehouse(guide,purpose,'s_warehouse')?'s_warehouse':'t_warehouse';
+ if (SOURCE_PURPOSES.to.has(purpose) && !SOURCE_PURPOSES.from.has(purpose)) return 't_warehouse';
+ return 's_warehouse';
+}
+function guideComplete() { return !sourceGuide || sourceGuide.items.every(row=>Math.abs(guideProgress(row.key)-row.stock_qty)<=0.000001); }
+function renderGuide() {
+ const section=$('guide-section'), list=$('guide-list'); list.replaceChildren();
+ section.classList.toggle('hidden',!sourceGuide);
+ if (!sourceGuide) return;
+ let done=0;
+ sourceGuide.items.forEach(row=>{
+  const progress=guideProgress(row.key), complete=Math.abs(progress-row.stock_qty)<=0.000001;
+  if (complete) done++;
+  const div=document.createElement('div'); div.className='guide-row'+(complete?' done':'');
+  const check=document.createElement('span'); check.className='guide-check'; check.textContent='✓'; check.setAttribute('role','checkbox'); check.setAttribute('aria-checked',String(complete)); check.setAttribute('aria-label',(row.item_name || row.item_code)+(complete?' lengkap':' belum lengkap'));
+  const info=document.createElement('div'); info.className='guide-info';
+  const name=document.createElement('strong'); name.textContent=row.item_name || row.item_code;
+  const field=guideNeedsWarehouse(row,$('purpose').value,'s_warehouse')?'s_warehouse':'t_warehouse';
+  const warehouse=$(field==='s_warehouse'?'source':'target').value || row[field] || '';
+  const meta=document.createElement('small'); meta.textContent=[row.item_code,row.batch_no?'Batch: '+row.batch_no:'',warehouse].filter(Boolean).join(' · ');
+  info.append(name,meta);
+  const count=document.createElement('div'); count.className='guide-progress'; count.textContent=Number((progress/(row.stock_qty/row.qty)).toFixed(3))+' / '+row.qty+' '+row.uom;
+  div.append(check,info,count); list.append(div);
+ });
+ $('guide-count').textContent=done+' / '+sourceGuide.items.length+' lengkap';
+}
+function clearStatus() { $('status').className='status hidden'; $('status').textContent=''; }
+function render() {
+ const list = $('items'); list.replaceChildren();
+ rows.forEach((item, key) => {
+  const div = document.createElement('div'); div.className = 'item';
+  const info = document.createElement('div'); info.className = 'item-info';
+  const name = document.createElement('strong'); name.textContent = item.item_name || item.item_code;
+  const details = [item.item_code, item.uom, item.batch_no ? 'Batch: ' + item.batch_no : '', item.serial_no ? 'Serial: ' + item.serial_no.replaceAll('\n', ', ') : '', item.s_warehouse || item.t_warehouse || '', (item.has_serial_no && !item.serial_no) || (item.has_batch_no && !item.batch_no) ? 'Scan serial/batch sebelum submit' : ''].filter(Boolean);
+  const meta = document.createElement('small'); meta.textContent = details.join(' · ');
+  info.append(name, meta); const qty = document.createElement('input'); qty.type='number'; qty.min='0.001'; qty.step='any'; qty.value=item.qty; qty.disabled=!!sourceGuide; qty.setAttribute('aria-label','Jumlah ' + item.item_code);
+  qty.addEventListener('change', () => { item.qty = Number(qty.value); render(); });
+  const remove = document.createElement('button'); remove.textContent='×'; remove.setAttribute('aria-label','Hapus ' + item.item_code); remove.addEventListener('click', () => { rows.delete(key); render(); });
+  div.append(info, qty, remove); list.append(div);
+ });
+ $('count').textContent = rows.size + ' item'; $('camera-count').textContent = rows.size + ' baris'; $('save').disabled = !rows.size || busy || !guideComplete(); renderGuide();
+}
+function scanToast(text, kind = '') {
+ const toast=document.createElement('div'); toast.className='scan-toast ' + kind; toast.textContent=text;
+ $('scan-toasts').append(toast);
+ while ($('scan-toasts').children.length > 3) $('scan-toasts').firstElementChild.remove();
+ toast.addEventListener('animationend', () => toast.remove(), {once:true});
+}
+async function resolveScan(code) {
+ if (!sourceGuide && !SOURCE_PURPOSES.manual.has($('purpose').value)) throw new Error('Pilih Get Items From dan muat panduan item sebelum scan.');
+ const item=await call('lookup_item', {code, company:$('company').value});
+ if (item.warehouse) {
+  scannedWarehouse=item.warehouse; renderWarehouse();
+  return 'Gudang berikutnya: ' + item.warehouse;
+ }
+ if (item.serial_no && [...rows.values()].some(row => row.serial_no?.split('\n').includes(item.serial_no))) throw new Error('Serial No ' + item.serial_no + ' sudah discan.');
+ let guide=null;
+ if (sourceGuide) {
+  guide=sourceGuide.items.find(row=>{
+   if (row.item_code!==item.item_code || (row.batch_no && row.batch_no!==item.batch_no)) return false;
+   return guideProgress(row.key)<row.stock_qty-0.000001;
+  });
+  if (!guide) throw new Error('Item tidak ada dalam panduan atau jumlahnya sudah terpenuhi.');
+ }
+ const warehouseField=scanWarehouseField(guide);
+ const currentWarehouse=scannedWarehouse || $(warehouseField === 't_warehouse' ? 'target' : 'source').value;
+ const matchRow=(row,key)=>row.item_code===item.item_code && (!key || row.guide_key===key) && (sourceGuide || !item.explicit_uom || row.uom===item.uom) && (!item.batch_no || !row.batch_no || row.batch_no===item.batch_no) && (!currentWarehouse || !row[warehouseField] || row[warehouseField]===currentWarehouse);
+ const existing=[...rows.values()].find(row=>matchRow(row,guide?.key));
+ const record=existing || {...item, qty:0, uom:guide?.uom || item.uom, conversion_factor:guide ? guide.stock_qty/guide.qty : item.conversion_factor, guide_key:guide?.key || '', s_warehouse:guideNeedsWarehouse(guide,$('purpose').value,'s_warehouse')?($('source').value || guide?.s_warehouse || ''):(guide?.s_warehouse || ''), t_warehouse:guideNeedsWarehouse(guide,$('purpose').value,'t_warehouse')?($('target').value || guide?.t_warehouse || ''):(guide?.t_warehouse || '')};
+ const remaining=guide?Math.max(0,guide.stock_qty-guideProgress(guide.key)):1;
+ const scanQty=guide?Math.min(1,remaining/(guide.stock_qty/guide.qty)):1;
+ record.qty=Number((record.qty + scanQty).toFixed(6));
+ if (item.barcode) record.barcode=item.barcode;
+ if (item.batch_no) record.batch_no=item.batch_no;
+ if (item.serial_no) record.serial_no=record.serial_no ? record.serial_no + '\n' + item.serial_no : item.serial_no;
+ if (scannedWarehouse) record[warehouseField]=scannedWarehouse;
+ if (!existing) rows.set(++rowId, record);
+ render();
+ return (item.item_name || item.item_code) + ' · +' + Number(scanQty.toFixed(3)) + ' ' + record.uom + ' · total ' + record.qty;
+}
+function enqueueScan(code) {
+ if (scanQueue.length >= 30) { scanToast('Terlalu banyak scan menunggu. Arahkan kamera sebentar lagi.', 'error'); return; }
+ scanQueue.push(code);
+ if (!scanTask) {
+  scanTask=(async () => {
+   while (scanQueue.length) {
+    const value=scanQueue.shift();
+    try { scanToast(await resolveScan(value)); }
+    catch(e) { scanToast(e.message || String(e), 'error'); }
+   }
+  })().finally(() => { scanTask=null; });
+ }
+}
+async function stopCamera() {
+ const current=camera; camera=null;
+ if (current && cameraActive) { try { await current.stop(); } catch {} }
+ cameraActive=false;
+ if (current) { try { current.clear(); } catch {} }
+ lastCode='';
+}
+async function startCamera() {
+ if (!$('company').value) { message('Pilih perusahaan sebelum scan.', 'error'); return; }
+ if (!window.Html5Qrcode) { message('Pemindai kamera belum termuat. Muat ulang halaman dan coba lagi.', 'error'); return; }
+ if (camera) return;
+ $('scan-toasts').replaceChildren(); $('camera-modal').classList.remove('hidden'); document.body.classList.add('scanning');
+ $('camera-button').disabled=true;
+ try {
+  const current=new Html5Qrcode('scanner-camera'); camera=current;
+  await current.start({facingMode:'environment'}, {fps:20,qrbox:250}, code=>{
+   lastSeen=Date.now();
+   if (code !== lastCode) { lastCode=code; enqueueScan(code); }
+  }, ()=>{if (Date.now()-lastSeen > 350) lastCode='';});
+  if (camera!==current) { await current.stop(); return; }
+  cameraActive=true;
+ } catch(e) {
+  await stopCamera(); $('camera-modal').classList.add('hidden'); document.body.classList.remove('scanning');
+  message('Kamera tidak dapat dibuka: ' + e, 'error');
+ } finally { $('camera-button').disabled=false; }
+}
+async function finishCamera() {
+ const button=$('finish-camera'); button.disabled=true; button.textContent='Menyelesaikan...';
+ await stopCamera();
+ while (scanTask) await scanTask;
+ $('camera-modal').classList.add('hidden'); document.body.classList.remove('scanning');
+ button.disabled=false; button.textContent='Selesai';
+}
+async function save() {
+ if(busy || !rows.size) return;
+ const purpose=$('purpose').value, company=$('company').value, source=$('source').value, target=$('target').value;
+ const items=[...rows.values()].map(x=>({item_code:x.item_code, qty:x.qty, uom:x.uom, barcode:x.barcode, batch_no:x.batch_no, serial_no:x.serial_no, s_warehouse:x.s_warehouse, t_warehouse:x.t_warehouse, guide_key:x.guide_key}));
+ if (!guideComplete()) { message('Scan semua jumlah pada panduan item terlebih dahulu.','error'); return; }
+ if(!company || (!sourceGuide && purpose !== 'Material Receipt' && items.some(x=>!x.s_warehouse && !source)) || (!sourceGuide && purpose !== 'Material Issue' && items.some(x=>!x.t_warehouse && !target))) { message('Pilih perusahaan dan gudang yang diperlukan untuk setiap barang.', 'error'); return; }
+ if(['Material Transfer','Send to Subcontractor'].includes(purpose) && items.some(x=>(x.s_warehouse || source)===(x.t_warehouse || target))) { message('Gudang asal dan tujuan harus berbeda.', 'error'); return; }
+ if(items.some(x=>!Number.isFinite(x.qty) || x.qty<=0)) { message('Jumlah setiap barang harus positif.', 'error'); return; }
+ if([...rows.values()].some(x=>(x.has_serial_no && !x.serial_no) || (x.has_batch_no && !x.batch_no))) { message('Scan serial atau batch untuk setiap barang yang memerlukannya sebelum submit.','error'); return; }
+ busy=true; $('save').disabled=true; $('save').textContent='Mengirim...';
+ try { const result=await call('submit_entry',{purpose,company,from_warehouse:source,to_warehouse:target,items,source_type:sourceGuide?.type || '',source_name:sourceGuide?.name || '',source_options:sourceGuide?.options || {}},true); if(result.docstatus!==1) throw new Error('Stock Entry belum berhasil disubmit.'); rows.clear(); if(sourceGuide) clearSource(); else render(); stopCamera(); message('Stock Entry ' + result.name + ' berhasil disubmit.', 'success'); const link=document.createElement('a'); link.href='/app/stock-entry/' + encodeURIComponent(result.name); link.textContent=' Buka di ERPNext'; $('status').append(link); }
+ catch(e) { message(e.message,'error'); }
+ finally { busy=false; $('save').textContent='Selesai · Submit Stock Entry'; render(); }
+}
+async function init() {
+ try { const r=await fetch('/api/method/frappe.auth.get_logged_user',{credentials:'include'}); const data=await r.json(); if(!r.ok || !data.message || data.message==='Guest') return; $('user').textContent=data.message; $('login').classList.add('hidden'); setup=await call('get_setup'); fillPurposes(); fill($('company'),setup.companies,'Pilih perusahaan'); fill($('source-company'),setup.companies,'Pilih perusahaan'); if(setup.companies.includes(setup.default_company)) $('company').value=setup.default_company; updateWarehouses(); updatePurpose(); updateSourceTypes(); }
+ catch(e) { message(e.message,'error'); }
+}
+$('choose-stock').addEventListener('click',()=>{$('home').classList.add('hidden');$('stock').classList.remove('hidden');});
+$('theme-toggle').addEventListener('click',()=>{const theme=document.documentElement.dataset.theme==='light'?'dark':'light'; applyTheme(theme); try { localStorage.setItem('scanner-theme',theme); } catch {} });
+$('back').addEventListener('click',()=>{$('stock').classList.add('hidden');$('home').classList.remove('hidden');});
+$('company').addEventListener('change',updateWarehouses); $('purpose').addEventListener('change',updatePurpose);
+$('source').addEventListener('change',()=>applySourceWarehouse('s_warehouse'));
+$('target').addEventListener('change',()=>applySourceWarehouse('t_warehouse'));
+$('source-type').addEventListener('change',()=>{$('source-purpose').value=''; $('source-search').value=''; $('source-document').replaceChildren(); sourceMessage(''); sourceListRequest++; updateSourceFields();});
+$('source-purpose').addEventListener('change',()=>{if($('source-type').value==='Work Order' && $('source-purpose').value!=='Disassemble') $('source-qty').value=''; $('source-search').value=''; $('source-document').replaceChildren(); sourceMessage(''); sourceListRequest++; updateSourceFields();});
+$('source-search').addEventListener('input',()=>{clearTimeout(sourceSearchTimer);sourceSearchTimer=setTimeout(loadSourceNames,300);});
+$('open-source').addEventListener('click',openSource); $('close-source').addEventListener('click',closeSource);
+$('source-modal').addEventListener('click',event=>{if(event.target===$('source-modal')) closeSource();});
+document.addEventListener('keydown',event=>{if(event.key==='Escape' && !$('source-modal').classList.contains('hidden')) closeSource();});
+$('fetch-source').addEventListener('click',fetchSource); $('clear-source').addEventListener('click',clearSource);
+$('clear-warehouse').addEventListener('click',()=>{scannedWarehouse='';renderWarehouse();});
+$('camera-button').addEventListener('click',startCamera); $('finish-camera').addEventListener('click',finishCamera); $('save').addEventListener('click',save);
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/scanner/sw.min.js').catch(()=>{});
+init();
+})();
+</script>
+</body>
+</html>

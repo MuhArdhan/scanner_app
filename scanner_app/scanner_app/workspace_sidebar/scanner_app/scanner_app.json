@@ -23,6 +23,15 @@
       "type": "Link",
       "icon": "scan-barcode",
       "idx": 2
+    },
+    {
+      "doctype": "Workspace Sidebar Item",
+      "label": "Scanner PWA",
+      "url": "/scanner/",
+      "link_type": "URL",
+      "type": "Link",
+      "icon": "scan-barcode",
+      "idx": 3
     }
   ]
 }
