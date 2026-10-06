@@ -80,7 +80,7 @@
   <div class="bar"><h2 id="camera-title">Scan barang</h2><span id="camera-count" class="count">0 baris</span></div>
   <div id="scan-toasts" class="scan-toasts" role="status" aria-live="polite"></div>
   <div id="scanner-camera"></div>
-  <p>Arahkan kamera ke barcode atau QR. Jauhkan kode sejenak sebelum memindai kode yang sama lagi.</p>
+  <p>Arahkan kamera ke barcode atau QR. Setiap label QR dihitung satu kali per Stock Entry.</p>
   <button id="finish-camera" class="full">Selesai</button>
  </div>
 </div>
@@ -91,6 +91,7 @@
 const $ = id => document.getElementById(id);
 const api = 'scanner_app.scanner_app.stock_entry_scan.';
 let setup, rows = new Map(), rowId = 0, scannedWarehouse = '', sourceGuide = null, sourceSearchTimer = null, sourceListRequest = 0, busy = false, camera = null, cameraActive = false, lastCode = '', lastSeen = 0, scanTask = null;
+const scannedQrValues = new Set();
 const scanQueue = [];
 const SOURCE_PURPOSES = {
  from: new Set(['Material Issue','Material Transfer','Send to Subcontractor','Material Transfer for Manufacture','Material Consumption for Manufacture','Return Raw Material to Customer','Subcontracting Delivery']),
@@ -233,7 +234,7 @@ async function fetchSource() {
 }
 function clearSource() {
  if (rows.size && !window.confirm('Hapus sumber dan seluruh hasil scan saat ini?')) return;
- sourceGuide=null; rows.clear(); scannedWarehouse=''; renderWarehouse();
+ sourceGuide=null; rows.clear(); scannedQrValues.clear(); scannedWarehouse=''; renderWarehouse();
  updatePurpose();
  for (const id of ['company','purpose']) $(id).disabled=false;
  $('open-source').disabled=false; $('clear-source').classList.add('hidden'); $('source-summary').classList.add('hidden');
@@ -301,11 +302,11 @@ function render() {
   const div = document.createElement('div'); div.className = 'item';
   const info = document.createElement('div'); info.className = 'item-info';
   const name = document.createElement('strong'); name.textContent = item.item_name || item.item_code;
-  const details = [item.item_code, item.uom, item.batch_no ? 'Batch: ' + item.batch_no : '', item.serial_no ? 'Serial: ' + item.serial_no.replaceAll('\n', ', ') : '', item.s_warehouse || item.t_warehouse || '', (item.has_serial_no && !item.serial_no) || (item.has_batch_no && !item.batch_no) ? 'Scan serial/batch sebelum submit' : ''].filter(Boolean);
+  const details = [item.item_code, item.uom, item.batch_no ? 'Batch: ' + item.batch_no : '', item.qr_values?.length ? item.qr_values.length + ' label QR' : '', item.serial_no ? 'Serial: ' + item.serial_no.replaceAll('\n', ', ') : '', item.s_warehouse || item.t_warehouse || '', (item.has_serial_no && !item.serial_no) || (item.has_batch_no && !item.batch_no) ? 'Scan serial/batch sebelum submit' : ''].filter(Boolean);
   const meta = document.createElement('small'); meta.textContent = details.join(' · ');
-  info.append(name, meta); const qty = document.createElement('input'); qty.type='number'; qty.min='0.001'; qty.step='any'; qty.value=item.qty; qty.disabled=!!sourceGuide; qty.setAttribute('aria-label','Jumlah ' + item.item_code);
+  info.append(name, meta); const qty = document.createElement('input'); qty.type='number'; qty.min='0.001'; qty.step='any'; qty.value=item.qty; qty.disabled=!!sourceGuide || !!item.qr_values?.length; qty.setAttribute('aria-label','Jumlah ' + item.item_code);
   qty.addEventListener('change', () => { item.qty = Number(qty.value); render(); });
-  const remove = document.createElement('button'); remove.textContent='×'; remove.setAttribute('aria-label','Hapus ' + item.item_code); remove.addEventListener('click', () => { rows.delete(key); render(); });
+  const remove = document.createElement('button'); remove.textContent='×'; remove.setAttribute('aria-label','Hapus ' + item.item_code); remove.addEventListener('click', () => { (item.qr_values || []).forEach(code=>scannedQrValues.delete(code)); rows.delete(key); render(); });
   div.append(info, qty, remove); list.append(div);
  });
  $('count').textContent = rows.size + ' item'; $('camera-count').textContent = rows.size + ' baris'; $('save').disabled = !rows.size || busy || !guideComplete(); renderGuide();
@@ -318,11 +319,13 @@ function scanToast(text, kind = '') {
 }
 async function resolveScan(code) {
  if (!sourceGuide && !SOURCE_PURPOSES.manual.has($('purpose').value)) throw new Error('Pilih Get Items From dan muat panduan item sebelum scan.');
+ if (scannedQrValues.has(code)) throw new Error('QR ini sudah discan dalam Stock Entry ini.');
  const item=await call('lookup_item', {code, company:$('company').value});
  if (item.warehouse) {
   scannedWarehouse=item.warehouse; renderWarehouse();
   return 'Gudang berikutnya: ' + item.warehouse;
  }
+ if (item.qr_value && scannedQrValues.has(item.qr_value)) throw new Error('QR ini sudah discan dalam Stock Entry ini.');
  if (item.serial_no && [...rows.values()].some(row => row.serial_no?.split('\n').includes(item.serial_no))) throw new Error('Serial No ' + item.serial_no + ' sudah discan.');
  let guide=null;
  if (sourceGuide) {
@@ -334,14 +337,15 @@ async function resolveScan(code) {
  }
  const warehouseField=scanWarehouseField(guide);
  const currentWarehouse=scannedWarehouse || $(warehouseField === 't_warehouse' ? 'target' : 'source').value;
- const matchRow=(row,key)=>row.item_code===item.item_code && (!key || row.guide_key===key) && (sourceGuide || !item.explicit_uom || row.uom===item.uom) && (!item.batch_no || !row.batch_no || row.batch_no===item.batch_no) && (!currentWarehouse || !row[warehouseField] || row[warehouseField]===currentWarehouse);
+ const matchRow=(row,key)=>row.item_code===item.item_code && (!key || row.guide_key===key) && (sourceGuide || !item.explicit_uom || row.uom===item.uom) && (!!row.qr_values?.length===!!item.qr_value) && (item.qr_value ? (row.batch_no || '')===(item.batch_no || '') : (!item.batch_no || !row.batch_no || row.batch_no===item.batch_no)) && (!currentWarehouse || !row[warehouseField] || row[warehouseField]===currentWarehouse);
  const existing=[...rows.values()].find(row=>matchRow(row,guide?.key));
- const record=existing || {...item, qty:0, uom:guide?.uom || item.uom, conversion_factor:guide ? guide.stock_qty/guide.qty : item.conversion_factor, guide_key:guide?.key || '', s_warehouse:guideNeedsWarehouse(guide,$('purpose').value,'s_warehouse')?($('source').value || guide?.s_warehouse || ''):(guide?.s_warehouse || ''), t_warehouse:guideNeedsWarehouse(guide,$('purpose').value,'t_warehouse')?($('target').value || guide?.t_warehouse || ''):(guide?.t_warehouse || '')};
+ const record=existing || {...item, qty:0, qr_values:[], uom:guide?.uom || item.uom, conversion_factor:guide ? guide.stock_qty/guide.qty : item.conversion_factor, guide_key:guide?.key || '', s_warehouse:guideNeedsWarehouse(guide,$('purpose').value,'s_warehouse')?($('source').value || guide?.s_warehouse || ''):(guide?.s_warehouse || ''), t_warehouse:guideNeedsWarehouse(guide,$('purpose').value,'t_warehouse')?($('target').value || guide?.t_warehouse || ''):(guide?.t_warehouse || '')};
  const remaining=guide?Math.max(0,guide.stock_qty-guideProgress(guide.key)):1;
  const scanQty=guide?Math.min(1,remaining/(guide.stock_qty/guide.qty)):1;
  record.qty=Number((record.qty + scanQty).toFixed(6));
  if (item.barcode) record.barcode=item.barcode;
  if (item.batch_no) record.batch_no=item.batch_no;
+ if (item.qr_value) { record.qr_values.push(item.qr_value); scannedQrValues.add(item.qr_value); }
  if (item.serial_no) record.serial_no=record.serial_no ? record.serial_no + '\n' + item.serial_no : item.serial_no;
  if (scannedWarehouse) record[warehouseField]=scannedWarehouse;
  if (!existing) rows.set(++rowId, record);
@@ -397,14 +401,14 @@ async function finishCamera() {
 async function save() {
  if(busy || !rows.size) return;
  const purpose=$('purpose').value, company=$('company').value, source=$('source').value, target=$('target').value;
- const items=[...rows.values()].map(x=>({item_code:x.item_code, qty:x.qty, uom:x.uom, barcode:x.barcode, batch_no:x.batch_no, serial_no:x.serial_no, s_warehouse:x.s_warehouse, t_warehouse:x.t_warehouse, guide_key:x.guide_key}));
+ const items=[...rows.values()].map(x=>({item_code:x.item_code, qty:x.qty, uom:x.uom, barcode:x.barcode, batch_no:x.batch_no, serial_no:x.serial_no, qr_values:x.qr_values || [], s_warehouse:x.s_warehouse, t_warehouse:x.t_warehouse, guide_key:x.guide_key}));
  if (!guideComplete()) { message('Scan semua jumlah pada panduan item terlebih dahulu.','error'); return; }
  if(!company || (!sourceGuide && purpose !== 'Material Receipt' && items.some(x=>!x.s_warehouse && !source)) || (!sourceGuide && purpose !== 'Material Issue' && items.some(x=>!x.t_warehouse && !target))) { message('Pilih perusahaan dan gudang yang diperlukan untuk setiap barang.', 'error'); return; }
  if(['Material Transfer','Send to Subcontractor'].includes(purpose) && items.some(x=>(x.s_warehouse || source)===(x.t_warehouse || target))) { message('Gudang asal dan tujuan harus berbeda.', 'error'); return; }
  if(items.some(x=>!Number.isFinite(x.qty) || x.qty<=0)) { message('Jumlah setiap barang harus positif.', 'error'); return; }
  if([...rows.values()].some(x=>(x.has_serial_no && !x.serial_no) || (x.has_batch_no && !x.batch_no))) { message('Scan serial atau batch untuk setiap barang yang memerlukannya sebelum submit.','error'); return; }
  busy=true; $('save').disabled=true; $('save').textContent='Mengirim...';
- try { const result=await call('submit_entry',{purpose,company,from_warehouse:source,to_warehouse:target,items,source_type:sourceGuide?.type || '',source_name:sourceGuide?.name || '',source_options:sourceGuide?.options || {}},true); if(result.docstatus!==1) throw new Error('Stock Entry belum berhasil disubmit.'); rows.clear(); if(sourceGuide) clearSource(); else render(); stopCamera(); message('Stock Entry ' + result.name + ' berhasil disubmit.', 'success'); const link=document.createElement('a'); link.href='/app/stock-entry/' + encodeURIComponent(result.name); link.textContent=' Buka di ERPNext'; $('status').append(link); }
+ try { const result=await call('submit_entry',{purpose,company,from_warehouse:source,to_warehouse:target,items,source_type:sourceGuide?.type || '',source_name:sourceGuide?.name || '',source_options:sourceGuide?.options || {}},true); if(result.docstatus!==1) throw new Error('Stock Entry belum berhasil disubmit.'); rows.clear(); scannedQrValues.clear(); if(sourceGuide) clearSource(); else render(); stopCamera(); message('Stock Entry ' + result.name + ' berhasil disubmit.', 'success'); const link=document.createElement('a'); link.href='/app/stock-entry/' + encodeURIComponent(result.name); link.textContent=' Buka di ERPNext'; $('status').append(link); }
  catch(e) { message(e.message,'error'); }
  finally { busy=false; $('save').textContent='Selesai · Submit Stock Entry'; render(); }
 }

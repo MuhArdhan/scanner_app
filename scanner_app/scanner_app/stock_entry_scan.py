@@ -2,6 +2,7 @@
 
 import json
 import math
+import re
 
 import frappe
 from frappe import _
@@ -87,6 +88,37 @@ def _conversion_factor(item, uom):
 	return factor
 
 
+def _find_product_label(code):
+	"""Resolve the complete Product QR value without splitting Item or Batch codes."""
+	if not frappe.db.exists("DocType", "Product QR Serial") or not frappe.has_permission("Product QR Serial", "read"):
+		return None
+	from product_qr.api import find_serial
+
+	return find_serial(code)
+
+
+def _validate_label_scans(row, item, batch_no, seen_labels):
+	"""Reject reused QR labels within this Stock Entry before posting stock."""
+	labels = row.get("qr_values")
+	if labels is None:
+		return
+	if not isinstance(labels, list) or len(labels) > 10000:
+		frappe.throw(_("Invalid scanned QR list."))
+	if labels and not frappe.has_permission("Product QR Serial", "read"):
+		frappe.throw(_("You do not have permission to read Product QR labels."), frappe.PermissionError)
+	for code in labels:
+		if not isinstance(code, str) or not code or len(code) > 500 or code != code.strip():
+			frappe.throw(_("Invalid scanned QR value."))
+		if code in seen_labels:
+			frappe.throw(_("QR {0} was scanned more than once in this Stock Entry.").format(frappe.bold(code)))
+		label = _find_product_label(code)
+		if not label:
+			frappe.throw(_("QR {0} is not registered.").format(frappe.bold(code)))
+		if label["item_code"] != item.name or (label["batch_no"] or "") != batch_no:
+			frappe.throw(_("QR {0} does not match its Item and Batch.").format(frappe.bold(code)))
+		seen_labels.add(code)
+
+
 @frappe.whitelist(methods=["GET"])
 def get_setup():
 	_require_stock_entry_access()
@@ -148,11 +180,38 @@ def get_source_items(source_type, company=None, purpose=None, source_name=None, 
 
 @frappe.whitelist(methods=["GET"])
 def lookup_item(code, company=None):
-	"""Resolve exactly the same scan values as the native Stock Entry scanner."""
+	"""Resolve Product QR labels and native ERPNext scan values."""
 	_require_stock_entry_access()
 	code = str(code or "").strip()
-	if not code or len(code) > 140:
+	if not code or len(code) > 500:
 		frappe.throw(_("Scan a valid barcode, serial, batch, or warehouse code."))
+	label = _find_product_label(code)
+	if label:
+		item = _get_item(label["item_code"])
+		batch = label["batch_no"] or ""
+		if batch and (not item.has_batch_no or frappe.db.get_value("Batch", batch, "item") != item.name):
+			frappe.throw(_("The QR batch does not belong to this Item's stock settings."))
+		if item.has_batch_no and not batch:
+			frappe.throw(_("This Item requires a Batch, but the QR contains NOBATCH."))
+		return {
+			"item_code": item.name,
+			"item_name": item.item_name,
+			"stock_uom": item.stock_uom,
+			"uom": item.stock_uom,
+			"conversion_factor": 1,
+			"explicit_uom": False,
+			"barcode": "",
+			"serial_no": "",
+			"batch_no": batch,
+			"has_serial_no": bool(item.has_serial_no),
+			"has_batch_no": bool(item.has_batch_no),
+			"qr_value": label["qr_value"],
+			"product_serial": label["serial_no"],
+		}
+	if re.fullmatch(r".+-S[0-9]+", code) and frappe.db.exists("DocType", "Product QR Serial"):
+		if not frappe.has_permission("Product QR Serial", "read"):
+			frappe.throw(_("You do not have permission to read Product QR labels."), frappe.PermissionError)
+		frappe.throw(_("QR {0} is not registered as a Product QR label.").format(frappe.bold(code)))
 	result = scan_barcode(code, ctx={"company": company} if company else None)
 	if not result:
 		frappe.throw(_("No Item or Warehouse was found for this scan."))
@@ -192,6 +251,7 @@ def _submit_source_entry(purpose, company, items, source_type, source_name, opti
 	doc.set("items", [])
 	totals = [0.0] * len(source_rows)
 	seen_serials = set()
+	seen_labels = set()
 	for scan in items:
 		if not isinstance(scan, dict):
 			frappe.throw(_("Invalid scanned item row."))
@@ -237,6 +297,7 @@ def _submit_source_entry(purpose, company, items, source_type, source_name, opti
 			frappe.throw(_("Batch does not belong to the source item."))
 		if mapped.batch_no and batch != mapped.batch_no:
 			frappe.throw(_("Scanned batch differs from the source row."))
+		_validate_label_scans(scan, item, batch, seen_labels)
 		serials = [value.strip() for value in str(scan.get("serial_no") or "").splitlines() if value.strip()]
 		if serials and not item.has_serial_no:
 			frappe.throw(_("Item {0} does not use serial numbers.").format(item.name))
@@ -321,6 +382,7 @@ def submit_entry(purpose, company, items, from_warehouse=None, to_warehouse=None
 	doc.from_warehouse = from_warehouse if need_source else None
 	doc.to_warehouse = to_warehouse if need_target else None
 	seen_serials = set()
+	seen_labels = set()
 	for row in items:
 		if not isinstance(row, dict):
 			frappe.throw(_("Invalid item row."))
@@ -354,6 +416,7 @@ def submit_entry(purpose, company, items, from_warehouse=None, to_warehouse=None
 		batch_no = str(row.get("batch_no") or "").strip()
 		if batch_no and (not item.has_batch_no or frappe.db.get_value("Batch", batch_no, "item") != item.name):
 			frappe.throw(_("Batch {0} does not belong to item {1}.").format(batch_no, item.name))
+		_validate_label_scans(row, item, batch_no, seen_labels)
 		serials = [value.strip() for value in str(row.get("serial_no") or "").splitlines() if value.strip()]
 		if serials and not item.has_serial_no:
 			frappe.throw(_("Item {0} does not use serial numbers.").format(item.name))

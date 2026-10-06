@@ -1,0 +1,51 @@
+{
+ "app": "scanner_app",
+ "docstatus": 0,
+ "doctype": "Workspace Sidebar",
+ "header_icon": "scan-barcode",
+ "idx": 0,
+ "items": [
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "scan-barcode",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Scanner App",
+   "link_to": "Scanner App",
+   "link_type": "Workspace",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "scan-barcode",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Scan Delivery Note",
+   "link_to": "delivery_note_scan",
+   "link_type": "Page",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "scan-barcode",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Scanner PWA",
+   "link_type": "URL",
+   "show_arrow": 0,
+   "type": "Link",
+   "url": "/scanner/"
+  }
+ ],
+ "modified": "2026-10-06 08:37:56.976256",
+ "modified_by": "Administrator",
+ "name": "Scanner App",
+ "owner": "Administrator",
+ "standard": 1,
+ "title": "Scanner App"
+}
