@@ -12,6 +12,8 @@ from erpnext.manufacturing.doctype.bom.bom import get_bom_items
 from erpnext.stock.doctype.material_request.material_request import make_stock_entry as from_request
 from erpnext.stock.doctype.stock_entry.stock_entry import get_expired_batch_items, make_stock_in_entry
 
+from scanner_app.scanner_app.scan_uom import conversion_factor, default_inventory_uom
+
 
 SOURCE_TYPES = ("Material Request", "BOM", "Purchase Invoice", "Transit Entry", "Expired Batches")
 
@@ -217,6 +219,16 @@ def source_context(source_type, source_name, company=None, purpose=None):
 	return getattr(source, "company", None) or company, purpose
 
 
+def _fill_missing_uom(row, item):
+	"""Use the Item inventory UOM without changing the source stock quantity."""
+	if row.uom:
+		return
+	stock_qty = flt(row.qty) * flt(row.conversion_factor or 1)
+	row.uom = default_inventory_uom(item)
+	row.conversion_factor = conversion_factor(item, row.uom)
+	row.qty = flt(stock_qty / row.conversion_factor)
+
+
 def make_source_doc(source_type, source_name, company, purpose, options=None):
 	"""Build a fresh unsaved Stock Entry using the same source mappers as Desk."""
 	options = source_options(options)
@@ -302,12 +314,11 @@ def make_source_doc(source_type, source_name, company, purpose, options=None):
 		item.check_permission("read")
 		if not item.is_stock_item or item.disabled:
 			continue
-		if not row.uom:
-			row.uom = item.stock_uom
 		if not row.stock_uom:
 			row.stock_uom = item.stock_uom
+		_fill_missing_uom(row, item)
 		if not row.conversion_factor:
-			row.conversion_factor = next((flt(u.conversion_factor) for u in item.uoms if u.uom == row.uom), 1 if row.uom == item.stock_uom else 0)
+			row.conversion_factor = conversion_factor(item, row.uom)
 		if flt(row.conversion_factor) <= 0:
 			frappe.throw(_("Invalid UOM conversion in source item {0}.").format(item.name))
 		rows.append(row)

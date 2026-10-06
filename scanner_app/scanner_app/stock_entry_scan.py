@@ -10,6 +10,8 @@ from frappe.utils import flt, nowdate
 
 from erpnext.stock.utils import scan_barcode
 
+from scanner_app.scanner_app.scan_uom import conversion_factor as _conversion_factor
+from scanner_app.scanner_app.scan_uom import default_inventory_uom
 from scanner_app.scanner_app.stock_entry_source import (
 	allowed_sources,
 	guide_rows,
@@ -77,15 +79,6 @@ def _check_warehouse(name, company):
 	):
 		frappe.throw(_("Select an active warehouse for this company."))
 	frappe.get_doc("Warehouse", name).check_permission("read")
-
-
-def _conversion_factor(item, uom):
-	if uom == item.stock_uom:
-		return 1
-	factor = next((flt(row.conversion_factor) for row in item.uoms if row.uom == uom), 0)
-	if factor <= 0:
-		frappe.throw(_("UOM {0} has no conversion factor for item {1}.").format(uom, item.name))
-	return factor
 
 
 def _find_product_label(code):
@@ -188,6 +181,7 @@ def lookup_item(code, company=None):
 	label = _find_product_label(code)
 	if label:
 		item = _get_item(label["item_code"])
+		uom = default_inventory_uom(item)
 		batch = label["batch_no"] or ""
 		if batch and (not item.has_batch_no or frappe.db.get_value("Batch", batch, "item") != item.name):
 			frappe.throw(_("The QR batch does not belong to this Item's stock settings."))
@@ -197,8 +191,8 @@ def lookup_item(code, company=None):
 			"item_code": item.name,
 			"item_name": item.item_name,
 			"stock_uom": item.stock_uom,
-			"uom": item.stock_uom,
-			"conversion_factor": 1,
+			"uom": uom,
+			"conversion_factor": _conversion_factor(item, uom),
 			"explicit_uom": False,
 			"barcode": "",
 			"serial_no": "",
@@ -221,15 +215,14 @@ def lookup_item(code, company=None):
 		return {"warehouse": warehouse}
 
 	item = _get_item(result.get("item_code"))
-	uom = result.get("uom") or item.stock_uom
-	_conversion_factor(item, uom)
+	uom = default_inventory_uom(item)
 	return {
 		"item_code": item.name,
 		"item_name": item.item_name,
 		"stock_uom": item.stock_uom,
 		"uom": uom,
 		"conversion_factor": _conversion_factor(item, uom),
-		"explicit_uom": bool(result.get("uom")),
+		"explicit_uom": False,
 		"barcode": result.get("barcode") or "",
 		"serial_no": result.get("serial_no") or "",
 		"batch_no": result.get("batch_no") or "",
@@ -387,7 +380,7 @@ def submit_entry(purpose, company, items, from_warehouse=None, to_warehouse=None
 		if not isinstance(row, dict):
 			frappe.throw(_("Invalid item row."))
 		item = _get_item(row.get("item_code"))
-		uom = str(row.get("uom") or item.stock_uom)
+		uom = str(row.get("uom") or default_inventory_uom(item))
 		factor = _conversion_factor(item, uom)
 		try:
 			qty = flt(row.get("qty"))
@@ -410,7 +403,7 @@ def submit_entry(purpose, company, items, from_warehouse=None, to_warehouse=None
 			matched_barcode = next((b for b in item.barcodes if b.barcode == barcode), None)
 			if not matched_barcode:
 				frappe.throw(_("Barcode does not belong to item {0}.").format(item.name))
-			if matched_barcode.uom and matched_barcode.uom != uom:
+			if matched_barcode.uom and matched_barcode.uom != uom and uom != default_inventory_uom(item):
 				frappe.throw(_("Barcode UOM does not match item row UOM."))
 
 		batch_no = str(row.get("batch_no") or "").strip()
