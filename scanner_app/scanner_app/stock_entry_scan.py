@@ -175,6 +175,11 @@ def get_source_items(source_type, company=None, purpose=None, source_name=None, 
 def lookup_item(code, company=None):
 	"""Resolve Product QR labels and native ERPNext scan values."""
 	_require_stock_entry_access()
+	return resolve_item(code, company)
+
+
+def resolve_item(code, company=None):
+	"""Shared scan resolver; callers enforce their document permissions."""
 	code = str(code or "").strip()
 	if not code or len(code) > 500:
 		frappe.throw(_("Scan a valid barcode, serial, batch, or warehouse code."))
