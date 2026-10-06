@@ -142,6 +142,13 @@ def submit_draft(name, modified, scans):
 			frappe.throw(_("Scan all quantities for Pick List row {0} first.").format(rows[key].idx))
 		row = rows[key]
 		row.picked_qty = progress[key]
+		if row.meta.has_field("custom_picked_qty"):
+			row.custom_picked_qty = flt(progress[key] / expected["conversion_factor"], 9)
+		if row.meta.has_field("custom_picked_qty_warehouse_uom"):
+			item = _get_item(row.item_code)
+			warehouse_uom = default_inventory_uom(item)
+			warehouse_factor = conversion_factor(item, warehouse_uom)
+			row.custom_picked_qty_warehouse_uom = flt(progress[key] / warehouse_factor, 9)
 		if row.batch_no or row.serial_no:
 			row.use_serial_batch_fields = 1
 	doc.scan_mode = 1
