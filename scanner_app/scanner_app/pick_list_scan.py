@@ -8,7 +8,7 @@ from frappe import _
 from frappe.utils import flt
 
 from scanner_app.scanner_app.scan_uom import conversion_factor, default_inventory_uom
-from scanner_app.scanner_app.stock_entry_scan import _get_item, resolve_item
+from scanner_app.scanner_app.stock_entry_scan import _get_item, resolve_item, verified_rack
 
 
 def _draft(name, permission="read"):
@@ -26,8 +26,8 @@ def _draft(name, permission="read"):
 def _guide(doc):
 	items = []
 	for row in doc.locations:
-		if not row.item_code or not row.warehouse or flt(row.stock_qty) <= 0:
-			frappe.throw(_("Pick List row {0} needs an Item, Warehouse, and positive stock quantity.").format(row.idx))
+		if not row.item_code or flt(row.stock_qty) <= 0:
+			frappe.throw(_("Pick List row {0} needs an Item and positive stock quantity.").format(row.idx))
 		item = _get_item(row.item_code)
 		if row.serial_and_batch_bundle:
 			frappe.throw(_("Pick List row {0} already has a Serial and Batch Bundle; finish it in ERPNext.").format(row.idx))
@@ -96,6 +96,7 @@ def submit_draft(name, modified, scans):
 	# The scanner replaces the draft picking result, including any old picked quantity.
 	progress = {key: 0.0 for key in guide}
 	selected_batches = {}
+	selected_racks = {}
 	seen_qr = set()
 	seen_serials = set()
 	for row in doc.locations:
@@ -105,6 +106,10 @@ def submit_draft(name, modified, scans):
 			frappe.throw(_("Scanned item refers to an invalid Pick List row."))
 		row = rows[scan["row_name"]]
 		expected = guide[row.name]
+		rack = verified_rack(scan.get("source_rack_code"), doc.company, expected["warehouse"])
+		if row.name in selected_racks and selected_racks[row.name] != rack:
+			frappe.throw(_("Pick List row {0} was scanned from multiple racks.").format(row.idx))
+		selected_racks[row.name] = rack
 		code = str(scan.get("code") or "").strip()
 		if not code or len(code) > 500:
 			frappe.throw(_("Invalid scanned code."))
@@ -141,6 +146,7 @@ def submit_draft(name, modified, scans):
 		if abs(progress[key] - expected["stock_qty"]) > 0.000001:
 			frappe.throw(_("Scan all quantities for Pick List row {0} first.").format(rows[key].idx))
 		row = rows[key]
+		row.warehouse = selected_racks[key]
 		row.picked_qty = progress[key]
 		if row.meta.has_field("custom_picked_qty"):
 			row.custom_picked_qty = flt(progress[key] / expected["conversion_factor"], 9)

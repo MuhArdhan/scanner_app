@@ -81,6 +81,23 @@ def _check_warehouse(name, company):
 	frappe.get_doc("Warehouse", name).check_permission("read")
 
 
+def _rack_warehouse_name(code, company):
+	"""Resolve a rack QR (Warehouse name or warehouse_name) to its document ID."""
+	if frappe.db.exists("Warehouse", code):
+		_check_warehouse(code, company)
+		return code
+	filters = {"warehouse_name": code, "disabled": 0, "is_group": 0}
+	if company:
+		filters["company"] = company
+	matches = frappe.get_list("Warehouse", filters=filters, fields=["name"], limit_page_length=2)
+	if len(matches) > 1:
+		frappe.throw(_("Rack QR {0} matches more than one warehouse. Select a company.").format(frappe.bold(code)))
+	if matches:
+		_check_warehouse(matches[0].name, company)
+		return matches[0].name
+	return None
+
+
 def _find_product_label(code):
 	"""Resolve the complete Product QR value without splitting Item or Batch codes."""
 	if not frappe.db.exists("DocType", "Product QR Serial") or not frappe.has_permission("Product QR Serial", "read"):
@@ -213,6 +230,8 @@ def resolve_item(code, company=None):
 		frappe.throw(_("QR {0} is not registered as a Product QR label.").format(frappe.bold(code)))
 	result = scan_barcode(code, ctx={"company": company} if company else None)
 	if not result:
+		if warehouse := _rack_warehouse_name(code, company):
+			return {"warehouse": warehouse}
 		frappe.throw(_("No Item or Warehouse was found for this scan."))
 	if result.get("warehouse"):
 		warehouse = result["warehouse"]
@@ -236,9 +255,29 @@ def resolve_item(code, company=None):
 	}
 
 
+def verified_rack(code, company, expected=None):
+	"""Validate a rack QR against its company and the canonical Warehouse ID."""
+	code = str(code or "").strip()
+	if not code or len(code) > 500:
+		frappe.throw(_("Scan the rack QR before scanning items."))
+	warehouse = _rack_warehouse_name(code, company)
+	if not warehouse:
+		frappe.throw(_("Rack QR {0} does not match an active warehouse.").format(frappe.bold(code)))
+	if expected and warehouse != expected:
+		frappe.throw(_("Scanned rack {0} does not match warehouse {1} on the document.").format(
+			frappe.bold(warehouse), frappe.bold(expected)
+		))
+	return warehouse
+
+
 def _submit_source_entry(purpose, company, items, source_type, source_name, options, from_warehouse, to_warehouse):
 	"""Submit verified scan quantities while retaining native source references."""
 	doc = make_source_doc(source_type, source_name, company, purpose, options)
+	if purpose == "Material Transfer":
+		if doc.from_warehouse and from_warehouse and doc.from_warehouse != from_warehouse:
+			frappe.throw(_("Source warehouse differs from the source document."))
+		if doc.to_warehouse and to_warehouse and doc.to_warehouse != to_warehouse:
+			frappe.throw(_("Target warehouse differs from the source document."))
 	if from_warehouse:
 		_check_warehouse(from_warehouse, company)
 		doc.from_warehouse = from_warehouse
@@ -275,8 +314,16 @@ def _submit_source_entry(purpose, company, items, source_type, source_name, opti
 			frappe.throw(_("Scanned quantity exceeds the source quantity for {0}.").format(item.name))
 
 		need_source, need_target = _source_row_warehouse_roles(purpose, mapped)
-		source = (scan.get("s_warehouse") or mapped.s_warehouse or doc.from_warehouse) if need_source else None
-		target = (scan.get("t_warehouse") or mapped.t_warehouse or doc.to_warehouse) if need_target else None
+		if purpose == "Material Transfer":
+			source = verified_rack(scan.get("source_rack_code"), company, mapped.s_warehouse or doc.from_warehouse)
+			target = verified_rack(scan.get("target_rack_code"), company, mapped.t_warehouse or doc.to_warehouse)
+			if scan.get("s_warehouse") != source or scan.get("t_warehouse") != target:
+				frappe.throw(_("Scanned rack does not match the scanned item warehouses."))
+			if source == target:
+				frappe.throw(_("Source and target racks must be different."))
+		else:
+			source = (scan.get("s_warehouse") or mapped.s_warehouse or doc.from_warehouse) if need_source else None
+			target = (scan.get("t_warehouse") or mapped.t_warehouse or doc.to_warehouse) if need_target else None
 		if need_source and source:
 			_check_warehouse(source, company)
 		if need_target and target:
@@ -394,8 +441,14 @@ def submit_entry(purpose, company, items, from_warehouse=None, to_warehouse=None
 		if not math.isfinite(qty) or qty <= 0 or qty > 1000000000:
 			frappe.throw(_("Enter a positive quantity for item {0}.").format(frappe.bold(item.name)))
 
-		source = (row.get("s_warehouse") or doc.from_warehouse) if need_source else None
-		target = (row.get("t_warehouse") or doc.to_warehouse) if need_target else None
+		if purpose == "Material Transfer":
+			source = verified_rack(row.get("source_rack_code"), company, doc.from_warehouse)
+			target = verified_rack(row.get("target_rack_code"), company, doc.to_warehouse)
+			if row.get("s_warehouse") != source or row.get("t_warehouse") != target:
+				frappe.throw(_("Scanned rack does not match the scanned item warehouses."))
+		else:
+			source = (row.get("s_warehouse") or doc.from_warehouse) if need_source else None
+			target = (row.get("t_warehouse") or doc.to_warehouse) if need_target else None
 		if need_source:
 			_check_warehouse(source, company)
 		if need_target:

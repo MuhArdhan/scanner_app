@@ -6,8 +6,7 @@ import frappe
 SIDEBAR = "Scanner App"
 ITEMS = [
 	{"label": "Scanner App", "link_to": "Scanner App", "link_type": "Workspace", "type": "Link", "icon": "scan-barcode", "idx": 1},
-	{"label": "Scan Delivery Note", "link_to": "delivery_note_scan", "link_type": "Page", "type": "Link", "icon": "scan-barcode", "idx": 2},
-	{"label": "Scanner PWA", "url": "/scanner/", "link_type": "URL", "type": "Link", "icon": "scan-barcode", "idx": 3},
+	{"label": "Scanner PWA", "url": "/scanner/", "link_type": "URL", "type": "Link", "icon": "scan-barcode", "idx": 2},
 ]
 
 

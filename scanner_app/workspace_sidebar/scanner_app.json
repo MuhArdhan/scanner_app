@@ -23,18 +23,6 @@
    "icon": "scan-barcode",
    "indent": 0,
    "keep_closed": 0,
-   "label": "Scan Delivery Note",
-   "link_to": "delivery_note_scan",
-   "link_type": "Page",
-   "show_arrow": 0,
-   "type": "Link"
-  },
-  {
-   "child": 0,
-   "collapsible": 1,
-   "icon": "scan-barcode",
-   "indent": 0,
-   "keep_closed": 0,
    "label": "Scanner PWA",
    "link_type": "URL",
    "show_arrow": 0,

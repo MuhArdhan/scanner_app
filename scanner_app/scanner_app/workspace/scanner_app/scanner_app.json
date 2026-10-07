@@ -1,7 +1,7 @@
 {
   "app": "scanner_app",
   "charts": [],
-  "content": "[{\"id\":\"ScannerHdr1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Scanner App</b></span>\",\"col\":12}},{\"id\":\"ScannerScanDN1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Scan Delivery Note\",\"col\":3}}]",
+  "content": "[{\"id\":\"ScannerHdr1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Scanner App</b></span>\",\"col\":12}},{\"id\":\"ScannerPWA1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Scanner PWA\",\"col\":3}}]",
   "custom_blocks": [],
   "docstatus": 0,
   "doctype": "Workspace",
@@ -36,9 +36,9 @@
   "sequence_id": 22.0,
   "shortcuts": [
     {
-      "label": "Scan Delivery Note",
-      "link_to": "delivery_note_scan",
-      "type": "Page"
+      "label": "Scanner PWA",
+      "url": "/scanner/",
+      "type": "URL"
     }
   ],
   "title": "Scanner App",

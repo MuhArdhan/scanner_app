@@ -17,21 +17,12 @@
     },
     {
       "doctype": "Workspace Sidebar Item",
-      "label": "Scan Delivery Note",
-      "link_to": "delivery_note_scan",
-      "link_type": "Page",
-      "type": "Link",
-      "icon": "scan-barcode",
-      "idx": 2
-    },
-    {
-      "doctype": "Workspace Sidebar Item",
       "label": "Scanner PWA",
       "url": "/scanner/",
       "link_type": "URL",
       "type": "Link",
       "icon": "scan-barcode",
-      "idx": 3
+      "idx": 2
     }
   ]
 }
