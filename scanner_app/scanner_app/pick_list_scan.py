@@ -8,7 +8,8 @@ from frappe import _
 from frappe.utils import flt
 
 from scanner_app.scanner_app.scan_uom import conversion_factor, default_inventory_uom
-from scanner_app.scanner_app.stock_entry_scan import _get_item, resolve_item, verified_rack
+from scanner_app.scanner_app.stock_entry_scan import _get_item, resolve_item, verified_rack, validate_source_code, assert_source_stock
+from scanner_app.scanner_app.scan_history import record_history
 
 
 def _draft(name, permission="read"):
@@ -78,6 +79,13 @@ def lookup_item(code, company=None):
 	return resolve_item(code, company)
 
 
+@frappe.whitelist(methods=["GET"])
+def validate_source_scan(code, company, warehouse, stock_qty):
+	if not frappe.has_permission("Pick List", "read"):
+		frappe.throw(_("You do not have permission to read Pick Lists."), frappe.PermissionError)
+	return validate_source_code(code, company, warehouse, stock_qty)
+
+
 @frappe.whitelist(methods=["POST"])
 def submit_draft(name, modified, scans):
 	if isinstance(scans, str):
@@ -97,8 +105,10 @@ def submit_draft(name, modified, scans):
 	progress = {key: 0.0 for key in guide}
 	selected_batches = {}
 	selected_racks = {}
+	source_totals = {}
 	seen_qr = set()
 	seen_serials = set()
+	history = []
 	for row in doc.locations:
 		row.serial_no = None
 	for scan in scans:
@@ -140,6 +150,14 @@ def submit_draft(name, modified, scans):
 		if not math.isfinite(qty) or qty <= 0 or qty > 1000000000:
 			frappe.throw(_("Invalid scan quantity."))
 		progress[row.name] += qty * expected["conversion_factor"]
+		history.append({"item_code": row.item_code, "batch_no": batch,
+			"serial_no": found.get("serial_no"), "qty": qty, "uom": expected["uom"],
+			"stock_qty": qty * expected["conversion_factor"], "stock_uom": item.stock_uom,
+			"source_warehouse": rack, "target_warehouse": None,
+			"qr_values": [code]})
+		key = (row.item_code, rack, batch)
+		source_totals[key] = source_totals.get(key, 0) + qty * expected["conversion_factor"]
+		assert_source_stock(row.item_code, rack, doc.company, source_totals[key], batch, found.get("serial_no"))
 		if progress[row.name] > expected["stock_qty"] + 0.000001:
 			frappe.throw(_("Scanned quantity exceeds Pick List row {0}.").format(row.idx))
 	for key, expected in guide.items():
@@ -159,4 +177,5 @@ def submit_draft(name, modified, scans):
 			row.use_serial_batch_fields = 1
 	doc.scan_mode = 1
 	doc.submit()
+	record_history(doc, "Pick List", history)
 	return {"name": doc.name, "docstatus": doc.docstatus}

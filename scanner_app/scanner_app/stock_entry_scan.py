@@ -8,7 +8,9 @@ import frappe
 from frappe import _
 from frappe.utils import flt, nowdate
 
-from erpnext.stock.utils import scan_barcode
+from erpnext.stock.utils import scan_barcode, get_stock_balance
+from scanner_app.scanner_app.scan_history import record_stock_history
+from erpnext.stock.doctype.batch.batch import get_batch_qty
 
 from scanner_app.scanner_app.scan_uom import conversion_factor as _conversion_factor
 from scanner_app.scanner_app.scan_uom import default_inventory_uom
@@ -270,14 +272,51 @@ def verified_rack(code, company, expected=None):
 	return warehouse
 
 
+def assert_source_stock(item_code, warehouse, company, stock_qty, batch_no=None, serial_no=None):
+	"""Reject a physical pick from the wrong rack before counting or submitting."""
+	_check_warehouse(warehouse, company)
+	item = _get_item(item_code)
+	stock_qty = flt(stock_qty)
+	if not math.isfinite(stock_qty) or stock_qty <= 0 or stock_qty > 1000000000:
+		frappe.throw(_("Invalid requested stock quantity."))
+	if item.has_batch_no:
+		if not batch_no or frappe.db.get_value("Batch", batch_no, "item") != item_code:
+			frappe.throw(_("Scan a valid batch for this item before taking stock."))
+		available = flt(get_batch_qty(batch_no=batch_no, warehouse=warehouse, item_code=item_code,
+			for_stock_levels=True, ignore_reserved_stock=True))
+	else:
+		available = flt(get_stock_balance(item_code, warehouse))
+	if serial_no:
+		serial = frappe.db.get_value("Serial No", serial_no, ["item_code", "warehouse", "batch_no"], as_dict=True)
+		if not serial or serial.item_code != item_code or serial.warehouse != warehouse or (batch_no and serial.batch_no != batch_no):
+			frappe.throw(_("Serial No {0} is not in rack {1} for this item and batch.").format(serial_no, warehouse))
+	if available <= 0 or stock_qty > available + 0.000001:
+		frappe.throw(_("Item {0}, batch {1}: rack {2} contains {3} {4}; scanned total requires {5} {4}.").format(
+			item_code, batch_no or "-", warehouse, available, item.stock_uom, stock_qty))
+	return available
+
+
+def validate_source_code(code, company, warehouse, stock_qty):
+	item = resolve_item(code, company)
+	if item.get("warehouse"):
+		frappe.throw(_("Scan an item, not a rack QR."))
+	available = assert_source_stock(item["item_code"], warehouse, company, stock_qty, item.get("batch_no"), item.get("serial_no"))
+	return {"available_stock_qty": available, "warehouse": warehouse}
+
+
+@frappe.whitelist(methods=["GET"])
+def validate_source_scan(code, company, warehouse, stock_qty):
+	_require_stock_entry_access()
+	return validate_source_code(code, company, warehouse, stock_qty)
+
+
 def _submit_source_entry(purpose, company, items, source_type, source_name, options, from_warehouse, to_warehouse):
 	"""Submit verified scan quantities while retaining native source references."""
 	doc = make_source_doc(source_type, source_name, company, purpose, options)
-	if purpose == "Material Transfer":
-		if doc.from_warehouse and from_warehouse and doc.from_warehouse != from_warehouse:
-			frappe.throw(_("Source warehouse differs from the source document."))
-		if doc.to_warehouse and to_warehouse and doc.to_warehouse != to_warehouse:
-			frappe.throw(_("Target warehouse differs from the source document."))
+	if doc.from_warehouse and from_warehouse and doc.from_warehouse != from_warehouse:
+		frappe.throw(_("Source warehouse differs from the source document."))
+	if doc.to_warehouse and to_warehouse and doc.to_warehouse != to_warehouse:
+		frappe.throw(_("Target warehouse differs from the source document."))
 	if from_warehouse:
 		_check_warehouse(from_warehouse, company)
 		doc.from_warehouse = from_warehouse
@@ -289,6 +328,7 @@ def _submit_source_entry(purpose, company, items, source_type, source_name, opti
 	totals = [0.0] * len(source_rows)
 	seen_serials = set()
 	seen_labels = set()
+	source_totals = {}
 	for scan in items:
 		if not isinstance(scan, dict):
 			frappe.throw(_("Invalid scanned item row."))
@@ -314,16 +354,12 @@ def _submit_source_entry(purpose, company, items, source_type, source_name, opti
 			frappe.throw(_("Scanned quantity exceeds the source quantity for {0}.").format(item.name))
 
 		need_source, need_target = _source_row_warehouse_roles(purpose, mapped)
-		if purpose == "Material Transfer":
-			source = verified_rack(scan.get("source_rack_code"), company, mapped.s_warehouse or doc.from_warehouse)
-			target = verified_rack(scan.get("target_rack_code"), company, mapped.t_warehouse or doc.to_warehouse)
-			if scan.get("s_warehouse") != source or scan.get("t_warehouse") != target:
-				frappe.throw(_("Scanned rack does not match the scanned item warehouses."))
-			if source == target:
-				frappe.throw(_("Source and target racks must be different."))
-		else:
-			source = (scan.get("s_warehouse") or mapped.s_warehouse or doc.from_warehouse) if need_source else None
-			target = (scan.get("t_warehouse") or mapped.t_warehouse or doc.to_warehouse) if need_target else None
+		source = verified_rack(scan.get("source_rack_code"), company, mapped.s_warehouse or doc.from_warehouse) if need_source else None
+		target = verified_rack(scan.get("target_rack_code"), company, mapped.t_warehouse or doc.to_warehouse) if need_target else None
+		if (need_source and scan.get("s_warehouse") != source) or (need_target and scan.get("t_warehouse") != target):
+			frappe.throw(_("Scanned rack does not match the scanned item warehouses."))
+		if need_source and need_target and source == target:
+			frappe.throw(_("Source and target racks must be different."))
 		if need_source and source:
 			_check_warehouse(source, company)
 		if need_target and target:
@@ -343,6 +379,10 @@ def _submit_source_entry(purpose, company, items, source_type, source_name, opti
 		if mapped.batch_no and batch != mapped.batch_no:
 			frappe.throw(_("Scanned batch differs from the source row."))
 		_validate_label_scans(scan, item, batch, seen_labels)
+		if need_source:
+			key = (item.name, source, batch)
+			source_totals[key] = source_totals.get(key, 0) + qty * factor
+			assert_source_stock(item.name, source, company, source_totals[key], batch)
 		serials = [value.strip() for value in str(scan.get("serial_no") or "").splitlines() if value.strip()]
 		if serials and not item.has_serial_no:
 			frappe.throw(_("Item {0} does not use serial numbers.").format(item.name))
@@ -369,6 +409,7 @@ def _submit_source_entry(purpose, company, items, source_type, source_name, opti
 	doc.set_stock_entry_type()
 	doc.insert()
 	doc.submit()
+	record_stock_history(doc, items, source_type, source_name)
 	return {"name": doc.name, "docstatus": doc.docstatus}
 
 
@@ -428,6 +469,7 @@ def submit_entry(purpose, company, items, from_warehouse=None, to_warehouse=None
 	doc.to_warehouse = to_warehouse if need_target else None
 	seen_serials = set()
 	seen_labels = set()
+	source_totals = {}
 	for row in items:
 		if not isinstance(row, dict):
 			frappe.throw(_("Invalid item row."))
@@ -441,14 +483,10 @@ def submit_entry(purpose, company, items, from_warehouse=None, to_warehouse=None
 		if not math.isfinite(qty) or qty <= 0 or qty > 1000000000:
 			frappe.throw(_("Enter a positive quantity for item {0}.").format(frappe.bold(item.name)))
 
-		if purpose == "Material Transfer":
-			source = verified_rack(row.get("source_rack_code"), company, doc.from_warehouse)
-			target = verified_rack(row.get("target_rack_code"), company, doc.to_warehouse)
-			if row.get("s_warehouse") != source or row.get("t_warehouse") != target:
-				frappe.throw(_("Scanned rack does not match the scanned item warehouses."))
-		else:
-			source = (row.get("s_warehouse") or doc.from_warehouse) if need_source else None
-			target = (row.get("t_warehouse") or doc.to_warehouse) if need_target else None
+		source = verified_rack(row.get("source_rack_code"), company, doc.from_warehouse) if need_source else None
+		target = verified_rack(row.get("target_rack_code"), company, doc.to_warehouse) if need_target else None
+		if (need_source and row.get("s_warehouse") != source) or (need_target and row.get("t_warehouse") != target):
+			frappe.throw(_("Scanned rack does not match the scanned item warehouses."))
 		if need_source:
 			_check_warehouse(source, company)
 		if need_target:
@@ -468,6 +506,10 @@ def submit_entry(purpose, company, items, from_warehouse=None, to_warehouse=None
 		if batch_no and (not item.has_batch_no or frappe.db.get_value("Batch", batch_no, "item") != item.name):
 			frappe.throw(_("Batch {0} does not belong to item {1}.").format(batch_no, item.name))
 		_validate_label_scans(row, item, batch_no, seen_labels)
+		if need_source:
+			key = (item.name, source, batch_no)
+			source_totals[key] = source_totals.get(key, 0) + qty * factor
+			assert_source_stock(item.name, source, company, source_totals[key], batch_no)
 		serials = [value.strip() for value in str(row.get("serial_no") or "").splitlines() if value.strip()]
 		if serials and not item.has_serial_no:
 			frappe.throw(_("Item {0} does not use serial numbers.").format(item.name))
@@ -486,4 +528,5 @@ def submit_entry(purpose, company, items, from_warehouse=None, to_warehouse=None
 		})
 	doc.insert()
 	doc.submit()
+	record_stock_history(doc, items)
 	return {"name": doc.name, "docstatus": doc.docstatus}

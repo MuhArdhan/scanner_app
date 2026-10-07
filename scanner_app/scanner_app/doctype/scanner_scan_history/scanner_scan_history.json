@@ -1,0 +1,23 @@
+{
+ "doctype": "DocType",
+ "name": "Scanner Scan History",
+ "module": "Scanner App",
+ "autoname": "hash",
+ "engine": "InnoDB",
+ "track_changes": 0,
+ "sort_field": "recorded_at",
+ "sort_order": "DESC",
+ "field_order": ["recorded_at", "scanned_by", "company", "operation", "reference_doctype", "reference_name", "source_doctype", "source_name", "details"],
+ "fields": [
+  {"fieldname": "recorded_at", "fieldtype": "Datetime", "label": "Recorded At", "reqd": 1, "read_only": 1, "in_list_view": 1},
+  {"fieldname": "scanned_by", "fieldtype": "Link", "options": "User", "label": "Scanned By", "reqd": 1, "read_only": 1, "in_list_view": 1},
+  {"fieldname": "company", "fieldtype": "Link", "options": "Company", "label": "Company", "reqd": 1, "read_only": 1},
+  {"fieldname": "operation", "fieldtype": "Data", "label": "Operation", "reqd": 1, "read_only": 1, "in_list_view": 1},
+  {"fieldname": "reference_doctype", "fieldtype": "Link", "options": "DocType", "label": "Reference Type", "reqd": 1, "read_only": 1},
+  {"fieldname": "reference_name", "fieldtype": "Dynamic Link", "options": "reference_doctype", "label": "Reference Document", "reqd": 1, "read_only": 1, "in_list_view": 1},
+  {"fieldname": "source_doctype", "fieldtype": "Link", "options": "DocType", "label": "Source Type", "read_only": 1},
+  {"fieldname": "source_name", "fieldtype": "Dynamic Link", "options": "source_doctype", "label": "Source Document", "read_only": 1},
+  {"fieldname": "details", "fieldtype": "Long Text", "label": "Scan Details (JSON)", "reqd": 1, "read_only": 1}
+ ],
+ "permissions": [{"role": "System Manager", "read": 1}]
+}

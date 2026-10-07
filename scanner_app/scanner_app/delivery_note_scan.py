@@ -1,5 +1,6 @@
 import frappe
 from frappe import _
+from scanner_app.scanner_app.scan_history import record_history
 
 
 @frappe.whitelist(methods=["POST"])
@@ -39,6 +40,8 @@ def mark_stop_visited(delivery_note: str):
 		trip.save()
 
 	trip_status = frappe.db.get_value("Delivery Trip", trip.name, "status") or trip.status
+	record_history(note, "Delivery Note", [{"qr_values": [note.name],
+		"trip": trip.name, "already_visited": already_visited}], "Delivery Trip", trip.name)
 	return {
 		"delivery_note": note.name,
 		"trip": trip.name,

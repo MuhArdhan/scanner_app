@@ -33,13 +33,58 @@
 :root[data-theme="light"] .destination-icon.delivery{background:#dcfce7;color:#15803d}
 .destination-icon.pick{background:color-mix(in srgb,#f59e0b 15%,var(--card));color:#f59e0b}.pick-meta{color:var(--muted);font-size:13px;line-height:1.5}.pick-row{border-top:1px solid var(--line);padding:12px 0}.pick-row:first-child{border-top:0}.pick-row.done{color:var(--green)}.pick-row strong{display:block}.pick-row small{display:block;color:var(--muted);margin-top:3px}.pick-row .bar{margin-top:5px}.pick-row .bar span:last-child{white-space:nowrap}.pick-row button{margin-top:7px;padding:6px 9px;font-size:12px}.pick-actions{display:flex;gap:8px}.pick-actions button{flex:1}
 .dn-history-row{border-top:1px solid var(--line);padding:12px 0}.dn-history-row:first-child{border-top:0}.dn-history-row strong{display:block}.dn-history-row small{display:block;color:var(--muted);margin-top:4px}
+/* Pick List and Stock Entry share the same visual hierarchy. */
+#pick,#stock{--field-bg:color-mix(in srgb,var(--card) 82%,var(--bg));--accent-bg:color-mix(in srgb,var(--blue) 8%,var(--card))}
+#pick .card,#stock .card{padding:20px;border-radius:18px;margin:14px 0;box-shadow:0 3px 14px rgb(0 0 0 / 5%)}
+#pick .card>.bar,#stock .card>.bar{margin-bottom:16px;align-items:center}
+#pick h2,#stock h2{font-size:17px;font-weight:650;letter-spacing:-.025em;margin-bottom:0}
+#pick .card>h2,#stock .card>h2{margin-bottom:14px}
+#pick label,#stock label{margin:16px 0 7px;font-size:12px;font-weight:600;letter-spacing:.01em}
+#pick input,#pick select,#stock input,#stock select{min-height:46px;border-radius:11px;background:var(--field-bg);font-size:16px;transition:border-color .15s ease}
+#pick input:focus,#pick select:focus,#stock input:focus,#stock select:focus{outline:2px solid color-mix(in srgb,var(--blue) 40%,transparent);outline-offset:2px;border-color:var(--blue)}
+#pick button,#stock button{min-height:44px;border-radius:11px;line-height:1.4}
+#pick button:focus-visible,#stock button:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+#pick button:disabled,#stock button:disabled{cursor:default;opacity:.45}
+#pick .secondary,#stock .secondary{background:color-mix(in srgb,var(--card) 70%,var(--line));color:var(--text);border:1px solid var(--line)}
+#pick-back,#back{font-size:12px;padding:8px 12px;min-height:36px!important}
+#pick .pick-meta{margin-bottom:14px;line-height:1.6}
+#pick-summary,#source-summary{padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:var(--field-bg);line-height:1.6;overflow-wrap:anywhere}
+#pick-guide-count,#guide-count,#count{flex:none;padding:5px 9px;border-radius:8px;background:var(--field-bg);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
+#pick-guide-list,#guide-list{display:grid;gap:10px}
+#pick .pick-row,#stock .pick-row{padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--field-bg);min-width:0}
+#pick .pick-row .bar,#stock .pick-row .bar{margin:0 0 7px;align-items:flex-start;gap:12px}
+#pick .pick-row strong,#stock .pick-row strong{font-size:14px;line-height:1.5;min-width:0;overflow-wrap:anywhere;font-weight:600}
+#pick .pick-row .bar span,#stock .pick-row .bar span{font-size:12px;font-weight:600;line-height:1.75;font-variant-numeric:tabular-nums;flex:none}
+#pick .pick-row small,#stock .pick-row small{font-size:12px;line-height:1.65;overflow-wrap:anywhere}
+#pick .pick-row.done,#stock .pick-row.done{border-color:color-mix(in srgb,var(--green) 35%,var(--line));background:color-mix(in srgb,var(--green) 5%,var(--card))}
+#pick .pick-row button{margin-top:10px;min-height:36px;font-size:11px;padding:7px 10px}
+#pick-scan-section,#stock .card:has(>#camera-button){border-color:color-mix(in srgb,var(--blue) 28%,var(--line));background:var(--accent-bg)}
+#pick-warehouse-context,#warehouse-context{padding:12px 14px;margin:12px 0 16px;border:1px solid color-mix(in srgb,var(--blue) 22%,var(--line));background:color-mix(in srgb,var(--blue) 7%,var(--card));color:var(--text);font-size:13px;line-height:1.65;overflow-wrap:anywhere}
+#pick-clear-warehouse,#clear-warehouse{margin-bottom:10px;font-size:12px}
+#pick-camera-button,#camera-button{min-height:48px;font-size:14px;box-shadow:0 3px 10px color-mix(in srgb,var(--blue) 18%,transparent)}
+#pick-submit-section{padding:14px!important}
+#save{margin-top:18px;min-height:48px}
+#stock .item{padding:14px 0;gap:10px;align-items:flex-start}
+#stock .item-info strong{font-size:14px;line-height:1.5;margin-bottom:4px}
+#stock .item-info small{display:block;font-size:12px;line-height:1.65;overflow-wrap:anywhere}
+#stock .item input{width:70px;flex:none;min-height:40px;font-size:14px}
+#stock .item button{width:36px;min-height:40px;padding:7px;flex:none;font-size:18px;background:color-mix(in srgb,var(--red) 12%,var(--card));color:var(--red);border:1px solid color-mix(in srgb,var(--red) 25%,var(--line))}
+@media(max-width:380px){ #pick .card,#stock .card{padding:16px}#pick .pick-row .bar,#stock .pick-row .bar{flex-wrap:wrap;gap:4px}#stock .item{flex-wrap:wrap}#stock .item-info{flex-basis:100%}#pick .card>.bar,#stock .card>.bar{gap:8px}}
+@media(prefers-reduced-motion:reduce){ #pick input,#pick select,#stock input,#stock select{transition:none}}
+.scan-steps{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}.scan-step{font-size:12px;padding:6px 9px;border:1px solid var(--line);border-radius:8px;color:var(--muted)}.scan-step.active{border-color:var(--blue);color:var(--blue)}.scan-step.done{color:var(--green);border-color:var(--green)}.scan-expected{font-size:12px;color:var(--muted);line-height:1.6;overflow-wrap:anywhere;margin:8px 0}.scan-corrections{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.scan-corrections button{font-size:12px}.scan-row-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.scan-row-actions button{width:auto!important;min-height:32px!important;font-size:11px!important;padding:6px 9px!important}.scan-row-state{display:block;font-size:12px;color:var(--muted);margin-top:6px}.session-actions{display:flex;gap:8px;margin-top:10px}
+.camera-feed{position:relative}.camera-feed .scan-toasts{top:12px;left:12px;right:12px}
+.history-controls{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.history-controls input{flex:1;min-width:160px}.history-controls select{width:auto;max-width:100%}.history-entry{border-top:1px solid var(--line);padding:14px 0;overflow-wrap:anywhere}.history-entry summary{cursor:pointer;line-height:1.7}.history-entry small{display:block;color:var(--muted);line-height:1.7}.history-detail{padding:10px 12px;margin-top:8px;border:1px solid var(--line);border-radius:8px;font-size:13px;line-height:1.7}.history-entry a{display:inline-block;margin:8px 12px 0 0}
+.app-header{flex-wrap:wrap;gap:12px}.brand-lockup{min-width:0;flex:1}.brand-lockup>div:last-child{min-width:0}.app-header #user{overflow-wrap:anywhere}.header-actions{display:flex;align-items:center;gap:8px;margin-left:auto}.header-actions #open-history,.header-actions #theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:9px 11px;border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--text);font-size:12px;white-space:nowrap}.header-actions svg{width:16px;height:16px;flex:none}.header-actions .theme-icon{margin:0}.header-actions button:hover,.header-actions #open-history[aria-expanded="true"]{border-color:var(--blue);color:var(--blue)}.header-actions button:focus-visible{outline:2px solid var(--blue);outline-offset:3px}@media(max-width:380px){ .header-actions{flex-basis:100%;justify-content:flex-end}}
+.icon-button,.header-actions #theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;min-height:44px;padding:0;border-radius:11px;flex:none}.icon-button{font-size:26px;line-height:1;color:var(--text)}.icon-button:focus-visible{outline:2px solid var(--blue);outline-offset:3px}.header-actions #theme-toggle svg{width:20px;height:20px}
 </style>
 </head>
 <body>
 <div id="login"><h1>Scanner App</h1><p>Login ke ERPNext untuk mulai memindai.</p><a class="button" href="/login?redirect-to=%2Fscanner%2F">Login ke ERPNext</a></div>
 <main>
-<div class="bar app-header"><div class="brand-lockup"><div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3M7 12h10M12 7v10"/></svg></div><div><h1>Scanner App</h1><div class="count" id="user"></div></div></div><button id="theme-toggle" class="secondary" type="button" role="switch" aria-label="Mode terang" aria-checked="false"></button></div>
+<div class="bar app-header"><div class="brand-lockup"><div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3M7 12h10M12 7v10"/></svg></div><div><h1>Scanner App</h1><div class="count" id="user"></div></div></div><div class="header-actions"><button id="open-history" class="secondary" type="button" aria-label="Riwayat scan" aria-expanded="false" aria-controls="history-panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11a9 9 0 1 1 2.6 7M3 4v7h7M12 7v5l3 2"/></svg><span>Riwayat</span></button><button id="theme-toggle" class="secondary" type="button" role="switch" aria-label="Mode terang" aria-checked="false"></button></div></div>
 <div id="status" class="status hidden" role="status" aria-live="polite"></div>
+<section id="history-panel" class="card hidden" style="margin-top:12px"><div class="bar"><h2>Riwayat scan</h2><button id="close-history" class="secondary icon-button" type="button" aria-label="Tutup riwayat scan" title="Tutup riwayat scan"><span aria-hidden="true">×</span></button></div><p class="count">Scan yang tersimpan pada transaksi berhasil. Waktu adalah waktu pencatatan server saat submit atau penandaan Delivery Note.</p><div class="history-controls"><input id="history-search" type="search" placeholder="Cari dokumen, QR, item, batch, atau rak" aria-label="Cari riwayat"><select id="history-activity" aria-label="Aktivitas"><option value="">Semua aktivitas</option><option>Stock Entry</option><option>Pick List</option><option>Delivery Note</option></select><select id="history-scope" class="hidden" aria-label="Pengguna"><option value="mine">Riwayat saya</option><option value="all">Semua pengguna</option></select><button id="history-refresh" class="secondary" type="button">Cari / Muat ulang</button></div><p id="history-status" class="count" role="status" aria-live="polite"></p><div id="history-list"></div><button id="history-more" class="secondary hidden" type="button">Muat lebih banyak</button></section>
+<div id="session-banner" class="card hidden"><h2>Sesi scan tersimpan</h2><p id="session-info"></p><div class="session-actions"><button id="restore-session" type="button">Lanjutkan sesi</button><button id="discard-session" class="secondary" type="button">Hapus sesi</button></div></div>
 <section id="home" class="home">
 <div class="home-intro"><div class="home-eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M8 12h8"/></svg> Menu scanner</div><h2>Pilih tujuan scan</h2><p>Pilih alur kerja untuk mulai memindai barang.</p></div>
 <div class="destination-list">
@@ -77,11 +122,11 @@
 <div class="card"><h2>Scan</h2>
 <div id="warehouse-context" class="status hidden"></div><button id="clear-warehouse" class="secondary hidden" type="button">Hapus gudang hasil scan</button>
 <button id="camera-button" class="full">Buka Kamera</button></div>
-<div class="card"><div class="bar"><h2>Daftar barang</h2><span class="count" id="count">0 item</span></div><div id="items"></div><button id="save" class="full" disabled>Selesai · Submit Stock Entry</button></div>
+<div class="card"><div class="bar"><h2>Daftar barang</h2><span class="count" id="count">0 item</span></div><div id="items"></div><div class="scan-corrections"><button id="undo-stock" class="secondary" type="button" disabled>Batalkan scan terakhir</button></div><button id="save" class="full" disabled>Selesai · Submit Stock Entry</button></div>
 </section>
 </main>
 <div id="source-modal" class="source-modal hidden" role="dialog" aria-modal="true" aria-labelledby="source-title">
- <div class="source-panel"><div class="bar"><h2 id="source-title">Get Items From</h2><button id="close-source" class="secondary" type="button">Tutup</button></div>
+ <div class="source-panel"><div class="bar"><h2 id="source-title">Get Items From</h2><button id="close-source" class="secondary icon-button" type="button" aria-label="Tutup Get Items From" title="Tutup Get Items From"><span aria-hidden="true">×</span></button></div>
 <div id="source-error" class="status error hidden" role="alert"></div>
 <label for="source-type">Sumber item</label><select id="source-type"><option value="">Pilih sumber item</option></select>
 <div id="source-document-fields" class="hidden"><label for="source-search">Cari dokumen sumber</label><input id="source-search" type="search" placeholder="Cari nomor dokumen">
@@ -96,10 +141,11 @@
 <div id="camera-modal" class="camera-modal hidden" role="dialog" aria-modal="true" aria-labelledby="camera-title">
  <div class="camera-panel">
   <div class="bar"><h2 id="camera-title">Scan</h2><span id="camera-count" class="count">0 baris</span></div>
-  <div id="scan-toasts" class="scan-toasts" role="status" aria-live="polite"></div>
-  <div id="scanner-camera"></div>
+  <div id="camera-steps" class="scan-steps" aria-live="polite"></div><div id="camera-expected" class="scan-expected"></div>
+   <div class="camera-feed"><div id="scan-toasts" class="scan-toasts" role="status" aria-live="polite"></div><div id="scanner-camera"></div></div>
   <p id="camera-help">Arahkan kamera ke barcode atau QR. Setiap label QR dihitung satu kali per transaksi.</p>
   <button id="finish-camera" class="full">Selesai</button>
+  <div class="scan-corrections"><button id="undo-camera" class="secondary" type="button">Batalkan scan terakhir</button><button id="reset-camera-rack" class="secondary" type="button">Ganti rak asal</button><button id="scan-feedback-toggle" class="secondary" type="button" aria-pressed="true">Bunyi/getaran aktif</button></div>
  </div>
 </div>
 <script src="/assets/frappe/node_modules/html5-qrcode/html5-qrcode.min.js"></script>
@@ -116,6 +162,107 @@ const deliveryApi='scanner_app.scanner_app.delivery_note_scan.';
 const pickQrValues=new Set();
 const scannedQrValues = new Set();
 const scanQueue = [];
+let historyStart=0, historyRequest=0;
+function historyLink(type,name) {
+ const routes={'Stock Entry':'stock-entry','Pick List':'pick-list','Delivery Note':'delivery-note','Delivery Trip':'delivery-trip'};
+ if(!routes[type] || !name) return null;
+ const link=document.createElement('a');link.href='/app/'+routes[type]+'/'+encodeURIComponent(name);link.textContent=type+' · '+name;return link;
+}
+function renderHistoryEntry(entry) {
+ const card=document.createElement('details');card.className='history-entry';
+ const title=document.createElement('summary');title.textContent=entry.operation+' · '+entry.reference_name;
+ const meta=document.createElement('small');meta.textContent=entry.recorded_at+' · '+entry.scanned_by+' · '+entry.company;
+ card.append(title,meta);
+ const link=historyLink(entry.reference_doctype,entry.reference_name);if(link) card.append(link);
+ const source=historyLink(entry.source_doctype,entry.source_name);if(source) card.append(source);
+ for(const row of entry.details || []) {
+  const detail=document.createElement('div');detail.className='history-detail';
+  const item=document.createElement('strong');item.textContent=row.item_code || 'Delivery Note';detail.append(item);
+  for(const text of [row.qty!=null?'Jumlah: '+row.qty+' '+(row.uom || ''):'',row.batch_no?'Batch: '+row.batch_no:'',row.serial_no?'Serial: '+row.serial_no:'',row.source_warehouse?'Rak asal: '+row.source_warehouse:'',row.target_warehouse?'Rak tujuan: '+row.target_warehouse:'',row.qr_values?.length?'QR: '+row.qr_values.join(', '):row.barcode?'Barcode: '+row.barcode:'',row.trip?'Delivery Trip: '+row.trip:'',row.trip?(row.already_visited?'Stop sebelumnya sudah visited':'Stop ditandai visited'):'']) {
+   if(!text) continue;const line=document.createElement('div');line.textContent=text;detail.append(line);
+  }
+  card.append(detail);
+ }
+ return card;
+}
+async function loadHistory(more=false) {
+ const request=++historyRequest;if(!more) {historyStart=0;$('history-list').replaceChildren();}
+ $('history-status').textContent='Memuat riwayat…';$('history-more').disabled=true;
+ try {
+  const data=await call('get_history',{start:historyStart,search:$('history-search').value,activity:$('history-activity').value,scope:$('history-scope').value || 'mine'},false,'scanner_app.scanner_app.scan_history.');
+  if(request!==historyRequest) return;
+  data.rows.forEach(entry=>$('history-list').append(renderHistoryEntry(entry)));
+  historyStart=data.next_start;$('history-scope').classList.toggle('hidden',!data.can_view_all);
+  $('history-more').classList.toggle('hidden',!data.has_more);
+  $('history-status').textContent=$('history-list').children.length+' transaksi'+(!data.rows.length && !more?' · belum ada riwayat yang cocok':'');
+ } catch(e) {if(request===historyRequest) {$('history-status').textContent=e.message;$('history-more').classList.add('hidden');}}
+ finally {if(request===historyRequest) $('history-more').disabled=false;}
+}
+let sessionUser='', restoringSession=false, savedSession=null, stockUndo=[], audioContext=null, feedbackEnabled=true;
+try { feedbackEnabled=localStorage.getItem('scanner-feedback')!=='off'; } catch {}
+const clone=value=>JSON.parse(JSON.stringify(value));
+function stockSnapshot() { return {rows:[...rows],rowId,sourceRack}; }
+function checkpointStock() { stockUndo.push(clone(stockSnapshot())); if(stockUndo.length>30) stockUndo.shift(); }
+function rebuildQrSets() {
+ scannedQrValues.clear(); rows.forEach(row=>(row.qr_values || []).forEach(code=>scannedQrValues.add(code)));
+ pickQrValues.clear(); pickScans.forEach(scan=>{if(scan.qr_value) pickQrValues.add(scan.qr_value);});
+}
+function undoScan() {
+ if(scanTask || busy || pickBusy) return;
+ if(mode==='pick') { if(!pickScans.length) return; pickScans.pop(); rebuildQrSets(); renderPick(); }
+ else if(stockUndo.length) { const snapshot=stockUndo.pop(); rows=new Map(snapshot.rows);rowId=snapshot.rowId;sourceRack=snapshot.sourceRack;rebuildQrSets();render(); }
+ lastCode='';
+}
+function resetRack() {
+ if(scanTask || busy || pickBusy) return;
+ if(mode==='pick') {pickWarehouse='';renderPick();}
+ else if(!pendingTargetRows().length) {checkpointStock();sourceRack='';renderWarehouse();persistSession();}
+ lastCode='';
+}
+function sessionKey() { return 'scanner-session-v1:'+sessionUser; }
+function persistSession() {
+ if(!sessionUser || restoringSession || savedSession) return;
+ try {
+  if(!rows.size && !sourceGuide && !pickDraft) {localStorage.removeItem(sessionKey());return;}
+  localStorage.setItem(sessionKey(),JSON.stringify({version:1,time:Date.now(),mode,stock:{...stockSnapshot(),sourceGuide,company:$('company').value,purpose:$('purpose').value,source:$('source').value,target:$('target').value},pick:{draft:pickDraft,scans:pickScans,warehouse:pickWarehouse}}));
+ } catch { message('Penyimpanan sesi tidak tersedia. Hindari menutup halaman sebelum selesai.','error'); }
+}
+function sourceFingerprint(data) { return JSON.stringify({company:data.company,purpose:data.purpose,items:data.items,from_warehouse:data.from_warehouse || '',to_warehouse:data.to_warehouse || ''}); }
+async function restoreSession() {
+ if(!savedSession || restoringSession) return;
+ restoringSession=true; $('restore-session').disabled=true;
+ try {
+  const s=savedSession.stock, p=savedSession.pick;
+  let freshSource=null,freshPick=null;
+  if(s.sourceGuide) {
+   freshSource=await call('get_source_items',{source_type:s.sourceGuide.type,source_name:s.sourceGuide.name,company:s.company,purpose:s.purpose,options:s.sourceGuide.options});
+   if(sourceFingerprint(freshSource)!==s.sourceGuide.fingerprint) throw new Error('Dokumen sumber sudah berubah. Hapus sesi tersimpan dan ambil dokumen kembali.');
+  }
+  if(p.draft) {freshPick=await call('get_draft',{name:p.draft.name},false,pickApi);if(freshPick.modified!==p.draft.modified) throw new Error('Pick List sudah berubah atau disubmit. Hapus sesi tersimpan dan ambil draft kembali.');}
+  if(!setup.companies.includes(s.company) || !setup.purposes.includes(s.purpose)) throw new Error('Perusahaan atau transaksi sesi tidak tersedia.');
+  $('company').value=s.company;updateWarehouses();$('purpose').value=s.purpose;
+  sourceGuide=s.sourceGuide;updatePurpose();$('source').value=s.source;$('target').value=s.target;
+  rows=new Map(s.rows);rowId=s.rowId;sourceRack=s.sourceRack;stockUndo=[];
+  for(const id of ['company','purpose']) $(id).disabled=!!sourceGuide;
+  $('open-source').disabled=!!sourceGuide;$('clear-source').classList.toggle('hidden',!sourceGuide);$('source-summary').classList.toggle('hidden',!sourceGuide);
+  if(sourceGuide) $('source-summary').textContent=sourceGuide.type+' · '+sourceGuide.name+' · '+s.company;
+  pickDraft=freshPick;pickScans=p.scans;pickWarehouse=p.warehouse;
+  $('pick-search').disabled=!!pickDraft;$('pick-document').disabled=!!pickDraft;
+  $('pick-load').classList.toggle('hidden',!!pickDraft);$('pick-clear').classList.toggle('hidden',!pickDraft);$('pick-summary').classList.toggle('hidden',!pickDraft);
+  if(pickDraft) $('pick-summary').textContent=pickDraft.name+' · '+pickDraft.purpose+' · '+pickDraft.company;
+  for(const id of ['pick-guide-section','pick-scan-section','pick-submit-section']) $(id).classList.toggle('hidden',!pickDraft);
+  mode=savedSession.mode==='pick'?'pick':'stock';
+  $('home').classList.add('hidden');$('stock').classList.toggle('hidden',mode!=='stock');$('pick').classList.toggle('hidden',mode!=='pick');
+  rebuildQrSets();render();renderPick();$('session-banner').classList.add('hidden');savedSession=null;
+  message('Sesi dipulihkan. Dokumen sumber telah diperiksa kembali; validasi stok dan izin tetap dilakukan saat submit.','success');
+ } catch(e) {message(e.message,'error');}
+ finally {restoringSession=false;$('restore-session').disabled=false;}
+}
+function scanFeedback(error=false) {
+ if(!feedbackEnabled) return;
+ try {navigator.vibrate?.(error?[120,60,120]:50);} catch {}
+ try {if(audioContext?.state!=='running') return;const oscillator=audioContext.createOscillator(),gain=audioContext.createGain();oscillator.frequency.value=error?220:880;gain.gain.value=.06;oscillator.connect(gain);gain.connect(audioContext.destination);oscillator.start();oscillator.stop(audioContext.currentTime+(error ? .18 : .08));} catch {}
+}
 const SOURCE_PURPOSES = {
  from: new Set(['Material Issue','Material Transfer','Send to Subcontractor','Material Transfer for Manufacture','Material Consumption for Manufacture','Return Raw Material to Customer','Subcontracting Delivery']),
  to: new Set(['Material Receipt','Material Transfer','Send to Subcontractor','Material Transfer for Manufacture','Receive from Customer','Subcontracting Return']),
@@ -125,7 +272,9 @@ function applyTheme(theme) {
  const light=theme==='light';
  document.documentElement.dataset.theme=light?'light':'dark';
  const themeIcon=light?'<path d="M12 3v2M12 19v2M5.64 5.64l1.42 1.42m9.88 9.88 1.42 1.42M3 12h2m14 0h2M5.64 18.36l1.42-1.42m9.88-9.88 1.42-1.42"/><circle cx="12" cy="12" r="4"/>':'<path d="M20.2 15.1A8.5 8.5 0 0 1 8.9 3.8 8.6 8.6 0 1 0 20.2 15.1Z"/>';
- $('theme-toggle').innerHTML='<svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+themeIcon+'</svg>'+(light?'Terang':'Gelap');
+ $('theme-toggle').innerHTML='<svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+themeIcon+'</svg>';
+ $('theme-toggle').setAttribute('aria-label',light?'Aktifkan mode gelap':'Aktifkan mode terang');
+ $('theme-toggle').setAttribute('title',light?'Aktifkan mode gelap':'Aktifkan mode terang');
  $('theme-toggle').setAttribute('aria-checked',String(light));
  document.querySelector('meta[name="theme-color"]').content=light?'#f4f6fa':'#171717';
 }
@@ -134,7 +283,9 @@ function message(text, kind = '') { const el = $('status'); el.textContent = tex
 function csrf() { return window.frappe.csrf_token || document.cookie.split('; ').find(v => v.startsWith('csrf_token='))?.split('=')[1] || ''; }
 async function call(method, args = {}, post = false, namespace = api) {
  const body = new URLSearchParams(); Object.entries(args).forEach(([k,v]) => body.set(k, typeof v === 'object' ? JSON.stringify(v) : v));
- const response = await fetch('/api/method/' + namespace + method + (post ? '' : '?' + body), {method:post?'POST':'GET', credentials:'include', headers:{'Accept':'application/json','X-Frappe-CSRF-Token':csrf(), ...(post?{'Content-Type':'application/x-www-form-urlencoded'}:{})}, body:post?body:undefined});
+ let response;
+ try {response = await fetch('/api/method/' + namespace + method + (post ? '' : '?' + body), {method:post?'POST':'GET', credentials:'include', headers:{'Accept':'application/json','X-Frappe-CSRF-Token':csrf(), ...(post?{'Content-Type':'application/x-www-form-urlencoded'}:{})}, body:post?body:undefined});}
+ catch {throw new Error(post?'Koneksi terputus saat mengirim. Hasil scan tetap tersimpan; periksa dokumen di ERPNext sebelum mengirim ulang.':'Koneksi terputus. Hasil scan tetap tersimpan; sambungkan internet dan coba lagi.');}
  const data = await response.json();
  if (!response.ok) {
   let msg = data.message || data.exc_type || 'Terjadi kesalahan';
@@ -168,7 +319,11 @@ function updatePurpose() {
  $('camera-button').title=$('camera-button').disabled?'Ambil item lewat Get Items From terlebih dahulu.':'';
   scannedWarehouse=''; sourceRack=''; renderWarehouse();
 }
-function pendingTargetRows() { return [...rows.values()].filter(row=>row.source_rack_code && !row.target_rack_code); }
+function rowGuide(row) { return sourceGuide?.items.find(item=>item.key===row.guide_key) || null; }
+function pendingTargetRows() { return [...rows.values()].filter(row=>guideNeedsWarehouse(rowGuide(row),$('purpose').value,'t_warehouse') && !row.target_rack_code); }
+function requiresSourceRack() {
+ return sourceGuide ? sourceGuide.items.some(row=>guideNeedsWarehouse(row,$('purpose').value,'s_warehouse') && guideProgress(row.key)<row.stock_qty-0.000001) : SOURCE_PURPOSES.from.has($('purpose').value);
+}
 function updateCameraPrompt() {
  if(mode==='delivery') {
   $('camera-title').textContent='Scan Delivery Note';
@@ -176,20 +331,32 @@ function updateCameraPrompt() {
  } else if(mode==='pick') {
   $('camera-title').textContent=pickWarehouse?'Scan barang':'Scan rak asal';
   $('camera-help').textContent=pickWarehouse?'Scan barang dari rak '+pickWarehouse+' sesuai panduan Pick List.':'Scan QR rak asal sebelum scan barang.';
- } else if($('purpose').value==='Material Transfer') {
-  const pending=pendingTargetRows().length;
-  $('camera-title').textContent=pending?'Scan rak tujuan':sourceRack?'Scan barang':'Scan rak asal';
-  $('camera-help').textContent=pending?'Scan QR rak tujuan untuk barang ini, atau lanjut scan barang dari rak asal yang sama.':sourceRack?'Scan barang dari rak '+sourceRack+'.':'Scan QR rak asal sebelum scan barang.';
  } else {
-  $('camera-title').textContent='Scan barang';
-  $('camera-help').textContent='Arahkan kamera ke barcode atau QR. Setiap label QR dihitung satu kali per Stock Entry.';
+  const pending=pendingTargetRows().length;
+  $('camera-title').textContent=pending?'Scan rak tujuan':!sourceRack && requiresSourceRack()?'Scan rak asal':'Scan barang';
+  $('camera-help').textContent=pending?'Scan QR rak tujuan untuk barang ini, atau lanjut scan barang dari rak asal yang sama.':sourceRack?'Scan barang dari rak '+sourceRack+'.':'Scan QR rak asal sebelum scan barang.';
+  if(!pending && !sourceRack && !requiresSourceRack()) $('camera-help').textContent='Scan barang, lalu scan QR rak tujuan.';
  }
+ const steps=$('camera-steps');steps.replaceChildren();
+ const pick=mode==='pick', pending=pick?[]:pendingTargetRows(), needSource=pick || requiresSourceRack() || !!sourceRack, needTarget=!pick && (pending.length || (sourceGuide ? sourceGuide.items.some(row=>guideNeedsWarehouse(row,$('purpose').value,'t_warehouse')) : SOURCE_PURPOSES.to.has($('purpose').value)));
+ const active=$('camera-title').textContent;
+ if(mode!=='delivery') {
+  for(const [title,visible,done] of [['Scan rak asal',needSource,!!(pick?pickWarehouse:sourceRack)],['Scan barang',true,pick?pickComplete():!!pending.length],['Scan rak tujuan',needTarget,false]]) {
+   if(!visible) continue;const step=document.createElement('span');step.className='scan-step'+(title===active?' active':done?' done':'');step.textContent=(done?'✓ ':'')+title;steps.append(step);
+  }
+ }
+ const expected=pick ? pickDraft?.items.filter(row=>pickProgress(row)<row.stock_qty-.000001).map(row=>row.warehouse) : pending.length ? pending.map(row=>rowGuide(row)?.t_warehouse || $('target').value) : sourceGuide?.items.filter(row=>guideNeedsWarehouse(row,$('purpose').value,'s_warehouse') && guideProgress(row.key)<row.stock_qty-.000001).map(row=>row.s_warehouse || $('source').value);
+ $('camera-expected').textContent=mode==='delivery'?'': 'Rak panduan: '+([...new Set((expected || []).filter(Boolean))].join(', ') || (pick?pickWarehouse:sourceRack) || (needSource?$('source').value:$('target').value) || 'belum ditentukan — isi dari QR rak');
+ $('undo-camera').classList.toggle('hidden',mode==='delivery');$('undo-camera').disabled=!!scanTask || busy || pickBusy || (pick?!pickScans.length:!stockUndo.length);
+ $('undo-stock').disabled=!!scanTask || busy || !stockUndo.length;
+ $('reset-camera-rack').classList.toggle('hidden',mode==='delivery' || !needSource);$('reset-camera-rack').disabled=!!scanTask || busy || pickBusy || !!pending.length;
+ $('scan-feedback-toggle').textContent=feedbackEnabled?'Bunyi/getaran aktif':'Bunyi/getaran mati';$('scan-feedback-toggle').setAttribute('aria-pressed',String(feedbackEnabled));
 }
 function renderWarehouse() {
- const transfer=$('purpose').value==='Material Transfer', pending=pendingTargetRows();
- $('warehouse-context').textContent=transfer ? pending.length ? 'Rak asal: '+sourceRack+' · lanjut scan barang atau scan QR rak tujuan.' : sourceRack ? 'Rak asal: '+sourceRack+' · scan barang, lalu scan rak tujuan.' : 'Scan QR rak asal sebelum scan barang.' : scannedWarehouse ? 'Gudang hasil scan untuk barang berikutnya: '+scannedWarehouse : '';
- $('warehouse-context').classList.toggle('hidden',!transfer && !scannedWarehouse);
- $('clear-warehouse').classList.toggle('hidden',transfer || !scannedWarehouse);
+ const pending=pendingTargetRows();
+ $('warehouse-context').textContent=pending.length ? 'Scan QR rak tujuan untuk barang yang sudah discan.' : sourceRack ? 'Rak asal: '+sourceRack+' · scan barang sesuai panduan.' : requiresSourceRack() ? 'Scan QR rak asal sebelum scan barang.' : 'Scan barang, lalu scan QR rak tujuan.';
+ $('warehouse-context').classList.remove('hidden');
+ $('clear-warehouse').classList.toggle('hidden',!sourceRack || !!pending.length);
  updateCameraPrompt();
 }
 function updateSourceTypes() {
@@ -266,7 +433,7 @@ async function fetchSource() {
   $('company').value=data.company; updateWarehouses();
   $('source').value=''; $('target').value='';
   $('purpose').value=data.purpose; updatePurpose();
-  sourceGuide={type,name,options,items:data.items};
+   sourceGuide={type,name,options,items:data.items,fingerprint:sourceFingerprint(data)};stockUndo=[];
   updatePurpose();
   if (data.from_warehouse && [...$('source').options].some(option=>option.value===data.from_warehouse)) $('source').value=data.from_warehouse;
   if (data.to_warehouse && [...$('target').options].some(option=>option.value===data.to_warehouse)) $('target').value=data.to_warehouse;
@@ -281,7 +448,7 @@ async function fetchSource() {
 function clearSource() {
  if (rows.size && !window.confirm('Hapus sumber dan seluruh hasil scan saat ini?')) return;
   sourceGuide=null; rows.clear(); scannedQrValues.clear(); scannedWarehouse=''; sourceRack=''; renderWarehouse();
- updatePurpose();
+  stockUndo=[];updatePurpose();
  for (const id of ['company','purpose']) $(id).disabled=false;
  $('open-source').disabled=false; $('clear-source').classList.add('hidden'); $('source-summary').classList.add('hidden');
   $('source-type').value=''; $('source-search').value=''; $('source-document').replaceChildren(); $('source-purpose').replaceChildren(new Option('Pilih aksi sumber','')); updateSourceTypes(); render(); clearStatus();
@@ -295,7 +462,7 @@ function applySourceWarehouse(field) {
  if (!sourceGuide) return;
  const selected=$(field==='s_warehouse'?'source':'target').value;
   rows.forEach(row=>{
-   if($('purpose').value==='Material Transfer' && row.source_rack_code) return;
+   if(row.source_rack_code || row.target_rack_code) return;
    const guide=sourceGuide.items.find(item=>item.key===row.guide_key);
   if (guideNeedsWarehouse(guide,$('purpose').value,field)) row[field]=selected || guide?.[field] || '';
  });
@@ -327,7 +494,10 @@ function renderGuide() {
  if (!sourceGuide) return;
  let done=0;
  sourceGuide.items.forEach(row=>{
-  const progress=guideProgress(row.key), complete=Math.abs(progress-row.stock_qty)<=0.000001;
+   const progress=guideProgress(row.key), quantityComplete=Math.abs(progress-row.stock_qty)<=0.000001;
+   const scanned=[...rows.values()].filter(item=>item.guide_key===row.key);
+   const racksComplete=scanned.every(item=>(!guideNeedsWarehouse(row,$('purpose').value,'s_warehouse') || !!item.source_rack_code) && (!guideNeedsWarehouse(row,$('purpose').value,'t_warehouse') || !!item.target_rack_code));
+   const complete=quantityComplete && racksComplete;
   if (complete) done++;
    const div=document.createElement('div'); div.className='pick-row'+(complete?' done':'');
    const heading=document.createElement('div'); heading.className='bar';
@@ -336,9 +506,10 @@ function renderGuide() {
    heading.append(name,count);
   const field=guideNeedsWarehouse(row,$('purpose').value,'s_warehouse')?'s_warehouse':'t_warehouse';
   const warehouse=$(field==='s_warehouse'?'source':'target').value || row[field] || '';
-   const route=$('purpose').value==='Material Transfer' ? (row.s_warehouse || $('source').value || 'scan rak asal')+' → '+(row.t_warehouse || $('target').value || 'scan rak tujuan') : warehouse;
-   const meta=document.createElement('small'); meta.textContent=[row.item_code,row.batch_no?'Batch: '+row.batch_no:'',route].filter(Boolean).join(' · ');
-   div.append(heading,meta); list.append(div);
+   const route=[guideNeedsWarehouse(row,$('purpose').value,'s_warehouse') ? row.s_warehouse || $('source').value || 'scan rak asal' : '',guideNeedsWarehouse(row,$('purpose').value,'t_warehouse') ? row.t_warehouse || $('target').value || 'scan rak tujuan' : ''].filter(Boolean).join(' → ') || warehouse;
+    const meta=document.createElement('small'); meta.textContent=[row.item_code,row.batch_no?'Batch: '+row.batch_no:'',route].filter(Boolean).join(' · ');
+    div.append(heading,meta);
+    const state=document.createElement('span');state.className='scan-row-state';state.textContent=complete?'Siap submit':quantityComplete?'Jumlah lengkap · menunggu scan rak tujuan':'Menunggu jumlah scan lengkap';div.append(state);list.append(div);
  });
  $('guide-count').textContent=done+' / '+sourceGuide.items.length+' lengkap';
 }
@@ -368,22 +539,30 @@ async function submitDelivery(value) {
  finally { deliveryBusy=false; $('delivery-submit').disabled=false; $('delivery-submit').textContent='Tandai'; }
 }
 function render() {
+ for(const id of ['company','purpose']) $(id).disabled=!!sourceGuide || !!rows.size;
+ for(const id of ['source','target']) $(id).disabled=!!rows.size;
  const list = $('items'); list.replaceChildren();
  rows.forEach((item, key) => {
   const div = document.createElement('div'); div.className = 'item';
   const info = document.createElement('div'); info.className = 'item-info';
   const name = document.createElement('strong'); name.textContent = item.item_name || item.item_code;
-   const route=$('purpose').value==='Material Transfer' && item.source_rack_code ? item.s_warehouse+' → '+(item.target_rack_code || 'scan rak tujuan') : item.s_warehouse || item.t_warehouse || '';
+    const route=[item.source_rack_code ? item.s_warehouse : '',guideNeedsWarehouse(rowGuide(item),$('purpose').value,'t_warehouse') ? item.target_rack_code || 'scan rak tujuan' : ''].filter(Boolean).join(' → ');
    const details = [item.item_code, item.uom, item.batch_no ? 'Batch: ' + item.batch_no : '', item.qr_values?.length ? item.qr_values.length + ' label QR' : '', item.serial_no ? 'Serial: ' + item.serial_no.replaceAll('\n', ', ') : '', route, (item.has_serial_no && !item.serial_no) || (item.has_batch_no && !item.batch_no) ? 'Scan serial/batch sebelum submit' : ''].filter(Boolean);
   const meta = document.createElement('small'); meta.textContent = details.join(' · ');
   info.append(name, meta); const qty = document.createElement('input'); qty.type='number'; qty.min='0.001'; qty.step='any'; qty.value=item.qty; qty.disabled=!!sourceGuide || !!item.qr_values?.length; qty.setAttribute('aria-label','Jumlah ' + item.item_code);
-  qty.addEventListener('change', () => { item.qty = Number(qty.value); render(); });
-  const remove = document.createElement('button'); remove.textContent='×'; remove.setAttribute('aria-label','Hapus ' + item.item_code); remove.addEventListener('click', () => { (item.qr_values || []).forEach(code=>scannedQrValues.delete(code)); rows.delete(key); render(); });
+   qty.addEventListener('change', () => { checkpointStock(); item.qty = Number(qty.value); render(); });
+   const remove = document.createElement('button'); remove.textContent='×'; remove.setAttribute('aria-label','Hapus ' + item.item_code); remove.addEventListener('click', () => {if(scanTask || busy) return; checkpointStock(); (item.qr_values || []).forEach(code=>scannedQrValues.delete(code)); rows.delete(key); render(); });
+   if(item.target_rack_code) {
+    const actions=document.createElement('div');actions.className='scan-row-actions';const reset=document.createElement('button');reset.type='button';reset.textContent='Scan ulang rak tujuan';reset.addEventListener('click',()=>{
+     if(scanTask || busy || pendingTargetRows().length) {message('Selesaikan kelompok scan yang sedang berjalan terlebih dahulu.','error');return;}
+     checkpointStock();item.target_rack_code='';sourceRack=item.source_rack_code || '';render();message('Scan ulang QR rak tujuan untuk '+item.item_code+'.');
+    });actions.append(reset);info.append(actions);
+   }
   div.append(info, qty, remove); list.append(div);
  });
-  $('count').textContent = rows.size + ' item'; $('camera-count').textContent = rows.size + ' baris'; $('save').disabled = !rows.size || busy || !guideComplete() || ($('purpose').value==='Material Transfer' && !!pendingTargetRows().length); renderGuide(); renderWarehouse();
+    $('count').textContent = rows.size + ' item'; $('camera-count').textContent = rows.size + ' baris'; $('save').disabled = !rows.size || busy || !guideComplete() || !!pendingTargetRows().length; renderGuide(); renderWarehouse();persistSession();
 }
-function scanTransferRack(warehouse) {
+function scanStockRack(warehouse) {
  const pending=pendingTargetRows();
  if(pending.length) {
   for(const row of pending) {
@@ -391,14 +570,18 @@ function scanTransferRack(warehouse) {
    const expected=guide?.t_warehouse || $('target').value;
    if(expected && expected!==warehouse) throw new Error('Rak tujuan untuk '+row.item_code+' harus '+expected);
   }
-  if(sourceRack===warehouse) throw new Error('Rak asal dan tujuan harus berbeda.');
-  pending.forEach(row=>{row.t_warehouse=warehouse;row.target_rack_code=warehouse;});
-  sourceRack=''; render(); return 'Rak tujuan '+warehouse+' cocok. Scan rak asal untuk kelompok berikutnya.';
- }
- if($('source').value && $('source').value!==warehouse && !sourceGuide?.items.some(row=>row.s_warehouse===warehouse)) throw new Error('Rak asal harus sesuai dokumen: '+$('source').value);
- sourceRack=warehouse; renderWarehouse(); return 'Rak asal '+warehouse+' siap. Scan barang.';
+   if(pending.some(row=>row.source_rack_code===warehouse)) throw new Error('Rak asal dan tujuan harus berbeda.');
+   checkpointStock();pending.forEach(row=>{row.t_warehouse=warehouse;row.target_rack_code=warehouse;});
+   sourceRack=''; render(); return 'Rak tujuan '+warehouse+' cocok. Lanjutkan kelompok berikutnya.';
+  }
+  if(!requiresSourceRack()) throw new Error('Scan barang dahulu, kemudian rak tujuan.');
+  if(sourceGuide && !sourceGuide.items.some(row=>guideNeedsWarehouse(row,$('purpose').value,'s_warehouse') && guideProgress(row.key)<row.stock_qty-0.000001 && (!row.s_warehouse || row.s_warehouse===warehouse))) throw new Error('Rak asal tidak cocok dengan panduan yang belum selesai.');
+  if($('source').value && $('source').value!==warehouse && !sourceGuide?.items.some(row=>row.s_warehouse===warehouse)) throw new Error('Rak asal harus sesuai dokumen: '+$('source').value);
+  checkpointStock();sourceRack=warehouse; renderWarehouse();persistSession(); return 'Rak asal '+warehouse+' siap. Scan barang.';
 }
 function scanToast(text, kind = '') {
+ scanFeedback(kind==='error');
+ if(kind==='error') message(text,'error');
  const toast=document.createElement('div'); toast.className='scan-toast ' + kind; toast.textContent=text;
  $('scan-toasts').append(toast);
  while ($('scan-toasts').children.length > 3) $('scan-toasts').firstElementChild.remove();
@@ -409,40 +592,45 @@ async function resolveScan(code) {
  if (scannedQrValues.has(code)) throw new Error('QR ini sudah discan dalam Stock Entry ini.');
   const item=await call('lookup_item', {code, company:$('company').value});
   if (item.warehouse) {
-   if($('purpose').value==='Material Transfer') return scanTransferRack(item.warehouse);
-   scannedWarehouse=item.warehouse; renderWarehouse();
-   return 'Gudang berikutnya: ' + item.warehouse;
+    return scanStockRack(item.warehouse);
   }
-  if($('purpose').value==='Material Transfer' && !sourceRack) throw new Error('Scan rak asal sebelum barang.');
  if (item.qr_value && scannedQrValues.has(item.qr_value)) throw new Error('QR ini sudah discan dalam Stock Entry ini.');
  if (item.serial_no && [...rows.values()].some(row => row.serial_no?.split('\n').includes(item.serial_no))) throw new Error('Serial No ' + item.serial_no + ' sudah discan.');
  let guide=null;
   if (sourceGuide) {
    guide=[...sourceGuide.items].sort((a,b)=>Number(b.s_warehouse===sourceRack)-Number(a.s_warehouse===sourceRack)).find(row=>{
-    if (row.item_code!==item.item_code || (row.batch_no && row.batch_no!==item.batch_no) || ($('purpose').value==='Material Transfer' && row.s_warehouse && row.s_warehouse!==sourceRack)) return false;
+     if (row.item_code!==item.item_code || (row.batch_no && row.batch_no!==item.batch_no) || (sourceRack && guideNeedsWarehouse(row,$('purpose').value,'s_warehouse') && row.s_warehouse && row.s_warehouse!==sourceRack)) return false;
     return guideProgress(row.key)<row.stock_qty-0.000001;
    });
    if (!guide) throw new Error('Item tidak ada dalam panduan atau jumlahnya sudah terpenuhi.');
   }
-  if($('purpose').value==='Material Transfer' && guide) {
-   const currentTargets=new Set(pendingTargetRows().map(row=>sourceGuide.items.find(entry=>entry.key===row.guide_key)?.t_warehouse || $('target').value).filter(Boolean));
-   const nextTarget=guide.t_warehouse || $('target').value;
+   const needsSource=guideNeedsWarehouse(guide,$('purpose').value,'s_warehouse'), needsTarget=guideNeedsWarehouse(guide,$('purpose').value,'t_warehouse');
+   if(needsSource && !sourceRack) throw new Error('Scan rak asal sebelum barang.');
+   if(pendingTargetRows().length && !needsTarget) throw new Error('Scan rak tujuan untuk barang sebelumnya dahulu.');
+   if(needsTarget) {
+    const currentTargets=new Set(pendingTargetRows().map(row=>rowGuide(row)?.t_warehouse || $('target').value).filter(Boolean));
+    const nextTarget=guide?.t_warehouse || $('target').value;
    if(currentTargets.size && nextTarget && !currentTargets.has(nextTarget)) throw new Error('Scan rak tujuan untuk barang sebelumnya sebelum mengambil item dengan tujuan lain.');
   }
  const warehouseField=scanWarehouseField(guide);
- const currentWarehouse=scannedWarehouse || $(warehouseField === 't_warehouse' ? 'target' : 'source').value;
-  const matchRow=(row,key)=>row.item_code===item.item_code && (!key || row.guide_key===key) && ($('purpose').value!=='Material Transfer' || !row.target_rack_code) && (sourceGuide || !item.explicit_uom || row.uom===item.uom) && (!!row.qr_values?.length===!!item.qr_value) && (item.qr_value ? (row.batch_no || '')===(item.batch_no || '') : (!item.batch_no || !row.batch_no || row.batch_no===item.batch_no)) && (!currentWarehouse || !row[warehouseField] || row[warehouseField]===currentWarehouse);
+  const currentWarehouse=needsSource ? sourceRack : '';
+   const matchRow=(row,key)=>row.item_code===item.item_code && (!key || row.guide_key===key) && !row.target_rack_code && (sourceGuide || !item.explicit_uom || row.uom===item.uom) && (!!row.qr_values?.length===!!item.qr_value) && (item.qr_value ? (row.batch_no || '')===(item.batch_no || '') : (!item.batch_no || !row.batch_no || row.batch_no===item.batch_no)) && (!currentWarehouse || !row.s_warehouse || row.s_warehouse===currentWarehouse);
  const existing=[...rows.values()].find(row=>matchRow(row,guide?.key));
- const record=existing || {...item, qty:0, qr_values:[], uom:guide?.uom || item.uom, conversion_factor:guide ? guide.stock_qty/guide.qty : item.conversion_factor, guide_key:guide?.key || '', s_warehouse:guideNeedsWarehouse(guide,$('purpose').value,'s_warehouse')?($('source').value || guide?.s_warehouse || ''):(guide?.s_warehouse || ''), t_warehouse:guideNeedsWarehouse(guide,$('purpose').value,'t_warehouse')?($('target').value || guide?.t_warehouse || ''):(guide?.t_warehouse || '')};
+  const record=existing || {...item, qty:0, qr_values:[], uom:guide?.uom || item.uom, conversion_factor:guide ? guide.stock_qty/guide.qty : item.conversion_factor, guide_key:guide?.key || '', s_warehouse:guideNeedsWarehouse(guide,$('purpose').value,'s_warehouse')?($('source').value || guide?.s_warehouse || ''):(guide?.s_warehouse || ''), t_warehouse:guideNeedsWarehouse(guide,$('purpose').value,'t_warehouse')?($('target').value || guide?.t_warehouse || ''):(guide?.t_warehouse || '')};
  const remaining=guide?Math.max(0,guide.stock_qty-guideProgress(guide.key)):1;
- const scanQty=guide?Math.min(1,remaining/(guide.stock_qty/guide.qty)):1;
+  const scanQty=guide?Math.min(1,remaining/(guide.stock_qty/guide.qty)):1;
+  if(needsSource) {
+   const total=[...rows.values()].filter(row=>row.item_code===item.item_code && row.s_warehouse===sourceRack && (row.batch_no || '')===(item.batch_no || '')).reduce((sum,row)=>sum+row.qty*row.conversion_factor,0)+scanQty*record.conversion_factor;
+   await call('validate_source_scan',{code,company:$('company').value,warehouse:sourceRack,stock_qty:total});
+  }
+  checkpointStock();
  record.qty=Number((record.qty + scanQty).toFixed(6));
  if (item.barcode) record.barcode=item.barcode;
  if (item.batch_no) record.batch_no=item.batch_no;
  if (item.qr_value) { record.qr_values.push(item.qr_value); scannedQrValues.add(item.qr_value); }
  if (item.serial_no) record.serial_no=record.serial_no ? record.serial_no + '\n' + item.serial_no : item.serial_no;
   if (scannedWarehouse) record[warehouseField]=scannedWarehouse;
-  if($('purpose').value==='Material Transfer') { record.s_warehouse=sourceRack; record.source_rack_code=sourceRack; }
+   if(needsSource) { record.s_warehouse=sourceRack; record.source_rack_code=sourceRack; }
  if (!existing) rows.set(++rowId, record);
  render();
  return (item.item_name || item.item_code) + ' · +' + Number(scanQty.toFixed(3)) + ' ' + record.uom + ' · total ' + record.qty;
@@ -460,7 +648,7 @@ function enqueueScan(code) {
      }
     catch(e) { scanToast(e.message || String(e), 'error'); }
    }
-  })().finally(() => { scanTask=null; });
+   })().finally(() => { scanTask=null;updateCameraPrompt(); });
  }
 }
 async function stopCamera() {
@@ -474,6 +662,7 @@ async function startCamera() {
   if (mode!=='delivery' && (mode==='pick' ? !pickDraft : !$('company').value)) { message(mode==='pick'?'Ambil draft Pick List sebelum scan.':'Pilih perusahaan sebelum scan.', 'error'); return; }
  if (!window.Html5Qrcode) { message('Pemindai kamera belum termuat. Muat ulang halaman dan coba lagi.', 'error'); return; }
  if (camera) return;
+ try {const Audio=window.AudioContext || window.webkitAudioContext;if(Audio && !audioContext) audioContext=new Audio();audioContext?.resume().catch(()=>{});} catch {}
   updateCameraPrompt();
  $('scan-toasts').replaceChildren(); $('camera-modal').classList.remove('hidden'); document.body.classList.add('scanning');
   const button=$(mode==='delivery'?'delivery-camera-button':mode==='pick'?'pick-camera-button':'camera-button'); button.disabled=true;
@@ -501,14 +690,14 @@ async function save() {
  if(busy || !rows.size) return;
  const purpose=$('purpose').value, company=$('company').value, source=$('source').value, target=$('target').value;
   const items=[...rows.values()].map(x=>({item_code:x.item_code, qty:x.qty, uom:x.uom, barcode:x.barcode, batch_no:x.batch_no, serial_no:x.serial_no, qr_values:x.qr_values || [], s_warehouse:x.s_warehouse, t_warehouse:x.t_warehouse, source_rack_code:x.source_rack_code, target_rack_code:x.target_rack_code, guide_key:x.guide_key}));
-  if(purpose==='Material Transfer' && (pendingTargetRows().length || items.some(x=>!x.source_rack_code || !x.target_rack_code))) { message('Scan rak asal dan rak tujuan untuk semua barang sebelum submit.','error'); return; }
+  if(items.some(x=>(guideNeedsWarehouse(rowGuide(x),purpose,'s_warehouse') && !x.source_rack_code) || (guideNeedsWarehouse(rowGuide(x),purpose,'t_warehouse') && !x.target_rack_code))) { message('Lengkapi scan rak asal/tujuan sesuai kebutuhan setiap barang sebelum submit.','error'); return; }
  if (!guideComplete()) { message('Scan semua jumlah pada panduan item terlebih dahulu.','error'); return; }
  if(!company || (!sourceGuide && purpose !== 'Material Receipt' && items.some(x=>!x.s_warehouse && !source)) || (!sourceGuide && purpose !== 'Material Issue' && items.some(x=>!x.t_warehouse && !target))) { message('Pilih perusahaan dan gudang yang diperlukan untuk setiap barang.', 'error'); return; }
  if(['Material Transfer','Send to Subcontractor'].includes(purpose) && items.some(x=>(x.s_warehouse || source)===(x.t_warehouse || target))) { message('Gudang asal dan tujuan harus berbeda.', 'error'); return; }
  if(items.some(x=>!Number.isFinite(x.qty) || x.qty<=0)) { message('Jumlah setiap barang harus positif.', 'error'); return; }
  if([...rows.values()].some(x=>(x.has_serial_no && !x.serial_no) || (x.has_batch_no && !x.batch_no))) { message('Scan serial atau batch untuk setiap barang yang memerlukannya sebelum submit.','error'); return; }
  busy=true; $('save').disabled=true; $('save').textContent='Mengirim...';
-  try { const result=await call('submit_entry',{purpose,company,from_warehouse:source,to_warehouse:target,items,source_type:sourceGuide?.type || '',source_name:sourceGuide?.name || '',source_options:sourceGuide?.options || {}},true); if(result.docstatus!==1) throw new Error('Stock Entry belum berhasil disubmit.'); rows.clear(); scannedQrValues.clear(); sourceRack=''; if(sourceGuide) clearSource(); else render(); stopCamera(); message('Stock Entry ' + result.name + ' berhasil disubmit.', 'success'); const link=document.createElement('a'); link.href='/app/stock-entry/' + encodeURIComponent(result.name); link.textContent=' Buka di ERPNext'; $('status').append(link); }
+   try { const result=await call('submit_entry',{purpose,company,from_warehouse:source,to_warehouse:target,items,source_type:sourceGuide?.type || '',source_name:sourceGuide?.name || '',source_options:sourceGuide?.options || {}},true); if(result.docstatus!==1) throw new Error('Stock Entry belum berhasil disubmit.'); rows.clear(); scannedQrValues.clear(); sourceRack='';stockUndo=[]; if(sourceGuide) clearSource(); else render(); stopCamera(); message('Stock Entry ' + result.name + ' berhasil disubmit.', 'success'); const link=document.createElement('a'); link.href='/app/stock-entry/' + encodeURIComponent(result.name); link.textContent=' Buka di ERPNext'; $('status').append(link); }
  catch(e) { message(e.message,'error'); }
  finally { busy=false; $('save').textContent='Selesai · Submit Stock Entry'; render(); }
 }
@@ -542,7 +731,7 @@ function renderPick() {
    const meta=document.createElement('small'); meta.textContent=[row.item_code,row.warehouse || pickScans.find(scan=>scan.row_name===row.name)?.source_rack_code || 'Scan rak asal',batch?'Batch: '+batch:''].filter(Boolean).join(' · ');
   div.append(heading,meta);
   let last=-1; for(let i=pickScans.length-1;i>=0;i--) if(pickScans[i].row_name===row.name) {last=i;break;}
-  if(last>=0) { const undo=document.createElement('button'); undo.className='secondary'; undo.type='button'; undo.textContent='Batalkan scan terakhir'; undo.addEventListener('click',()=>{const [removed]=pickScans.splice(last,1);if(removed.qr_value) pickQrValues.delete(removed.qr_value);renderPick();});div.append(undo); }
+   if(last>=0) { const undo=document.createElement('button'); undo.className='secondary'; undo.type='button'; undo.textContent='Batalkan scan terakhir'; undo.addEventListener('click',()=>{if(scanTask || pickBusy) return;const [removed]=pickScans.splice(last,1);if(removed.qr_value) pickQrValues.delete(removed.qr_value);renderPick();});div.append(undo); }
   list.append(div);
  });
  $('pick-guide-count').textContent=done+' / '+pickDraft.items.length+' lengkap';
@@ -550,7 +739,8 @@ function renderPick() {
  $('pick-save').disabled=pickBusy || !pickComplete();
   $('pick-warehouse-context').textContent=pickWarehouse?'Rak asal: '+pickWarehouse+' · scan barang sesuai panduan.':'Scan QR rak asal sebelum scan barang.';
   $('pick-clear-warehouse').classList.toggle('hidden',!pickWarehouse);
-  updateCameraPrompt();
+   updateCameraPrompt();
+   persistSession();
 }
 async function loadPick() {
  const name=$('pick-document').value;
@@ -574,7 +764,7 @@ function clearPick() {
  $('pick-search').disabled=false; $('pick-document').disabled=false;
  $('pick-load').classList.remove('hidden'); $('pick-clear').classList.add('hidden'); $('pick-summary').classList.add('hidden');
  for(const id of ['pick-guide-section','pick-scan-section','pick-submit-section']) $(id).classList.add('hidden');
- loadPickNames(); clearStatus();
+  loadPickNames(); clearStatus();persistSession();
 }
 async function resolvePickScan(code) {
  if(!pickDraft) throw new Error('Ambil draft Pick List terlebih dahulu.');
@@ -594,7 +784,9 @@ async function resolvePickScan(code) {
  if(item.serial_no && pickScans.some(scan=>scan.serial_no===item.serial_no)) throw new Error('Serial No ini sudah discan.');
  const rowBatch=pickScans.find(scan=>scan.row_name===row.name && scan.batch_no)?.batch_no;
  if(rowBatch && item.batch_no && rowBatch!==item.batch_no) throw new Error('Baris Pick List sudah memakai batch lain.');
- const qty=Math.min(1,(row.stock_qty-pickProgress(row))/row.conversion_factor);
+  const qty=Math.min(1,(row.stock_qty-pickProgress(row))/row.conversion_factor);
+  const total=pickScans.filter(scan=>scan.source_rack_code===pickWarehouse && (scan.batch_no || '')===(item.batch_no || '') && pickDraft.items.find(entry=>entry.name===scan.row_name)?.item_code===item.item_code).reduce((sum,scan)=>sum+scan.qty*pickDraft.items.find(entry=>entry.name===scan.row_name).conversion_factor,0)+qty*row.conversion_factor;
+  await call('validate_source_scan',{code,company:pickDraft.company,warehouse:pickWarehouse,stock_qty:total},false,pickApi);
   pickScans.push({row_name:row.name,code,qty,source_rack_code:pickWarehouse,serial_no:item.serial_no || '',batch_no:item.batch_no || '',qr_value:item.qr_value || ''});
  if(item.qr_value) pickQrValues.add(item.qr_value);
  renderPick();
@@ -609,17 +801,22 @@ async function submitPick() {
   pickDraft=null; pickScans=[]; pickQrValues.clear(); pickWarehouse='';
   $('pick-search').disabled=false; $('pick-document').disabled=false; $('pick-load').classList.remove('hidden'); $('pick-clear').classList.add('hidden'); $('pick-summary').classList.add('hidden');
   for(const id of ['pick-guide-section','pick-scan-section','pick-submit-section']) $(id).classList.add('hidden');
-  loadPickNames(); message('Pick List '+result.name+' berhasil disubmit.','success');
+   persistSession();loadPickNames(); message('Pick List '+result.name+' berhasil disubmit.','success');
   const link=document.createElement('a'); link.href='/app/pick-list/'+encodeURIComponent(result.name); link.textContent=' Buka di ERPNext'; $('status').append(link);
  } catch(e) { message(e.message,'error'); }
  finally { pickBusy=false; $('pick-save').textContent='Selesai · Submit Pick List'; renderPick(); }
 }
 async function init() {
- try { const r=await fetch('/api/method/frappe.auth.get_logged_user',{credentials:'include'}); const data=await r.json(); if(!r.ok || !data.message || data.message==='Guest') return; $('user').textContent=data.message; $('login').classList.add('hidden'); setup=await call('get_setup'); fillPurposes(); fill($('company'),setup.companies,'Pilih perusahaan'); fill($('source-company'),setup.companies,'Pilih perusahaan'); if(setup.companies.includes(setup.default_company)) $('company').value=setup.default_company; updateWarehouses(); updatePurpose(); updateSourceTypes(); }
+  try {
+   const r=await fetch('/api/method/frappe.auth.get_logged_user',{credentials:'include'}); const data=await r.json(); if(!r.ok || !data.message || data.message==='Guest') return;
+   sessionUser=data.message;$('user').textContent=data.message; $('login').classList.add('hidden'); setup=await call('get_setup'); fillPurposes(); fill($('company'),setup.companies,'Pilih perusahaan'); fill($('source-company'),setup.companies,'Pilih perusahaan'); if(setup.companies.includes(setup.default_company)) $('company').value=setup.default_company; updateWarehouses(); updatePurpose(); updateSourceTypes();
+   try {const saved=JSON.parse(localStorage.getItem(sessionKey()) || 'null');if(saved?.version===1 && Array.isArray(saved.stock?.rows) && Array.isArray(saved.pick?.scans)) savedSession=saved;} catch {}
+   if(savedSession) {$('session-banner').classList.remove('hidden');$('session-info').textContent='Sesi '+(savedSession.mode==='pick'?'Pick List':'Stock Entry')+' · '+new Date(savedSession.time).toLocaleString('id-ID')+'. Dokumen akan diperiksa sebelum pemulihan.';}
+  }
  catch(e) { message(e.message,'error'); }
 }
-$('choose-stock').addEventListener('click',()=>{$('home').classList.add('hidden');$('stock').classList.remove('hidden');});
-$('choose-pick').addEventListener('click',()=>{mode='pick';$('home').classList.add('hidden');$('pick').classList.remove('hidden');loadPickNames();});
+$('choose-stock').addEventListener('click',()=>{if(savedSession){message('Lanjutkan atau hapus sesi tersimpan terlebih dahulu.');return;}mode='stock';$('home').classList.add('hidden');$('stock').classList.remove('hidden');});
+$('choose-pick').addEventListener('click',()=>{if(savedSession){message('Lanjutkan atau hapus sesi tersimpan terlebih dahulu.');return;}mode='pick';$('home').classList.add('hidden');$('pick').classList.remove('hidden');loadPickNames();});
 $('choose-delivery').addEventListener('click',()=>{mode='delivery';clearStatus();renderDeliveryHistory();$('home').classList.add('hidden');$('delivery').classList.remove('hidden');$('delivery-input').focus();});
 $('theme-toggle').addEventListener('click',()=>{const theme=document.documentElement.dataset.theme==='light'?'dark':'light'; applyTheme(theme); try { localStorage.setItem('scanner-theme',theme); } catch {} });
 $('back').addEventListener('click',()=>{mode='stock';$('stock').classList.add('hidden');$('home').classList.remove('hidden');});
@@ -642,7 +839,17 @@ $('open-source').addEventListener('click',openSource); $('close-source').addEven
 $('source-modal').addEventListener('click',event=>{if(event.target===$('source-modal')) closeSource();});
 document.addEventListener('keydown',event=>{if(event.key==='Escape' && !$('source-modal').classList.contains('hidden')) closeSource();});
 $('fetch-source').addEventListener('click',fetchSource); $('clear-source').addEventListener('click',clearSource);
-$('clear-warehouse').addEventListener('click',()=>{scannedWarehouse='';renderWarehouse();});
+$('clear-warehouse').addEventListener('click',resetRack);
+$('undo-camera').addEventListener('click',undoScan);$('undo-stock').addEventListener('click',undoScan);$('reset-camera-rack').addEventListener('click',resetRack);
+$('scan-feedback-toggle').addEventListener('click',()=>{feedbackEnabled=!feedbackEnabled;try{localStorage.setItem('scanner-feedback',feedbackEnabled?'on':'off');}catch{}updateCameraPrompt();});
+$('restore-session').addEventListener('click',restoreSession);
+$('discard-session').addEventListener('click',()=>{savedSession=null;try{localStorage.removeItem(sessionKey());}catch{}$('session-banner').classList.add('hidden');});
+$('open-history').addEventListener('click',()=>{$('history-panel').classList.remove('hidden');$('open-history').setAttribute('aria-expanded','true');loadHistory();});
+$('close-history').addEventListener('click',()=>{$('history-panel').classList.add('hidden');$('open-history').setAttribute('aria-expanded','false');});
+$('history-refresh').addEventListener('click',()=>loadHistory());$('history-more').addEventListener('click',()=>loadHistory(true));
+for(const id of ['history-activity','history-scope']) $(id).addEventListener('change',()=>loadHistory());
+$('history-search').addEventListener('keydown',event=>{if(event.key==='Enter') {event.preventDefault();loadHistory();}});
+window.addEventListener('pagehide',persistSession);
 $('camera-button').addEventListener('click',startCamera); $('finish-camera').addEventListener('click',finishCamera); $('save').addEventListener('click',save);
 if('serviceWorker' in navigator) navigator.serviceWorker.register('/scanner/sw.min.js').catch(()=>{});
 init();
