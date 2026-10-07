@@ -346,7 +346,7 @@ function updateCameraPrompt() {
   }
  }
  const expected=pick ? pickDraft?.items.filter(row=>pickProgress(row)<row.stock_qty-.000001).map(row=>row.warehouse) : pending.length ? pending.map(row=>rowGuide(row)?.t_warehouse || $('target').value) : sourceGuide?.items.filter(row=>guideNeedsWarehouse(row,$('purpose').value,'s_warehouse') && guideProgress(row.key)<row.stock_qty-.000001).map(row=>row.s_warehouse || $('source').value);
- $('camera-expected').textContent=mode==='delivery'?'': 'Rak panduan: '+([...new Set((expected || []).filter(Boolean))].join(', ') || (pick?pickWarehouse:sourceRack) || (needSource?$('source').value:$('target').value) || 'belum ditentukan — isi dari QR rak');
+ $('camera-expected').textContent=mode==='delivery'?'':pick?'Rak asal: '+(pickWarehouse || '-')+' ':'Rak panduan: '+([...new Set((expected || []).filter(Boolean))].join(', ') || sourceRack || (needSource?$('source').value:$('target').value) || 'belum ditentukan — isi dari QR rak');
  $('undo-camera').classList.toggle('hidden',mode==='delivery');$('undo-camera').disabled=!!scanTask || busy || pickBusy || (pick?!pickScans.length:!stockUndo.length);
  $('undo-stock').disabled=!!scanTask || busy || !stockUndo.length;
  $('reset-camera-rack').classList.toggle('hidden',mode==='delivery' || !needSource);$('reset-camera-rack').disabled=!!scanTask || busy || pickBusy || !!pending.length;
@@ -728,7 +728,8 @@ function renderPick() {
   heading.append(name,count);
   const scannedBatch=pickScans.find(scan=>scan.row_name===row.name && scan.batch_no)?.batch_no;
   const batch=scannedBatch || row.batch_no;
-   const meta=document.createElement('small'); meta.textContent=[row.item_code,row.warehouse || pickScans.find(scan=>scan.row_name===row.name)?.source_rack_code || 'Scan rak asal',batch?'Batch: '+batch:''].filter(Boolean).join(' · ');
+    const actualRack=pickScans.find(scan=>scan.row_name===row.name)?.source_rack_code;
+    const meta=document.createElement('small'); meta.textContent=[row.item_code,actualRack?'Rak hasil scan: '+actualRack:row.warehouse?'Rak awal: '+row.warehouse+'':'Scan rak asal',batch?'Batch: '+batch:''].filter(Boolean).join(' · ');
   div.append(heading,meta);
   let last=-1; for(let i=pickScans.length-1;i>=0;i--) if(pickScans[i].row_name===row.name) {last=i;break;}
    if(last>=0) { const undo=document.createElement('button'); undo.className='secondary'; undo.type='button'; undo.textContent='Batalkan scan terakhir'; undo.addEventListener('click',()=>{if(scanTask || pickBusy) return;const [removed]=pickScans.splice(last,1);if(removed.qr_value) pickQrValues.delete(removed.qr_value);renderPick();});div.append(undo); }
@@ -737,7 +738,7 @@ function renderPick() {
  $('pick-guide-count').textContent=done+' / '+pickDraft.items.length+' lengkap';
  $('camera-count').textContent=pickScans.length+' scan';
  $('pick-save').disabled=pickBusy || !pickComplete();
-  $('pick-warehouse-context').textContent=pickWarehouse?'Rak asal: '+pickWarehouse+' · scan barang sesuai panduan.':'Scan QR rak asal sebelum scan barang.';
+   $('pick-warehouse-context').textContent=pickWarehouse?'Rak asal: '+pickWarehouse+' · warehouse dokumen mengikuti rak hasil scan.':'Scan QR rak asal sebelum scan barang.';
   $('pick-clear-warehouse').classList.toggle('hidden',!pickWarehouse);
    updateCameraPrompt();
    persistSession();
@@ -771,12 +772,11 @@ async function resolvePickScan(code) {
  if(pickQrValues.has(code)) throw new Error('QR ini sudah discan dalam Pick List ini.');
  const item=await call('lookup_item',{code,company:pickDraft.company},false,pickApi);
   if(item.warehouse) {
-   if(!pickDraft.items.some(row=>pickProgress(row)<row.stock_qty-0.000001 && (!row.warehouse || row.warehouse===item.warehouse))) throw new Error('Rak '+item.warehouse+' tidak ada di panduan Pick List yang belum selesai.');
    pickWarehouse=item.warehouse; renderPick(); return 'Rak asal '+item.warehouse+' siap. Scan barang.';
   }
   if(!pickWarehouse) throw new Error('Scan QR rak asal sebelum barang.');
  if(item.qr_value && pickQrValues.has(item.qr_value)) throw new Error('QR ini sudah discan dalam Pick List ini.');
-  const possible=pickDraft.items.filter(row=>row.item_code===item.item_code && pickProgress(row)<row.stock_qty-0.000001 && (!row.warehouse || row.warehouse===pickWarehouse) && !pickScans.some(scan=>scan.row_name===row.name && scan.source_rack_code!==pickWarehouse) && (!item.batch_no || !pickScans.some(scan=>scan.row_name===row.name && scan.batch_no && scan.batch_no!==item.batch_no)));
+   const possible=pickDraft.items.filter(row=>row.item_code===item.item_code && pickProgress(row)<row.stock_qty-0.000001 && !pickScans.some(scan=>scan.row_name===row.name && scan.source_rack_code!==pickWarehouse) && (!item.batch_no || !pickScans.some(scan=>scan.row_name===row.name && scan.batch_no && scan.batch_no!==item.batch_no)));
  if(!possible.length) throw new Error('Item tidak ada dalam panduan atau jumlahnya sudah terpenuhi.');
   const row=possible.find(candidate=>candidate.warehouse===pickWarehouse && candidate.batch_no && candidate.batch_no===item.batch_no) || possible.find(candidate=>candidate.warehouse===pickWarehouse) || possible[0];
  if(item.has_batch_no && !item.batch_no) throw new Error('Item memerlukan batch. Scan QR atau nomor batch.');

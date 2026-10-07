@@ -96,16 +96,27 @@ class RackScanningTests(unittest.TestCase):
 			])
 			self.assertEqual(result["name"], "PL-001")
 			self.assertEqual(row.warehouse, "GBJ-R02-S02-B02")
+			self.assertEqual(doc.parent_warehouse, "GBJ-R02-S02-B02")
 			doc.submit.assert_called_once()
 			history.assert_called_once()
 			self.assertEqual(history.call_args.args[2][0]["source_warehouse"], "GBJ-R02-S02-B02")
 			doc.submit.reset_mock()
 			guide[0]["warehouse"] = "GBJ-R01-S01-B01"
-			with self.assertRaises(ValueError):
-				pick_list_scan.submit_draft("PL-001", "v1", [
-					{"row_name": "row-1", "code": "BARCODE-1", "qty": 1, "source_rack_code": "GBJ-R02-S02-B02"},
-				])
-			doc.submit.assert_not_called()
+			pick_list_scan.submit_draft("PL-001", "v1", [
+				{"row_name": "row-1", "code": "BARCODE-1", "qty": 1, "source_rack_code": "GBJ-R02-S02-B02"},
+			])
+			self.assertEqual(row.warehouse, "GBJ-R02-S02-B02")
+			doc.submit.assert_called_once()
+			second = SimpleNamespace(name="row-2", idx=2, item_code="ITEM-1", warehouse="",
+				serial_no=None, batch_no=None, meta=row.meta)
+			doc.locations.append(second)
+			guide.append({**guide[0], "name": "row-2"})
+			pick_list_scan.submit_draft("PL-001", "v1", [
+				{"row_name": "row-1", "code": "BARCODE-1", "qty": 1, "source_rack_code": "GBJ-R02-S02-B02"},
+				{"row_name": "row-2", "code": "BARCODE-2", "qty": 1, "source_rack_code": "GBJ-R03-S01-B01"},
+			])
+			self.assertIsNone(doc.parent_warehouse)
+			self.assertEqual(second.warehouse, "GBJ-R03-S01-B01")
 
 	def test_transfer_rejects_unscanned_target_before_writing(self):
 		company = SimpleNamespace(check_permission=Mock())

@@ -14,9 +14,18 @@ transaksi dan tetap memeriksa izin pengguna.
 | Manufacture, Repack | Bahan: rak asal → barang; hasil: barang → rak tujuan |
 | Disassemble | Barang yang dibongkar: rak asal → barang; hasil pembongkaran: barang → rak tujuan |
 
-Gudang yang sudah diisi dokumen sumber dipakai untuk mencocokkan scan; field
+Pada Stock Entry, gudang yang sudah diisi dokumen sumber dipakai untuk mencocokkan scan; field
 baris yang kosong diisi dari rak hasil scan. Panduan mendukung gudang berbeda
 per baris. Dropdown gudang disembunyikan saat Get Items From aktif.
+
+Pada Pick List, warehouse awal draft hanya menjadi referensi. Rak asal boleh
+berbeda; warehouse tiap baris diganti dengan rak yang benar-benar discan saat
+submit. Stok item/batch/serial diperiksa di rak hasil scan.
+Kolom Warehouse di header juga mengikuti rak hasil scan
+jika semua baris memakai satu rak; jika beberapa rak, header dikosongkan dan
+warehouse disimpan pada masing-masing baris. Satu baris tetap
+menggunakan satu rak dan satu batch; batalkan scan baris tersebut terlebih
+dahulu untuk mengganti rak ketika jumlahnya baru sebagian terpenuhi.
 
 Scan barang dalam satu kelompok harus memiliki pasangan rak yang sesuai.
 Selesaikan scan rak tujuan sebelum berpindah ke kelompok dengan tujuan lain

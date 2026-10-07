@@ -116,7 +116,7 @@ def submit_draft(name, modified, scans):
 			frappe.throw(_("Scanned item refers to an invalid Pick List row."))
 		row = rows[scan["row_name"]]
 		expected = guide[row.name]
-		rack = verified_rack(scan.get("source_rack_code"), doc.company, expected["warehouse"])
+		rack = verified_rack(scan.get("source_rack_code"), doc.company)
 		if row.name in selected_racks and selected_racks[row.name] != rack:
 			frappe.throw(_("Pick List row {0} was scanned from multiple racks.").format(row.idx))
 		selected_racks[row.name] = rack
@@ -175,6 +175,10 @@ def submit_draft(name, modified, scans):
 			row.custom_picked_qty_warehouse_uom = flt(progress[key] / warehouse_factor, 9)
 		if row.batch_no or row.serial_no:
 			row.use_serial_batch_fields = 1
+	# The header is also labelled Warehouse in Desk. Keep it consistent with
+	# the actual picks instead of retaining the draft's old search warehouse.
+	actual_racks = set(selected_racks.values())
+	doc.parent_warehouse = next(iter(actual_racks)) if len(actual_racks) == 1 else None
 	doc.scan_mode = 1
 	doc.submit()
 	record_history(doc, "Pick List", history)

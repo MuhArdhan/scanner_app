@@ -143,6 +143,19 @@ test('Pick List does not count items rejected by rack stock validation',async()=
  await assert.rejects(h.api.resolvePickScan('A-QR'),/kosong/);assert.equal(h.api.state().pickScans.length,0);
 });
 
+test('Pick List accepts an alternate rack and keeps each row bound to its scanned rack',async()=>{
+ const h=harness();h.api.set({mode:'pick',pick:{company:'ROPI',items:[{name:'r',item_code:'A',qty:2,stock_qty:2,conversion_factor:1,warehouse:'GUIDE-RACK'}]}});
+ h.fixtures.set('ACTUAL-RACK',{warehouse:'ACTUAL-RACK'});h.fixtures.set('OTHER-RACK',{warehouse:'OTHER-RACK'});
+ h.fixtures.set('A-QR',product('A'));h.fixtures.set('A-QR2',{...product('A'),qr_value:'A-QR2'});
+ h.fixtures.set('validate_source_scan',{available_stock_qty:2});
+ await h.api.resolvePickScan('ACTUAL-RACK');await h.api.resolvePickScan('A-QR');
+ assert.equal(h.api.state().pickScans[0].source_rack_code,'ACTUAL-RACK');
+ assert.match(h.e.get('pick-guide-list').children[0].children[1].textContent,/Rak hasil scan: ACTUAL-RACK/);
+ await h.api.resolvePickScan('OTHER-RACK');await assert.rejects(h.api.resolvePickScan('A-QR2'),/Item tidak ada/);
+ assert.equal(h.api.state().pickScans.length,1);
+ await h.api.resolvePickScan('ACTUAL-RACK');await h.api.resolvePickScan('A-QR2');assert.equal(h.e.get('pick-save').disabled,false);
+});
+
 test('history renders server records and loads subsequent pages',async()=>{
  const h=harness();const record={operation:'Material Transfer',reference_doctype:'Stock Entry',reference_name:'STE-1',recorded_at:'2026-10-07 10:00:00',scanned_by:'operator@test',company:'ROPI',details:[{item_code:'<img src=x>',qty:1,uom:'Nos',batch_no:'B1',source_warehouse:'S',target_warehouse:'T',qr_values:['QR1']}]};
  h.fixtures.set('get_history',{rows:[record],has_more:true,next_start:20,can_view_all:false});
