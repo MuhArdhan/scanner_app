@@ -151,6 +151,12 @@
   <div class="scan-corrections"><button id="undo-camera" class="secondary" type="button">Batalkan scan terakhir</button><button id="reset-camera-rack" class="secondary" type="button">Ganti rak asal</button><button id="scan-feedback-toggle" class="secondary" type="button" aria-pressed="true">Bunyi/getaran aktif</button></div>
  </div>
 </div>
+<div id="review-modal" class="source-modal hidden" role="dialog" aria-modal="true" aria-labelledby="review-title">
+ <div class="source-panel"><div class="bar"><h2 id="review-title">Konfirmasi Submit</h2><button id="close-review" class="secondary icon-button" type="button" aria-label="Tutup Review" title="Tutup Review"><span aria-hidden="true">×</span></button></div>
+ <div id="review-content" style="margin: 16px 0; line-height: 1.6; font-size: 14px;"></div>
+ <div class="source-actions"><button id="cancel-review" class="secondary" type="button">Kembali periksa</button><button id="confirm-review" type="button">Ya, submit</button></div>
+ </div>
+</div>
 <script src="/assets/frappe/node_modules/html5-qrcode/html5-qrcode.min.js"></script>
 <script>
 (() => {
@@ -715,6 +721,33 @@ async function finishCamera() {
  $('camera-modal').classList.add('hidden'); document.body.classList.remove('scanning');
  button.disabled=false; button.textContent='Selesai';
 }
+function reviewLines(lines) {
+ const list=document.createElement('ul');list.style.cssText='padding-left:20px;margin:8px 0';
+ lines.forEach(text=>{const item=document.createElement('li');item.textContent=text;list.append(item);});
+ return list;
+}
+function openReview(kind) {
+ const content=$('review-content');content.replaceChildren();
+ if(kind==='stock') {
+  const purpose=$('purpose').value, company=$('company').value;
+  const lines=[purpose, 'Perusahaan: '+company];
+  if(sourceGuide) lines.push('Sumber: '+sourceGuide.type+' · '+sourceGuide.name);
+  else {
+   if(purpose!=='Material Receipt') lines.push('Gudang asal: '+($('source').value || 'sesuai rak hasil scan'));
+   if(purpose!=='Material Issue') lines.push('Gudang tujuan: '+($('target').value || 'sesuai rak hasil scan'));
+  }
+  lines.push(rows.size+' jenis barang · '+[...rows.values()].reduce((sum,row)=>sum+(Number(row.qty)||0),0)+' total jumlah');
+  content.append(document.createTextNode('Periksa ringkasan sebelum Stock Entry dikirim dan disubmit.'),reviewLines(lines));
+  for(const row of rows.values()) {const line=document.createElement('p');line.style.cssText='margin:6px 0;color:var(--muted);font-size:13px';line.textContent=(row.item_name || row.item_code)+' · '+row.qty+' '+(row.uom || '');content.append(line);}
+ } else {
+  const lines=[pickDraft.name,customerLabel(pickDraft),pickDraft.purpose+' · '+pickDraft.company,pickDraft.items.length+' baris item · '+pickScans.length+' scan'];
+  content.append(document.createTextNode('Semua jumlah panduan sudah terpenuhi. Periksa Pick List sebelum disubmit.'),reviewLines(lines));
+  for(const row of pickDraft.items) {const progress=pickProgress(row);const line=document.createElement('p');line.style.cssText='margin:6px 0;color:var(--muted);font-size:13px';line.textContent=(row.item_name || row.item_code)+' · '+Number((progress/row.conversion_factor).toFixed(3))+' '+row.uom;content.append(line);}
+ }
+ $('review-modal').dataset.kind=kind;$('confirm-review').disabled=false;$('confirm-review').textContent='Ya, submit';
+ $('review-modal').classList.remove('hidden');$('close-review').focus();
+}
+function closeReview() {if(busy || pickBusy) return;$('review-modal').classList.add('hidden');}
 async function save() {
  if(busy || !rows.size) return;
  const purpose=$('purpose').value, company=$('company').value, source=$('source').value, target=$('target').value;
@@ -903,7 +936,7 @@ $('delivery-input').addEventListener('keydown',event=>{if(event.key==='Enter'){e
 $('pick-search').addEventListener('input',()=>{clearTimeout(pickSearchTimer);pickSearchTimer=setTimeout(loadPickNames,300);});
 $('pick-load').addEventListener('click',loadPick); $('pick-clear').addEventListener('click',clearPick);
 $('pick-clear-warehouse').addEventListener('click',()=>{pickWarehouse='';renderPick();});
-$('pick-camera-button').addEventListener('click',startCamera); $('pick-save').addEventListener('click',submitPick);
+$('pick-camera-button').addEventListener('click',startCamera); $('pick-save').addEventListener('click',()=>openReview('pick'));
 $('pick-reload').addEventListener('click',reloadPickProgress);
 $('company').addEventListener('change',updateWarehouses); $('purpose').addEventListener('change',updatePurpose);
 $('source').addEventListener('change',()=>applySourceWarehouse('s_warehouse'));
@@ -926,7 +959,16 @@ $('history-refresh').addEventListener('click',()=>loadHistory());$('history-more
 for(const id of ['history-activity','history-scope']) $(id).addEventListener('change',()=>loadHistory());
 $('history-search').addEventListener('keydown',event=>{if(event.key==='Enter') {event.preventDefault();loadHistory();}});
 window.addEventListener('pagehide',persistSession);
-$('camera-button').addEventListener('click',startCamera); $('finish-camera').addEventListener('click',finishCamera); $('save').addEventListener('click',save);
+$('camera-button').addEventListener('click',startCamera); $('finish-camera').addEventListener('click',finishCamera); $('save').addEventListener('click',()=>openReview('stock'));
+$('close-review').addEventListener('click',closeReview);$('cancel-review').addEventListener('click',closeReview);
+$('review-modal').addEventListener('click',event=>{if(event.target===$('review-modal')) closeReview();});
+document.addEventListener('keydown',event=>{if(event.key==='Escape' && !$('review-modal').classList.contains('hidden')) closeReview();});
+$('confirm-review').addEventListener('click',async()=>{
+ const kind=$('review-modal').dataset.kind;
+ $('confirm-review').disabled=true;$('confirm-review').textContent='Mengirim...';
+ if(kind==='stock') await save(); else if(kind==='pick') await submitPick();
+ $('review-modal').classList.add('hidden');
+});
 if('serviceWorker' in navigator) navigator.serviceWorker.register('/scanner/sw.min.js').catch(()=>{});
 init();
 })();
