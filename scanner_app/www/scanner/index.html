@@ -76,6 +76,8 @@
 .history-controls{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.history-controls input{flex:1;min-width:160px}.history-controls select{width:auto;max-width:100%}.history-entry{border-top:1px solid var(--line);padding:14px 0;overflow-wrap:anywhere}.history-entry summary{cursor:pointer;line-height:1.7}.history-entry small{display:block;color:var(--muted);line-height:1.7}.history-detail{padding:10px 12px;margin-top:8px;border:1px solid var(--line);border-radius:8px;font-size:13px;line-height:1.7}.history-entry a{display:inline-block;margin:8px 12px 0 0}
 .app-header{flex-wrap:wrap;gap:12px}.brand-lockup{min-width:0;flex:1}.brand-lockup>div:last-child{min-width:0}.app-header #user{overflow-wrap:anywhere}.header-actions{display:flex;align-items:center;gap:8px;margin-left:auto}.header-actions #open-history,.header-actions #theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:9px 11px;border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--text);font-size:12px;white-space:nowrap}.header-actions svg{width:16px;height:16px;flex:none}.header-actions .theme-icon{margin:0}.header-actions button:hover,.header-actions #open-history[aria-expanded="true"]{border-color:var(--blue);color:var(--blue)}.header-actions button:focus-visible{outline:2px solid var(--blue);outline-offset:3px}@media(max-width:380px){ .header-actions{flex-basis:100%;justify-content:flex-end}}
 .icon-button,.header-actions #theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;min-height:44px;padding:0;border-radius:11px;flex:none}.icon-button{font-size:26px;line-height:1;color:var(--text)}.icon-button:focus-visible{outline:2px solid var(--blue);outline-offset:3px}.header-actions #theme-toggle svg{width:20px;height:20px}
+.pick-customer-group{border:1px solid var(--line);border-radius:12px;margin-top:10px;background:var(--field-bg);overflow:hidden}.pick-customer-group>summary{display:flex;align-items:center;gap:10px;padding:15px;cursor:pointer;list-style:none}.pick-customer-group>summary::-webkit-details-marker{display:none}.pick-customer-group>summary strong{flex:1;min-width:0;overflow-wrap:anywhere;font-size:15px}.pick-customer-group>summary .customer-chevron{transition:transform .15s;color:var(--muted)}.pick-customer-group[open]>summary .customer-chevron{transform:rotate(180deg)}.pick-customer-group>summary:focus-visible{outline:2px solid var(--blue);outline-offset:-3px}.pick-document-card{padding:14px;border-top:1px solid var(--line)}.pick-document-card .bar{align-items:flex-start;flex-wrap:wrap;margin-bottom:8px}.pick-document-card strong{overflow-wrap:anywhere;font-size:13px}.pick-document-card p{font-size:12px;margin:6px 0;overflow-wrap:anywhere}.pick-document-card button{margin-top:10px;width:100%}.picking-badge{font-size:11px;border-radius:7px;padding:4px 7px;background:var(--card);color:var(--muted)}.picking-badge.partial{color:#f59e0b}.picking-badge.picked{color:var(--green)}#pick-load[hidden]{display:none!important}
+.source-panel{--field-bg:color-mix(in srgb,var(--card) 82%,var(--bg))}.source-panel .pick-document-card.selected{border-left:3px solid var(--blue);background:color-mix(in srgb,var(--blue) 6%,var(--card))}.source-panel .pick-document-card button{min-height:44px}#source-selected{margin:12px 0 0;font-size:13px;color:var(--blue)}
 </style>
 </head>
 <body>
@@ -95,11 +97,12 @@
 </section>
 <section id="pick" class="hidden">
 <div class="card"><div class="bar"><h2>Pick List</h2><button id="pick-back" class="secondary" type="button">Kembali</button></div>
-<label for="pick-search">Cari draft Pick List</label><input id="pick-search" type="search" placeholder="Nomor Pick List">
-<label for="pick-document">Draft</label><select id="pick-document"><option value="">Pilih draft</option></select>
-<div class="pick-actions" style="margin-top:12px"><button id="pick-load" type="button">Ambil Pick List</button><button id="pick-clear" class="secondary hidden" type="button">Ganti Pick List</button></div>
+<label for="pick-search">Cari draft Pick List</label><input id="pick-search" type="search" placeholder="Nomor Pick List atau customer">
+<p id="pick-list-status" class="count" role="status" aria-live="polite" style="margin:12px 0 0"></p><div id="pick-document-list"></div>
+<select id="pick-document" class="hidden" aria-hidden="true" tabindex="-1"><option value="">Pilih draft</option></select>
+<div class="pick-actions" style="margin-top:12px"><button id="pick-load" type="button" hidden>Ambil Pick List</button><button id="pick-clear" class="secondary hidden" type="button">Ganti Pick List</button></div>
 <p id="pick-summary" class="pick-meta hidden" style="margin:12px 0 0"></p></div>
-<section id="pick-guide-section" class="card hidden"><div class="bar"><h2>Panduan item</h2><span id="pick-guide-count" class="count"></span></div><p class="pick-meta">Batch dan Picked Qty pada draft akan mengikuti hasil scan baru.</p><div id="pick-guide-list"></div></section>
+<section id="pick-guide-section" class="card hidden"><div class="bar"><h2>Panduan item</h2><span id="pick-guide-count" class="count"></span></div><div class="bar" style="margin-bottom:12px"><span id="pick-progress-status" class="count" role="status" aria-live="polite"></span><button id="pick-reload" class="secondary" type="button">Muat ulang progres</button></div><div id="pick-guide-list"></div></section>
 <div id="pick-scan-section" class="card hidden"><h2>Scan</h2><div id="pick-warehouse-context" class="status"></div><button id="pick-clear-warehouse" class="secondary hidden" type="button">Ganti rak asal</button><button id="pick-camera-button" class="full" type="button">Buka Kamera</button></div>
 <div id="pick-submit-section" class="card hidden"><button id="pick-save" class="full" type="button" disabled>Selesai · Submit Pick List</button></div>
 </section>
@@ -129,8 +132,8 @@
  <div class="source-panel"><div class="bar"><h2 id="source-title">Get Items From</h2><button id="close-source" class="secondary icon-button" type="button" aria-label="Tutup Get Items From" title="Tutup Get Items From"><span aria-hidden="true">×</span></button></div>
 <div id="source-error" class="status error hidden" role="alert"></div>
 <label for="source-type">Sumber item</label><select id="source-type"><option value="">Pilih sumber item</option></select>
-<div id="source-document-fields" class="hidden"><label for="source-search">Cari dokumen sumber</label><input id="source-search" type="search" placeholder="Cari nomor dokumen">
-<label for="source-document">Dokumen</label><select id="source-document"></select></div>
+<div id="source-document-fields" class="hidden"><label for="source-search">Cari dokumen sumber</label><input id="source-search" type="search" placeholder="Cari nomor dokumen, customer, atau gudang">
+<p id="source-list-status" class="count" role="status" aria-live="polite" style="margin:12px 0 0"></p><div id="source-document-list"></div><p id="source-selected" role="status" aria-live="polite"></p><select id="source-document" class="hidden" aria-hidden="true" tabindex="-1"></select></div>
 <div id="source-purpose-fields" class="hidden"><label for="source-purpose">Aksi untuk sumber ini</label><select id="source-purpose"></select></div>
 <div id="source-company-fields" class="hidden"><label for="source-company">Perusahaan</label><select id="source-company"></select></div>
 <div id="source-qty-fields" class="hidden"><label for="source-qty">Jumlah produksi / BOM</label><input id="source-qty" type="number" min="0.001" step="any"><label id="source-exploded-wrap"><input id="source-exploded" type="checkbox" checked style="width:auto"> Termasuk sub-assembly</label></div>
@@ -207,9 +210,9 @@ function rebuildQrSets() {
  scannedQrValues.clear(); rows.forEach(row=>(row.qr_values || []).forEach(code=>scannedQrValues.add(code)));
  pickQrValues.clear(); pickScans.forEach(scan=>{if(scan.qr_value) pickQrValues.add(scan.qr_value);});
 }
-function undoScan() {
+async function undoScan() {
  if(scanTask || busy || pickBusy) return;
- if(mode==='pick') { if(!pickScans.length) return; pickScans.pop(); rebuildQrSets(); renderPick(); }
+ if(mode==='pick') { if(!pickScans.length) return; try {await savePickProgress(pickScans.slice(0,-1));} catch(e) {message(e.message,'error');} }
  else if(stockUndo.length) { const snapshot=stockUndo.pop(); rows=new Map(snapshot.rows);rowId=snapshot.rowId;sourceRack=snapshot.sourceRack;rebuildQrSets();render(); }
  lastCode='';
 }
@@ -238,7 +241,7 @@ async function restoreSession() {
    freshSource=await call('get_source_items',{source_type:s.sourceGuide.type,source_name:s.sourceGuide.name,company:s.company,purpose:s.purpose,options:s.sourceGuide.options});
    if(sourceFingerprint(freshSource)!==s.sourceGuide.fingerprint) throw new Error('Dokumen sumber sudah berubah. Hapus sesi tersimpan dan ambil dokumen kembali.');
   }
-  if(p.draft) {freshPick=await call('get_draft',{name:p.draft.name},false,pickApi);if(freshPick.modified!==p.draft.modified) throw new Error('Pick List sudah berubah atau disubmit. Hapus sesi tersimpan dan ambil draft kembali.');}
+  if(p.draft) {freshPick=await call('get_draft',{name:p.draft.name},false,pickApi);if(!Array.isArray(freshPick.scans) && freshPick.modified!==p.draft.modified) throw new Error('Pick List sudah berubah atau disubmit. Hapus sesi tersimpan dan ambil draft kembali.');}
   if(!setup.companies.includes(s.company) || !setup.purposes.includes(s.purpose)) throw new Error('Perusahaan atau transaksi sesi tidak tersedia.');
   $('company').value=s.company;updateWarehouses();$('purpose').value=s.purpose;
   sourceGuide=s.sourceGuide;updatePurpose();$('source').value=s.source;$('target').value=s.target;
@@ -246,10 +249,10 @@ async function restoreSession() {
   for(const id of ['company','purpose']) $(id).disabled=!!sourceGuide;
   $('open-source').disabled=!!sourceGuide;$('clear-source').classList.toggle('hidden',!sourceGuide);$('source-summary').classList.toggle('hidden',!sourceGuide);
   if(sourceGuide) $('source-summary').textContent=sourceGuide.type+' · '+sourceGuide.name+' · '+s.company;
-  pickDraft=freshPick;pickScans=p.scans;pickWarehouse=p.warehouse;
+  pickDraft=freshPick;pickScans=Array.isArray(freshPick?.scans)?freshPick.scans:p.scans;pickWarehouse=p.warehouse;
   $('pick-search').disabled=!!pickDraft;$('pick-document').disabled=!!pickDraft;
   $('pick-load').classList.toggle('hidden',!!pickDraft);$('pick-clear').classList.toggle('hidden',!pickDraft);$('pick-summary').classList.toggle('hidden',!pickDraft);
-  if(pickDraft) $('pick-summary').textContent=pickDraft.name+' · '+pickDraft.purpose+' · '+pickDraft.company;
+  if(pickDraft) $('pick-summary').textContent=pickSummary(pickDraft);
   for(const id of ['pick-guide-section','pick-scan-section','pick-submit-section']) $(id).classList.toggle('hidden',!pickDraft);
   mode=savedSession.mode==='pick'?'pick':'stock';
   $('home').classList.add('hidden');$('stock').classList.toggle('hidden',mode!=='stock');$('pick').classList.toggle('hidden',mode!=='pick');
@@ -285,7 +288,7 @@ async function call(method, args = {}, post = false, namespace = api) {
  const body = new URLSearchParams(); Object.entries(args).forEach(([k,v]) => body.set(k, typeof v === 'object' ? JSON.stringify(v) : v));
  let response;
  try {response = await fetch('/api/method/' + namespace + method + (post ? '' : '?' + body), {method:post?'POST':'GET', credentials:'include', headers:{'Accept':'application/json','X-Frappe-CSRF-Token':csrf(), ...(post?{'Content-Type':'application/x-www-form-urlencoded'}:{})}, body:post?body:undefined});}
- catch {throw new Error(post?'Koneksi terputus saat mengirim. Hasil scan tetap tersimpan; periksa dokumen di ERPNext sebelum mengirim ulang.':'Koneksi terputus. Hasil scan tetap tersimpan; sambungkan internet dan coba lagi.');}
+ catch {throw new Error(method==='save_progress'?'Koneksi terputus saat menyimpan scan. Sambungkan internet lalu gunakan Muat ulang progres untuk memeriksa hasil yang tersimpan di server.':post?'Koneksi terputus saat mengirim. Hasil scan tetap tersimpan; periksa dokumen di ERPNext sebelum mengirim ulang.':'Koneksi terputus. Hasil scan tetap tersimpan; sambungkan internet dan coba lagi.');}
  const data = await response.json();
  if (!response.ok) {
   let msg = data.message || data.exc_type || 'Terjadi kesalahan';
@@ -349,6 +352,8 @@ function updateCameraPrompt() {
  $('camera-expected').textContent=mode==='delivery'?'':pick?'Rak asal: '+(pickWarehouse || '-')+' ':'Rak panduan: '+([...new Set((expected || []).filter(Boolean))].join(', ') || sourceRack || (needSource?$('source').value:$('target').value) || 'belum ditentukan — isi dari QR rak');
  $('undo-camera').classList.toggle('hidden',mode==='delivery');$('undo-camera').disabled=!!scanTask || busy || pickBusy || (pick?!pickScans.length:!stockUndo.length);
  $('undo-stock').disabled=!!scanTask || busy || !stockUndo.length;
+ $('pick-reload').disabled=pickBusy || !!scanTask;
+ $('pick-clear').disabled=pickBusy || !!scanTask;
  $('reset-camera-rack').classList.toggle('hidden',mode==='delivery' || !needSource);$('reset-camera-rack').disabled=!!scanTask || busy || pickBusy || !!pending.length;
  $('scan-feedback-toggle').textContent=feedbackEnabled?'Bunyi/getaran aktif':'Bunyi/getaran mati';$('scan-feedback-toggle').setAttribute('aria-pressed',String(feedbackEnabled));
 }
@@ -396,13 +401,37 @@ function updateSourceFields() {
 async function loadSourceNames() {
  const type=$('source-type').value;
  if (!type || type==='Expired Batches' || $('source-modal').classList.contains('hidden')) return;
- const request=++sourceListRequest;
+  const request=++sourceListRequest;
+  $('source-list-status').textContent='Memuat dokumen…';$('source-document-list').replaceChildren();$('source-selected').textContent='';
  try {
   const action=['BOM','Work Order'].includes(type)?$('source-purpose').value:'';
-  const names=await call('list_sources',{source_type:type,company:$('company').value,purpose:action,query:$('source-search').value});
+   const result=await call('list_sources',{source_type:type,company:$('company').value,purpose:action,query:$('source-search').value});
   if (request!==sourceListRequest) return;
-  fill($('source-document'),names,'Pilih dokumen');
- } catch(e) { if (request===sourceListRequest) sourceMessage(e.message); }
+   const docs=result.map(doc=>typeof doc==='string'?{name:doc,group_key:type,group_label:type,purpose:type}:doc);
+   const selected=$('source-document').value;fill($('source-document'),docs.map(doc=>doc.name),'Pilih dokumen');
+   $('source-document').value=docs.some(doc=>doc.name===selected)?selected:'';
+   renderSourceDocuments(docs);$('source-list-status').textContent=docs.length?docs.length+' dokumen · klik kelompok untuk melihat detail':'Tidak ada dokumen yang cocok.';
+ } catch(e) { if (request===sourceListRequest) {$('source-list-status').textContent='Gagal memuat dokumen.';sourceMessage(e.message);} }
+}
+function renderSourceDocuments(docs) {
+ const list=$('source-document-list');list.replaceChildren();const selected=$('source-document').value,groups=new Map();
+ docs.forEach(doc=>{if(!groups.has(doc.group_key)) groups.set(doc.group_key,{label:doc.group_label,docs:[]});groups.get(doc.group_key).docs.push(doc);});
+ for(const group of groups.values()) {
+  const section=document.createElement('details');section.className='pick-customer-group';section.open=group.docs.some(doc=>doc.name===selected);
+  const summary=document.createElement('summary'),name=document.createElement('strong'),count=document.createElement('span'),chevron=document.createElement('span');
+  name.textContent=group.label;count.className='count';count.textContent=group.docs.length+' dokumen';chevron.className='customer-chevron';chevron.textContent='⌄';chevron.setAttribute('aria-hidden','true');summary.append(name,count,chevron);section.append(summary);
+  for(const doc of group.docs) {
+   const card=document.createElement('div');card.className='pick-document-card'+(doc.name===selected?' selected':'');
+   const bar=document.createElement('div');bar.className='bar';const title=document.createElement('strong');title.textContent=doc.name;bar.append(title);
+   if(doc.status) {const badge=document.createElement('span');badge.className='picking-badge';badge.textContent=doc.status;bar.append(badge);}card.append(bar);
+   for(const text of [[doc.purpose,doc.company].filter(Boolean).join(' · '),doc.source_warehouses?.length?'Asal: '+doc.source_warehouses.join(', '):'',doc.target_warehouses?.length?'Tujuan: '+doc.target_warehouses.join(', '):'',doc.date?'Tanggal: '+doc.date:'']) {
+    if(!text) continue;const line=document.createElement('p');line.textContent=text;card.append(line);
+   }
+   const button=document.createElement('button');button.type='button';button.textContent=doc.name===selected?'✓ Dokumen dipilih':'Pilih dokumen';button.addEventListener('click',()=>{$('source-document').value=doc.name;renderSourceDocuments(docs);});card.append(button);section.append(card);
+  }
+  list.append(section);
+ }
+ $('source-selected').textContent=selected?'Dipilih: '+selected+' · lanjutkan dengan Get Items':'';
 }
 function sourceMessage(text) { $('source-error').textContent=text; $('source-error').classList.toggle('hidden',!text); }
 function openSource() {
@@ -703,19 +732,66 @@ async function save() {
 }
 async function loadPickNames() {
  const request=++pickListRequest;
+ $('pick-list-status').textContent='Memuat customer…';
  try {
   const docs=await call('list_drafts',{query:$('pick-search').value},false,pickApi);
   if(request!==pickListRequest) return;
   const selected=$('pick-document').value;
   $('pick-document').replaceChildren(new Option('Pilih draft',''));
-  docs.forEach(doc=>$('pick-document').add(new Option(doc.name+' · '+doc.purpose+' · '+doc.company,doc.name)));
-  if(docs.some(doc=>doc.name===selected)) $('pick-document').value=selected;
- } catch(e) { if(request===pickListRequest) message(e.message,'error'); }
+   docs.forEach(doc=>$('pick-document').add(new Option(customerLabel(doc)+' · '+doc.name+' · '+(doc.custom_picking_status || 'Not Picked')+' · '+doc.purpose,doc.name)));
+   if(docs.some(doc=>doc.name===selected)) $('pick-document').value=selected;
+   renderPickCustomers(docs);$('pick-list-status').textContent=docs.length?docs.length+' Pick List · klik customer untuk melihat detail':'Tidak ada draft Pick List yang cocok.';
+ } catch(e) { if(request===pickListRequest) {$('pick-list-status').textContent=e.message;message(e.message,'error');} }
+}
+function renderPickCustomers(docs) {
+ const list=$('pick-document-list');list.replaceChildren();
+ const groups=new Map();
+ docs.forEach(doc=>{
+  const key=doc.customers?.length?doc.customers.map(row=>row.name).sort().join('|'):doc.customer || 'internal:'+doc.purpose;
+  if(!groups.has(key)) groups.set(key,{label:customerLabel(doc),docs:[]});
+  groups.get(key).docs.push(doc);
+ });
+ for(const group of groups.values()) {
+  const section=document.createElement('details');section.className='pick-customer-group';
+  const summary=document.createElement('summary'),name=document.createElement('strong'),count=document.createElement('span'),chevron=document.createElement('span');
+  name.textContent=group.label;count.className='count';count.textContent=group.docs.length+' Pick List';chevron.className='customer-chevron';chevron.textContent='⌄';chevron.setAttribute('aria-hidden','true');
+  summary.append(name,count,chevron);section.append(summary);
+  for(const doc of group.docs) {
+   const card=document.createElement('div');card.className='pick-document-card';
+   const bar=document.createElement('div');bar.className='bar';const title=document.createElement('strong');title.textContent=doc.name;
+   const status=doc.custom_picking_status || 'Not Picked',badge=document.createElement('span');badge.className='picking-badge'+(status==='Picked'?' picked':status==='Partially Picked'?' partial':'');badge.textContent=status;bar.append(title,badge);card.append(bar);
+   for(const text of [doc.purpose+' · '+doc.company,doc.sales_orders?.length?'SO: '+doc.sales_orders.join(', '):'',doc.modified?'Diperbarui: '+doc.modified:'']) {
+    if(!text) continue;const line=document.createElement('p');line.textContent=text;card.append(line);
+   }
+   const button=document.createElement('button');button.type='button';button.textContent=status==='Not Picked'?'Mulai picking':status==='Picked'?'Buka / Submit Pick List':'Lanjutkan picking';button.addEventListener('click',()=>{if(pickDraft || $('pick-load').disabled) return;$('pick-document').value=doc.name;loadPick();});card.append(button);section.append(card);
+  }
+  list.append(section);
+ }
+}
+function customerLabel(doc) {
+ const customers=doc.customers?.map(row=>row.customer_name || row.name) || [];
+ return customers.length?customers.join(', '):doc.customer_name || doc.customer || (doc.purpose==='Delivery'?'Customer belum ditentukan':'Kebutuhan internal');
+}
+function pickSummary(doc) { return [customerLabel(doc),doc.name,doc.purpose,doc.company,doc.sales_orders?.length?'SO: '+doc.sales_orders.join(', '):''].filter(Boolean).join(' · '); }
+async function savePickProgress(nextScans) {
+ pickBusy=true;renderPick();
+ try {
+  const doc=await call('save_progress',{name:pickDraft.name,modified:pickDraft.modified,scans:nextScans.map(({row_name,code,qty,source_rack_code})=>({row_name,code,qty,source_rack_code}))},true,pickApi);
+  pickDraft=doc;pickScans=doc.scans;rebuildQrSets();$('pick-summary').textContent=pickSummary(doc);
+ } finally {pickBusy=false;renderPick();}
+}
+async function reloadPickProgress() {
+ if(!pickDraft || pickBusy || scanTask) return;
+ pickBusy=true;renderPick();
+ try {const doc=await call('get_draft',{name:pickDraft.name},false,pickApi);pickDraft=doc;pickScans=doc.scans || [];pickWarehouse='';rebuildQrSets();$('pick-summary').textContent=pickSummary(doc);message('Progres terbaru dimuat dari server.','success');}
+ catch(e) {message(e.message,'error');}
+ finally {pickBusy=false;renderPick();}
 }
 function pickProgress(row) { return pickScans.filter(scan=>scan.row_name===row.name).reduce((sum,scan)=>sum+scan.qty*row.conversion_factor,0); }
 function pickComplete() { return !!pickDraft && pickDraft.items.every(row=>Math.abs(pickProgress(row)-row.stock_qty)<0.000001); }
 function renderPick() {
  const list=$('pick-guide-list'); list.replaceChildren();
+ $('pick-document-list').classList.toggle('hidden',!!pickDraft);$('pick-list-status').classList.toggle('hidden',!!pickDraft);
  if (!pickDraft) return;
  let done=0;
  pickDraft.items.forEach(row=>{
@@ -732,12 +808,13 @@ function renderPick() {
     const meta=document.createElement('small'); meta.textContent=[row.item_code,actualRack?'Rak hasil scan: '+actualRack:row.warehouse?'Rak awal: '+row.warehouse+'':'Scan rak asal',batch?'Batch: '+batch:''].filter(Boolean).join(' · ');
   div.append(heading,meta);
   let last=-1; for(let i=pickScans.length-1;i>=0;i--) if(pickScans[i].row_name===row.name) {last=i;break;}
-   if(last>=0) { const undo=document.createElement('button'); undo.className='secondary'; undo.type='button'; undo.textContent='Batalkan scan terakhir'; undo.addEventListener('click',()=>{if(scanTask || pickBusy) return;const [removed]=pickScans.splice(last,1);if(removed.qr_value) pickQrValues.delete(removed.qr_value);renderPick();});div.append(undo); }
+   if(last>=0) { const undo=document.createElement('button'); undo.className='secondary'; undo.type='button'; undo.textContent='Batalkan scan terakhir';undo.disabled=pickBusy; undo.addEventListener('click',async()=>{if(scanTask || pickBusy) return;try {await savePickProgress(pickScans.filter((_,index)=>index!==last));}catch(e){message(e.message,'error');}});div.append(undo); }
   list.append(div);
  });
  $('pick-guide-count').textContent=done+' / '+pickDraft.items.length+' lengkap';
  $('camera-count').textContent=pickScans.length+' scan';
- $('pick-save').disabled=pickBusy || !pickComplete();
+  $('pick-save').disabled=pickBusy || !pickComplete();
+  $('pick-progress-status').textContent=(pickComplete()?'Picked':pickScans.length?'Partially Picked':'Not Picked')+' · '+(pickBusy?'Menyimpan…':'Tersimpan di server');
    $('pick-warehouse-context').textContent=pickWarehouse?'Rak asal: '+pickWarehouse+' · warehouse dokumen mengikuti rak hasil scan.':'Scan QR rak asal sebelum scan barang.';
   $('pick-clear-warehouse').classList.toggle('hidden',!pickWarehouse);
    updateCameraPrompt();
@@ -749,23 +826,23 @@ async function loadPick() {
  $('pick-load').disabled=true;
  try {
   const doc=await call('get_draft',{name},false,pickApi);
-  pickDraft=doc; pickScans=[]; pickQrValues.clear(); pickWarehouse='';
+   pickDraft=doc; pickScans=doc.scans || [];rebuildQrSets(); pickWarehouse='';
   $('pick-search').disabled=true; $('pick-document').disabled=true;
   $('pick-load').classList.add('hidden'); $('pick-clear').classList.remove('hidden');
-  $('pick-summary').textContent=doc.name+' · '+doc.purpose+' · '+doc.company;
+   $('pick-summary').textContent=pickSummary(doc);
   $('pick-summary').classList.remove('hidden');
   for(const id of ['pick-guide-section','pick-scan-section','pick-submit-section']) $(id).classList.remove('hidden');
-  renderPick(); message(doc.items.length+' baris Pick List dimuat. Batch dan Picked Qty draft akan diganti sesuai hasil scan.','success');
+   renderPick(); message(doc.items.length+' baris Pick List dimuat · '+pickScans.length+' scan tersimpan.','success');
  } catch(e) { message(e.message,'error'); }
  finally { $('pick-load').disabled=false; }
 }
 function clearPick() {
- if(pickScans.length && !window.confirm('Hapus hasil scan Pick List saat ini?')) return;
+ if(pickBusy || scanTask) return;
  pickDraft=null; pickScans=[]; pickQrValues.clear(); pickWarehouse='';
  $('pick-search').disabled=false; $('pick-document').disabled=false;
  $('pick-load').classList.remove('hidden'); $('pick-clear').classList.add('hidden'); $('pick-summary').classList.add('hidden');
  for(const id of ['pick-guide-section','pick-scan-section','pick-submit-section']) $(id).classList.add('hidden');
-  loadPickNames(); clearStatus();persistSession();
+   renderPick();loadPickNames(); clearStatus();persistSession();
 }
 async function resolvePickScan(code) {
  if(!pickDraft) throw new Error('Ambil draft Pick List terlebih dahulu.');
@@ -787,9 +864,7 @@ async function resolvePickScan(code) {
   const qty=Math.min(1,(row.stock_qty-pickProgress(row))/row.conversion_factor);
   const total=pickScans.filter(scan=>scan.source_rack_code===pickWarehouse && (scan.batch_no || '')===(item.batch_no || '') && pickDraft.items.find(entry=>entry.name===scan.row_name)?.item_code===item.item_code).reduce((sum,scan)=>sum+scan.qty*pickDraft.items.find(entry=>entry.name===scan.row_name).conversion_factor,0)+qty*row.conversion_factor;
   await call('validate_source_scan',{code,company:pickDraft.company,warehouse:pickWarehouse,stock_qty:total},false,pickApi);
-  pickScans.push({row_name:row.name,code,qty,source_rack_code:pickWarehouse,serial_no:item.serial_no || '',batch_no:item.batch_no || '',qr_value:item.qr_value || ''});
- if(item.qr_value) pickQrValues.add(item.qr_value);
- renderPick();
+  await savePickProgress([...pickScans,{row_name:row.name,code,qty,source_rack_code:pickWarehouse,serial_no:item.serial_no || '',batch_no:item.batch_no || '',qr_value:item.qr_value || ''}]);
  return (item.item_name || item.item_code)+' · +'+Number(qty.toFixed(3))+' '+row.uom;
 }
 async function submitPick() {
@@ -829,6 +904,7 @@ $('pick-search').addEventListener('input',()=>{clearTimeout(pickSearchTimer);pic
 $('pick-load').addEventListener('click',loadPick); $('pick-clear').addEventListener('click',clearPick);
 $('pick-clear-warehouse').addEventListener('click',()=>{pickWarehouse='';renderPick();});
 $('pick-camera-button').addEventListener('click',startCamera); $('pick-save').addEventListener('click',submitPick);
+$('pick-reload').addEventListener('click',reloadPickProgress);
 $('company').addEventListener('change',updateWarehouses); $('purpose').addEventListener('change',updatePurpose);
 $('source').addEventListener('change',()=>applySourceWarehouse('s_warehouse'));
 $('target').addEventListener('change',()=>applySourceWarehouse('t_warehouse'));

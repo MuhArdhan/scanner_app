@@ -165,7 +165,7 @@ def list_sources(source_type, company=None, purpose=None, query=""):
 		frappe.throw(_("Unsupported Stock Entry purpose."))
 	if company:
 		frappe.get_doc("Company", company).check_permission("read")
-	return list_source_names(source_type, company, purpose, query)
+	return list_source_names(source_type, company, purpose, query, details=True)
 
 
 @frappe.whitelist(methods=["GET"])

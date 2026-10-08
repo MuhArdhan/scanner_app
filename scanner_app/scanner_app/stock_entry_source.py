@@ -150,7 +150,7 @@ def _check_source(source_type, source_name, company, purpose):
 	return source
 
 
-def list_source_names(source_type, company=None, purpose=None, query=""):
+def list_source_names(source_type, company=None, purpose=None, query="", details=False):
 	if source_type not in all_source_types() or (purpose and source_type not in allowed_sources(purpose)):
 		frappe.throw(_("This source is not available for the selected Stock Entry purpose."))
 	if source_type == "Expired Batches":
@@ -182,9 +182,55 @@ def list_source_names(source_type, company=None, purpose=None, query=""):
 	elif source_type == "Subcontracting Order":
 		filters["status"] = ["not in", ["Completed", "Cancelled", "Closed"]]
 	query = str(query or "").strip()[:100]
+	or_filters = None
 	if query:
-		filters["name"] = ["like", f"%{query}%"]
-	return frappe.get_list(doctype, filters=filters, pluck="name", order_by="modified desc", limit_page_length=30)
+		pattern = "%" + query.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+		meta = frappe.get_meta(doctype)
+		fields = ["name"] + [field for field in ("title", "customer", "supplier", "set_warehouse", "set_from_warehouse") if meta.has_field(field)]
+		or_filters = [[doctype, field, "like", pattern] for field in fields]
+		if source_type == "Material Request":
+			or_filters.extend([["Material Request Item", field, "like", pattern] for field in ("warehouse", "from_warehouse")])
+	names = frappe.get_list(doctype, filters=filters, or_filters=or_filters, pluck="name",
+		order_by="modified desc", limit_page_length=30, distinct=True)
+	if not details:
+		return names
+	return [source_list_detail(frappe.get_doc(doctype, name), source_type) for name in names]
+
+
+def source_list_detail(doc, source_type):
+	doc.check_permission("read")
+	request_type = doc.get("material_request_type")
+	items = doc.get("items") or []
+	if source_type == "Material Request":
+		warehouses = sorted({row.warehouse for row in items if row.warehouse})
+		sources = sorted({row.from_warehouse for row in items if row.from_warehouse})
+		if request_type == "Material Issue":
+			sources, targets = warehouses, []
+		else:
+			targets = warehouses
+	else:
+		sources = sorted({row.get("s_warehouse") for row in items if row.get("s_warehouse")})
+		targets = sorted({row.get("t_warehouse") for row in items if row.get("t_warehouse")})
+		if not sources and doc.get("from_warehouse"):
+			sources = [doc.from_warehouse]
+		if not targets and doc.get("to_warehouse"):
+			targets = [doc.to_warehouse]
+	party = doc.get("customer") or doc.get("supplier")
+	party_name = doc.get("customer_name") or doc.get("supplier_name") or party
+	if party and not (doc.get("customer_name") or doc.get("supplier_name")):
+		party_type = "Customer" if doc.get("customer") else "Supplier"
+		field = "customer_name" if party_type == "Customer" else "supplier_name"
+		if frappe.has_permission(party_type, "read"):
+			matches = frappe.get_list(party_type, filters={"name": party}, fields=[field], limit_page_length=1)
+			if matches:
+				party_name = matches[0].get(field) or party
+	label = party_name or ("Tujuan: " + ", ".join(targets) if targets else "Asal: " + ", ".join(sources) if sources else request_type or source_type)
+	key = ("party:" + party) if party else ("target:" + "|".join(targets)) if targets else ("source:" + "|".join(sources)) if sources else source_type
+	return {"name": doc.name, "group_key": key, "group_label": label,
+		"company": doc.get("company"), "status": doc.get("status"),
+		"purpose": request_type or doc.get("purpose") or source_type,
+		"date": doc.get("transaction_date") or doc.get("posting_date") or doc.modified,
+		"source_warehouses": sources, "target_warehouses": targets}
 
 
 def source_context(source_type, source_name, company=None, purpose=None):

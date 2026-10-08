@@ -22,11 +22,20 @@ function harness() {
  const context={document,console,URLSearchParams,setTimeout,clearTimeout,Date,Map,Set,JSON,
   localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value),removeItem:key=>storage.delete(key)},
   navigator:{},window:{frappe:{},addEventListener(){},confirm:()=>true},Option:function(text,value){this.text=text;this.value=value;},
-  fetch:async(url,options)=>{if(options?.method==='POST') writes.push(url);const params=new URL('http://test'+url).searchParams;const method=url.split('?')[0].split('.').at(-1);const data=method==='validate_source_scan'?fixtures.get(method):fixtures.get(params.get('code')) || fixtures.get(method);if(data instanceof Error) throw data;return {ok:!data?.error,json:async()=>({message:data?.error || data})};}};
+  fetch:async(url,options)=>{
+   if(options?.method==='POST') writes.push(url);
+   const params=new URL('http://test'+url).searchParams,method=url.split('?')[0].split('.').at(-1);
+   let data=method==='validate_source_scan'?fixtures.get(method):fixtures.get(params.get('code')) || fixtures.get(method);
+   if(method==='save_progress' && !data) {
+    const draft=context.workflow.state().pickDraft;
+    const scans=JSON.parse(options.body.get('scans')).map(scan=>({...scan,qr_value:fixtures.get(scan.code)?.qr_value || '',batch_no:fixtures.get(scan.code)?.batch_no || '',serial_no:fixtures.get(scan.code)?.serial_no || ''}));
+    data={...draft,modified:String(Number(draft.modified || 0)+1),scans};
+   }
+   if(data instanceof Error) throw data;return {ok:!data?.error,json:async()=>({message:data?.error || data})};}};
  vm.createContext(context);
- const exported=`globalThis.workflow={resolveScan,resolvePickScan,undoScan,render,renderPick,scanStockRack,persistSession,restoreSession,sourceFingerprint,guideNeedsWarehouse,
+ const exported=`globalThis.workflow={resolveScan,resolvePickScan,undoScan,render,renderPick,scanStockRack,persistSession,restoreSession,sourceFingerprint,guideNeedsWarehouse,loadSourceNames,
  set(s){if(s.guide!==undefined) sourceGuide=s.guide;if(s.pick!==undefined) pickDraft=s.pick;if(s.mode) mode=s.mode;if(s.user) sessionUser=s.user;if(s.saved) savedSession=s.saved;if(s.setup) setup=s.setup;},
- state(){return {rows:[...rows.values()],sourceRack,pickScans,undo:stockUndo.length,savedSession};}};`;
+  state(){return {rows:[...rows.values()],sourceRack,pickScans,pickDraft,undo:stockUndo.length,savedSession};}};`;
  vm.runInContext(original.replace(/init\(\);\s*\}\)\(\);/,exported+'})();'),context);
  return {api:context.workflow,e:elements,storage,fixtures,writes};
 }
@@ -69,7 +78,7 @@ test('pick list requires source rack and undo removes the last scan',async()=>{
  const h=harness();h.api.set({mode:'pick',pick:{items:[{name:'r',item_code:'A',qty:1,stock_qty:1,conversion_factor:1,warehouse:'S'}]}});
  h.fixtures.set('A-QR',product('A'));h.fixtures.set('S',{warehouse:'S'});
  await assert.rejects(h.api.resolvePickScan('A-QR'),/rak asal/);await h.api.resolvePickScan('S');await h.api.resolvePickScan('A-QR');
- assert.equal(h.e.get('pick-save').disabled,false);h.api.undoScan();assert.equal(h.e.get('pick-save').disabled,true);
+ assert.equal(h.e.get('pick-save').disabled,false);await h.api.undoScan();assert.equal(h.e.get('pick-save').disabled,true);
 });
 
 test('session is scoped per user and changed source blocks restore without writing',async()=>{
@@ -167,4 +176,51 @@ test('history renders server records and loads subsequent pages',async()=>{
  assert.equal(entry.children[3].children[0].textContent,'<img src=x>');
  assert.equal(entry.children[2].href,'/app/stock-entry/STE-1');
  await h.e.get('history-more').listeners.click();assert.equal(h.e.get('history-list').children.length,2);
+});
+
+test('saved Pick List can reload on another device with QR protection and customer context',async()=>{
+ const h=harness(),draft={name:'PL',company:'ROPI',purpose:'Delivery',modified:'2',customers:[{name:'C1',customer_name:'Toko Sinar Jaya'}],sales_orders:['SO-1'],items:[{name:'r',item_code:'A',qty:2,stock_qty:2,conversion_factor:1,uom:'Nos',warehouse:'S'}],scans:[{row_name:'r',code:'A-QR',qr_value:'A-QR',qty:1,source_rack_code:'S'}]};
+ h.api.set({mode:'pick'});h.fixtures.set('get_draft',draft);h.e.get('pick-document').value='PL';await h.e.get('pick-load').listeners.click();
+ assert.equal(h.api.state().pickScans.length,1);assert.match(h.e.get('pick-progress-status').textContent,/Partially Picked/);
+ assert.match(h.e.get('pick-summary').textContent,/Toko Sinar Jaya/);assert.match(h.e.get('pick-summary').textContent,/SO-1/);
+ await assert.rejects(h.api.resolvePickScan('A-QR'),/sudah discan/);
+ await h.api.undoScan();assert.equal(h.api.state().pickScans.length,0);assert.match(h.e.get('pick-progress-status').textContent,/Not Picked/);
+ assert.equal(h.api.state().pickDraft.modified,'3');assert.ok(h.writes.some(url=>url.endsWith('save_progress')));
+});
+
+test('failed server save does not count the QR and keeps prior document revision',async()=>{
+ const h=harness();h.api.set({mode:'pick',pick:{name:'PL',modified:'v1',company:'ROPI',items:[{name:'r',item_code:'A',qty:1,stock_qty:1,conversion_factor:1,warehouse:'S'}]}});
+ h.fixtures.set('S',{warehouse:'S'});h.fixtures.set('A-QR',product('A'));await h.api.resolvePickScan('S');
+ h.fixtures.set('save_progress',{error:'Pick List changed on another device'});
+ await assert.rejects(h.api.resolvePickScan('A-QR'),/another device/);assert.equal(h.api.state().pickScans.length,0);assert.equal(h.api.state().pickDraft.modified,'v1');
+ h.fixtures.delete('save_progress');await h.api.resolvePickScan('A-QR');assert.equal(h.api.state().pickScans.length,1);
+});
+
+test('draft picker shows customer and picking status',async()=>{
+ const h=harness();h.fixtures.set('list_drafts',[{name:'PL',purpose:'Delivery',company:'ROPI',custom_picking_status:'Partially Picked',customers:[{name:'C1',customer_name:'Toko A'}]}]);
+ h.e.get('choose-pick').listeners.click();await new Promise(resolve=>setImmediate(resolve));
+ const option=h.e.get('pick-document').options.at(-1);
+ assert.equal(option.value,'PL');assert.match(option.text,/Toko A.*PL.*Partially Picked/);
+});
+
+test('customer master groups multiple Pick Lists and opens the selected document',async()=>{
+ const h=harness(),base={purpose:'Delivery',company:'ROPI',custom_picking_status:'Partially Picked',customers:[{name:'C1',customer_name:'Toko A'}],item_count:2,item_summary:['Roti A','Roti B']};
+ h.fixtures.set('list_drafts',[{...base,name:'PL-1'},{...base,name:'PL-2'}]);
+ h.fixtures.set('get_draft',{...base,name:'PL-2',modified:'2',items:[{name:'r',item_code:'A',qty:1,stock_qty:1,conversion_factor:1,uom:'Nos'}],scans:[]});
+ h.e.get('choose-pick').listeners.click();await new Promise(resolve=>setImmediate(resolve));
+ const groups=h.e.get('pick-document-list').children;assert.equal(groups.length,1);
+ assert.equal(groups[0].children[0].children[0].textContent,'Toko A');assert.equal(groups[0].children[0].children[1].textContent,'2 Pick List');
+ groups[0].children[2].children.at(-1).listeners.click();await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(h.api.state().pickDraft.name,'PL-2');assert.equal(h.e.get('pick-document-list').classList.contains('hidden'),true);
+});
+
+test('stock source groups documents by destination and selects the correct MR',async()=>{
+ const h=harness();h.e.get('source-type').value='Material Request';h.fixtures.set('list_sources',[
+  {name:'MR-1',group_key:'target:T',group_label:'Tujuan: T',purpose:'Material Transfer',company:'ROPI',status:'Pending',target_warehouses:['T']},
+  {name:'MR-2',group_key:'target:T',group_label:'Tujuan: T',purpose:'Material Transfer',company:'ROPI',status:'Pending',target_warehouses:['T']}
+ ]);
+ await h.api.loadSourceNames();const group=h.e.get('source-document-list').children[0];
+ assert.equal(group.children[0].children[0].textContent,'Tujuan: T');assert.equal(group.children[0].children[1].textContent,'2 dokumen');
+ group.children[2].children.at(-1).listeners.click();assert.equal(h.e.get('source-document').value,'MR-2');
+ assert.match(h.e.get('source-selected').textContent,/MR-2/);assert.equal(h.e.get('source-document-list').children[0].open,true);
 });

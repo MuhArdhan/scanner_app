@@ -11,6 +11,8 @@ ITEMS = [
 
 
 def apply():
+	from scanner_app.picking_upgrade import apply as apply_picking
+	apply_picking()
 	if not frappe.db.exists("Workspace Sidebar", SIDEBAR):
 		frappe.get_doc({
 			"doctype": "Workspace Sidebar",

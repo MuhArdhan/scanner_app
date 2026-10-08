@@ -42,6 +42,55 @@ rak tujuan tidak memerlukan stok sebelumnya pada rak tujuan.
 Delivery Note di scanner merupakan scan dokumen untuk menandai stop Delivery
 Trip sebagai visited, sehingga tidak meminta scan rak.
 
+## Picking Status dan progres Pick List
+
+Pick List memiliki field tambahan **Picking Status** pada Desk dan daftar
+scanner: **Not Picked**, **Partially Picked**, atau **Picked**. Status dihitung
+dari jumlah masing-masing baris, tanpa kategori kering/beku atau perubahan Item
+Master. Status native Draft/Open/Completed tidak diganti.
+
+Setiap scan barang dan pembatalan scan otomatis disimpan ke server. Reload,
+ganti dokumen, atau buka dari perangkat lain memuat scan tersimpan beserta
+perlindungan QR duplikat. Gunakan **Muat ulang progres** jika dokumen sudah
+berubah di perangkat lain. Penyimpanan memeriksa revision `modified` di bawah
+row lock, sehingga dua perangkat tidak saling menimpa diam-diam.
+
+Progres sebagian maupun lengkap tetap **Draft** sampai operator menekan Submit.
+Submit hanya diperbolehkan ketika seluruh jumlah terpenuhi dan validasi
+rak/stok/batch/serial berhasil. Draft yang dikelola scanner memakai native
+`pick_manually=1` agar ERPNext tidak menghitung ulang lokasi/baris hasil scan.
+
+Field `custom_picking_status` dan state tersembunyi `custom_scanner_pick_state`
+dimiliki scanner_app (`picking_upgrade.apply`, after_install/after_migrate).
+Status ini diperbarui oleh scanner; sinkronisasi otomatis dari perubahan Picked
+Qty langsung di Desk belum diterapkan. Daftar scanner menampilkan customer dan
+Picking Status; customer juga dicari dari Sales Order yang bisa dibaca pengguna.
+
+Daftar scanner memakai nama customer sebagai master yang dapat dibuka. Di
+dalamnya ditampilkan Pick List, Picking Status, purpose, perusahaan, referensi
+Sales Order dan tombol mulai/lanjutkan picking. Beberapa Pick
+List untuk customer yang sama berada dalam satu kelompok. Pick List dengan
+beberapa customer ditampilkan sebagai satu kelompok gabungan customer agar
+dokumen tidak terduplikasi.
+
+Client Script scanner_app menampilkan Picking Status pada badge header
+Desk untuk Stock User/Stock Manager/System Manager. Pada fase picking, badge
+adalah Not Picked (gray), Partially Picked (orange), atau Picked (green). Indikator
+Not Saved, Cancelled, dan status pengiriman/transfer selanjutnya tetap native.
+Field Status di database tidak diubah oleh script tampilan ini.
+
+Migrasi mengadopsi field yang sudah terpasang tanpa menghapus data progres,
+dan mengganti indikator lama warehouse_app dengan Client Script scanner_app.
+
+## Daftar sumber Stock Entry
+
+Daftar Get Items From pada Stock Entry juga menggunakan kelompok expandable.
+Material Request dikelompokkan menurut customer (jika tersedia), gudang tujuan,
+atau gudang asal untuk Material Issue. Detail menampilkan nomor, jenis,
+status, perusahaan, tanggal, dan gudang asal/tujuan; tanpa ringkasan barang.
+Pilih dokumen pada detail, lalu tekan Get Items. Untuk sumber lain, judul
+kelompok mengikuti customer/supplier, gudang, atau jenis dokumen yang tersedia.
+
 ## Riwayat scan
 
 Tombol **Riwayat scan** pada `/scanner/` menampilkan catatan server untuk
@@ -79,7 +128,8 @@ Verifikasi otomatis:
 
 ```sh
 node --test scanner_app/scanner_app/tests/rack-workflow.test.cjs
-python -m unittest scanner_app.scanner_app.tests.test_rack_scanning scanner_app.scanner_app.tests.test_scan_history -v
+node --test scanner_app/scanner_app/tests/pick-indicator.test.cjs
+python -m unittest scanner_app.scanner_app.tests.test_rack_scanning scanner_app.scanner_app.tests.test_scan_history scanner_app.scanner_app.tests.test_pick_progress -v
 ```
 
 Tes frontend memakai simulasi DOM/API untuk alur multi-rak, koreksi, pemulihan,
