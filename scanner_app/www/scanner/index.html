@@ -78,6 +78,40 @@
 .icon-button,.header-actions #theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;min-height:44px;padding:0;border-radius:11px;flex:none}.icon-button{font-size:26px;line-height:1;color:var(--text)}.icon-button:focus-visible{outline:2px solid var(--blue);outline-offset:3px}.header-actions #theme-toggle svg{width:20px;height:20px}
 .pick-customer-group{border:1px solid var(--line);border-radius:12px;margin-top:10px;background:var(--field-bg);overflow:hidden}.pick-customer-group>summary{display:flex;align-items:center;gap:10px;padding:15px;cursor:pointer;list-style:none}.pick-customer-group>summary::-webkit-details-marker{display:none}.pick-customer-group>summary strong{flex:1;min-width:0;overflow-wrap:anywhere;font-size:15px}.pick-customer-group>summary .customer-chevron{transition:transform .15s;color:var(--muted)}.pick-customer-group[open]>summary .customer-chevron{transform:rotate(180deg)}.pick-customer-group>summary:focus-visible{outline:2px solid var(--blue);outline-offset:-3px}.pick-document-card{padding:14px;border-top:1px solid var(--line)}.pick-document-card .bar{align-items:flex-start;flex-wrap:wrap;margin-bottom:8px}.pick-document-card strong{overflow-wrap:anywhere;font-size:13px}.pick-document-card p{font-size:12px;margin:6px 0;overflow-wrap:anywhere}.pick-document-card button{margin-top:10px;width:100%}.picking-badge{font-size:11px;border-radius:7px;padding:4px 7px;background:var(--card);color:var(--muted)}.picking-badge.partial{color:#f59e0b}.picking-badge.picked{color:var(--green)}#pick-load[hidden]{display:none!important}
 .source-panel{--field-bg:color-mix(in srgb,var(--card) 82%,var(--bg))}.source-panel .pick-document-card.selected{border-left:3px solid var(--blue);background:color-mix(in srgb,var(--blue) 6%,var(--card))}.source-panel .pick-document-card button{min-height:44px}#source-selected{margin:12px 0 0;font-size:13px;color:var(--blue)}
+.packing-steps{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;color:var(--muted);font-size:13px}.packing-steps span{padding:8px 12px;border:1px solid var(--line);border-radius:8px}.packing-tools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}#packing-summary{background:var(--field-bg);border:1px solid var(--line);border-radius:12px;padding:18px;font-size:16px;line-height:1.8}#packing-children{max-height:45vh;overflow-y:auto}#packing-children .history-entry{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px}#packing-children .history-entry span{flex:1}#packing-seal{width:100%;margin-top:18px;min-height:48px}#packing-camera-button{margin:12px 0}#packing-boxes:empty{display:none}#packing-boxes button{display:block;width:100%;text-align:left;margin:8px 0}
+</style>
+<style>
+/* Packing keeps the current task visible; supporting details stay collapsed. */
+#packing{--field-bg:color-mix(in srgb,var(--card) 82%,var(--bg))}
+#packing .card{padding:20px;border-radius:18px;margin:14px 0}
+#packing .packing-heading{margin:0 0 20px}#packing h2{margin:0;font-size:19px;letter-spacing:-.025em}
+#packing .packing-caption{font-size:13px;margin:6px 0 0}
+#packing input,#packing select{background:var(--field-bg);min-height:46px;font-size:16px;border-radius:11px}
+#packing button{min-height:44px;border-radius:11px}#packing .secondary{background:var(--field-bg);color:var(--text);border:1px solid var(--line)}
+#packing-back{font-size:12px;padding:8px 12px;min-height:36px!important}
+#packing-camera-button{width:100%;margin:0;min-height:50px;font-size:15px}
+#packing .packing-manual{margin-top:14px}#packing .packing-manual label{margin-top:14px}
+#packing summary{cursor:pointer;color:var(--muted);font-size:13px;padding:4px 0}#packing summary:focus-visible{outline:2px solid var(--blue);outline-offset:4px}
+#packing .packing-manual .row{margin-top:7px}#packing .packing-manual .row button{padding:12px}
+#packing-summary{margin:0;padding:0;background:none;border:0;font-size:15px;line-height:1.7;overflow-wrap:anywhere}
+#packing .packing-contents{border-top:1px solid var(--line);margin-top:16px;padding-top:12px}
+#packing-children{max-height:35vh;margin-top:8px}#packing-children .history-entry{align-items:flex-start}#packing-children .history-entry span{overflow-wrap:anywhere;line-height:1.6}#packing-children button{min-height:36px;font-size:12px;padding:7px 10px}
+#packing .packing-primary{margin-top:18px}#packing-seal,#packing-print{width:100%;min-height:50px;margin:0}
+#packing-print-status{margin:12px 0 0;line-height:1.6;overflow-wrap:anywhere}#packing-print-status:empty{display:none}
+#packing .packing-tools{display:grid;grid-template-columns:1fr 1fr;margin:0;gap:10px}#packing .packing-tools button{font-size:13px}
+#packing .packing-settings{border-top:1px solid var(--line);margin-top:16px;padding-top:12px}
+#packing .packing-settings>summary{color:var(--text);font-weight:600}#packing-qz-connect{width:100%;margin-top:14px}
+#packing-qz-status{margin:12px 0 0;overflow-wrap:anywhere}#packing .packing-help{margin-top:14px}#packing .packing-help p{font-size:12px;line-height:1.7;margin:10px 0 0}
+#packing-boxes{max-height:35vh;overflow:auto;margin-top:12px}#packing .packing-footnote{font-size:12px;margin:10px 0 0}
+.packing-label-preview{position:relative;aspect-ratio:3/2;width:100%;background:white;color:black;border:1px solid #ddd;margin-top:14px;border-radius:2px;container-type:inline-size;font-family:Arial,sans-serif;overflow:hidden}
+.packing-label-preview>span{position:absolute;font-weight:700;line-height:1.1;overflow:hidden;overflow-wrap:anywhere;white-space:pre-wrap}
+.packing-label-preview .preview-qr{left:7.29%;top:15.625%;width:42.29%;height:63.44%;border:2px dashed #999;display:grid;place-content:center;text-align:center;font-size:5cqw;color:#555;font-weight:400}
+.packing-label-preview .preview-id{left:5.21%;top:82.81%;width:41.67%;text-align:center;font-size:2.5cqw;white-space:nowrap}
+.packing-label-preview .preview-name{left:48.33%;top:11.25%;width:48.33%;height:19%;font-size:6.04cqw}
+.packing-label-preview .preview-sku{left:48.33%;top:36.25%;width:48.33%;height:16%;font-size:4.79cqw}
+.packing-label-preview .preview-qty,.packing-label-preview .preview-rcp,.packing-label-preview .preview-exp{left:48.33%;width:50.4%;font-size:4.79cqw;white-space:nowrap}
+.packing-label-preview .preview-qty{top:53.13%}.packing-label-preview .preview-rcp{top:65.94%}.packing-label-preview .preview-exp{top:77.5%}
+@media(max-width:380px){ #packing .card{padding:16px}#packing .packing-tools{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -93,8 +127,42 @@
 <button id="choose-stock" class="destination-card" type="button"><span class="destination-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 8 4.2v9.6L12 21l-8-4.2V7.2L12 3Z"/><path d="m4.3 7.4 7.7 4.1 7.7-4.1M12 11.5V21M8.1 5l7.8 4.1"/></svg></span><span class="destination-copy"><strong>Stock Entry</strong><small>Penerimaan, pengeluaran, dan perpindahan stok</small></span><svg class="destination-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
 <button id="choose-pick" class="destination-card" type="button"><span class="destination-icon pick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8M9 3h6v3H9zM6 5H4v16h16V5h-2M8 11l2 2 4-4M8 18h8"/></svg></span><span class="destination-copy"><strong>Pick List</strong><small>Ambil draft Pick List dan scan barang yang disiapkan</small></span><svg class="destination-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
 <button id="choose-delivery" class="destination-card" type="button"><span class="destination-icon delivery" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h11v11H3zM14 10h4l3 3.5V17h-7z"/><circle cx="7.5" cy="18" r="1.8"/><circle cx="18" cy="18" r="1.8"/><path d="M6 9h5M6 12h3"/></svg></span><span class="destination-copy"><strong>Delivery Note</strong><small>Scan QR untuk menandai stop pengiriman</small></span><svg class="destination-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+<button id="choose-packing" class="destination-card" type="button"><span class="destination-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M3 9h18M9 21V9"/></svg></span><span class="destination-copy"><strong>Packing Box</strong><small>Kemas barang ke dalam kardus</small></span><svg class="destination-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
 </div>
 </section>
+<section id="packing" class="hidden">
+<div class="card"><div class="bar packing-heading"><div><h2>Packing Box</h2><p class="packing-caption">Scan produk, lalu cetak label box.</p></div><button id="packing-back" class="secondary">Kembali</button></div>
+<div id="packing-scan-area">
+<button id="packing-camera-button" type="button">Scan dengan kamera</button>
+<details class="packing-manual"><summary>Gunakan scanner / ketik QR</summary>
+<label for="packing-input">QR produk atau box</label><div class="row"><input id="packing-input" autocomplete="off" placeholder="Scan QR lalu Enter"><button id="packing-scan" type="button">Tambah</button></div></details>
+<p class="packing-footnote">Satu jenis produk per box. Batch boleh berbeda.</p>
+</div></div>
+<div class="card">
+<p id="packing-summary" role="status" aria-live="polite" style="white-space:pre-wrap"></p>
+<details class="packing-contents"><summary id="packing-contents-title">Lihat isi box</summary><p id="packing-box-detail" class="packing-footnote hidden"></p><div id="packing-children"></div></details>
+<!-- Temporary layout review: remove this block and renderPackingPreview after approval. -->
+<details class="packing-help" id="packing-preview"><summary>Preview label · sementara</summary>
+<p id="packing-preview-note" class="packing-footnote"></p>
+<div class="packing-label-preview" role="img" aria-label="Perkiraan layout label box 60 kali 40 mm">
+<span class="preview-qr" aria-hidden="true">QR<br><small>penanda</small></span>
+<span class="preview-id" id="packing-preview-id"></span><span class="preview-name" id="packing-preview-name"></span><span class="preview-sku" id="packing-preview-sku"></span><span class="preview-qty" id="packing-preview-qty"></span><span class="preview-rcp" id="packing-preview-receipt"></span><span class="preview-exp" id="packing-preview-expiry"></span>
+</div><p class="packing-footnote">60 × 40 mm · QR hanya penanda, bukan untuk scan. Font dan margin printer dapat berbeda.</p></details>
+<div class="packing-primary"><button id="packing-seal">Selesai &amp; Cetak Label</button><button id="packing-print" class="secondary">Cetak ulang label</button><button id="packing-reopen" class="secondary hidden">Reopen</button></div>
+<p id="packing-print-status" class="count" role="status" aria-live="polite"></p>
+</div>
+<div class="card">
+<div class="packing-tools"><button id="packing-create" class="secondary">Packing baru</button><button id="packing-list" class="secondary">Riwayat box</button></div><div id="packing-boxes"></div>
+<details class="packing-settings"><summary>Pengaturan printer</summary>
+<label for="packing-qz-mode">Cetak melalui</label><select id="packing-qz-mode"><option value="local">PC ini — QZ Tray lokal (tes di komputer)</option><option value="remote">PC lain melalui LAN — WSS (HP)</option></select>
+<label for="packing-qz-host">IP / hostname PC printer</label><input id="packing-qz-host" placeholder="192.168.1.5" autocomplete="off" spellcheck="false">
+<label id="packing-qz-port-label" for="packing-qz-port">Port QZ</label><input id="packing-qz-port" type="number" min="1" max="65535" value="8181">
+<button id="packing-qz-connect" class="secondary" type="button">Hubungkan &amp; Cari Printer</button>
+<label for="packing-qz-printer">Printer USB pada PC</label><select id="packing-qz-printer"><option value="">Pilih setelah terhubung</option></select>
+<p id="packing-qz-status" class="count" role="status" aria-live="polite">Isi alamat PC lalu hubungkan. Pengaturan disimpan di browser perangkat ini.</p>
+<details class="packing-help"><summary>Bantuan koneksi</summary><p>PC ini memakai localhost: HTTP menggunakan WS, HTTPS menggunakan WSS. Untuk HP pilih PC lain melalui LAN dan gunakan sertifikat WSS yang dipercaya HP. QZ Tray harus aktif. Jangan membuka port QZ ke internet.</p></details></details>
+<details class="packing-help"><summary>Petunjuk packing</summary><p>Satu QR produk = satu unit. Packing tidak mengubah stok. QR box dibuat setelah selesai. Jika cetak gagal, box tetap tersimpan; periksa label fisik sebelum cetak ulang. Tidak ada cetak ulang otomatis.</p><button id="packing-reload" class="secondary" type="button">Muat ulang box</button></details>
+</div></section>
 <section id="pick" class="hidden">
 <div class="card"><div class="bar"><h2>Pick List</h2><button id="pick-back" class="secondary" type="button">Kembali</button></div>
 <label for="pick-search">Cari draft Pick List</label><input id="pick-search" type="search" placeholder="Nomor Pick List atau customer">
@@ -158,20 +226,167 @@
  </div>
 </div>
 <script src="/assets/frappe/node_modules/html5-qrcode/html5-qrcode.min.js"></script>
+<script src="/assets/scanner_app/packing.js?v={{ packing_layout_version }}"></script>
+<script src="/assets/scanner_app/remote-qz.js?v={{ packing_qz_version }}"></script>
 <script>
 (() => {
 'use strict';
 const $ = id => document.getElementById(id);
 const api = 'scanner_app.scanner_app.stock_entry_scan.';
 const pickApi = 'scanner_app.scanner_app.pick_list_scan.';
+const packingApi = 'scanner_app.scanner_app.box_packing.';
+let packingBox=null, packingBusy=false, packingSubmitting=false;
+ let packingPending=[], packingRequestKey=null;
+ let packingQzClient=null, packingQzLoading=null, packingQzSettingsLoaded=false, packingPrintBoxName=null;
 let setup, rows = new Map(), rowId = 0, scannedWarehouse = '', sourceGuide = null, sourceSearchTimer = null, sourceListRequest = 0, busy = false, camera = null, cameraActive = false, lastCode = '', lastSeen = 0, scanTask = null, sourceRack = '';
 let mode='stock', pickDraft=null, pickScans=[], pickWarehouse='', pickListRequest=0, pickSearchTimer=null, pickBusy=false;
+ let routeReady=false, lastRoute='home', sourceLoading=false, pickLoading=false, cameraStarting=false;
+ const routes=new Set(['home','stock','pick','delivery','packing']);
+ function routeFromHash() { const route=location.hash.slice(1).toLowerCase(); return routes.has(route)?route:'home'; }
+ function navigationBusy() {
+   return packingBusy || packingSubmitting || camera || cameraActive || cameraStarting || scanTask || busy || pickBusy || deliveryBusy || restoringSession || sourceLoading || pickLoading || !$('camera-modal').classList.contains('hidden');
+ }
+ function setRoute(route, replace=false) {
+  if(!routeReady) return;
+  if(!routes.has(route)) route='home';
+  if(route!==lastRoute && navigationBusy()) { applyRoute(route); return; }
+  const hash='#'+route;
+  if(replace || location.hash===hash) {
+   history.replaceState(null,'',location.pathname+location.search+hash);
+   applyRoute(route);
+  } else location.hash=route;
+ }
+ function applyRoute(route) {
+  if(!routeReady) return;
+  if(navigationBusy() && route!==lastRoute) {
+   history.replaceState(null,'',location.pathname+location.search+'#'+lastRoute);
+   message('Selesaikan pemindaian atau pengiriman yang sedang berjalan sebelum berpindah menu.','error');return;
+  }
+  if(location.hash!=='#'+route) history.replaceState(null,'',location.pathname+location.search+'#'+route);
+  for(const name of ['stock','pick']) $(name).inert=!!savedSession;
+  if(route!==lastRoute) {
+   if(!$('source-modal').classList.contains('hidden')) closeSource();
+   if(!$('review-modal').classList.contains('hidden')) closeReview();
+  }
+  lastRoute=route;mode=route==='home'?'stock':route;
+  for(const name of routes) $(name).classList.toggle('hidden',name!==route);
+  if(route==='delivery') {clearStatus();renderDeliveryHistory();}
+  if(route==='pick' && !pickDraft && !savedSession) loadPickNames();
+  if(route==='delivery') $('delivery-input').focus();
+   if(route==='packing' && !packingBox) {
+    try{const pending=JSON.parse(localStorage.getItem('scanner-packing-pending')||'null');if(pending && Array.isArray(pending.children)){packingPending=pending.children;packingRequestKey=pending.request_key;}}catch{}
+   const saved = localStorage.getItem('scanner-packing-box');
+   if(saved) call('read_box', {name:saved}, false, packingApi).then(b=>{packingBox=b;renderPacking();}).catch(()=>localStorage.removeItem('scanner-packing-box'));
+   else renderPacking();
+  }
+ }
+ function navigate(route) { if(routeReady) setRoute(route); }
  let deliveryBusy=false, deliveryLastScan=0;
 const deliveryApi='scanner_app.scanner_app.delivery_note_scan.';
 const pickQrValues=new Set();
 const scannedQrValues = new Set();
 const scanQueue = [];
 let historyStart=0, historyRequest=0;
+function renderPacking() {
+ initPackingQzSettings();
+ renderPackingPreview();
+ if(packingPrintBoxName!==packingBox?.name){packingPrintBoxName=packingBox?.name;$('packing-print-status').textContent='';}
+ $('packing-scan-area').classList.toggle('hidden',!!packingBox);
+ $('packing-contents-title').textContent=`Lihat isi box · ${packingBox?packingBox.total_qty:packingPending.length} produk`;
+ $('packing-box-detail').classList.toggle('hidden',!packingBox);
+ if(!packingBox) {
+  const list=$('packing-children');list.replaceChildren();
+  const batches=new Set(packingPending.map(c=>c.batch_no||'NOBATCH'));
+  $('packing-summary').textContent=packingPending.length
+    ? `${packingPending.length} produk · ${batches.size} batch\n${packingPending[0].item_name} · ${packingPending[0].item_code}`
+    : 'Box masih kosong\nScan produk untuk mulai packing.';
+  for(const c of packingPending){const row=document.createElement('div');row.className='history-entry';const text=document.createElement('span');text.textContent=`${c.product_qr_serial} · ${c.batch_no||'NOBATCH'} · EXP ${c.expiry_date||'belum tersedia'}`;const remove=document.createElement('button');remove.className='secondary';remove.textContent='Hapus';remove.onclick=()=>{if(packingBusy||packingSubmitting)return;packingPending=packingPending.filter(p=>p.product_qr_serial!==c.product_qr_serial);packingRequestKey=null;savePackingPending();renderPacking();};row.append(text,remove);list.append(row);}
+  $('packing-seal').disabled=!packingPending.length||packingBusy||packingSubmitting;
+  $('packing-seal').classList.remove('hidden');$('packing-print').classList.add('hidden');
+  $('packing-input').disabled=false;$('packing-scan').disabled=false;
+  return;
+ }
+ const b=packingBox;
+ $('packing-box-detail').textContent=`SKU: ${b.item_code || '-'} · Batch: ${b.batches_summary || '-'} · EXP terawal: ${b.earliest_expiry || 'Belum tersedia'}${b.expiry_unknown?` · ${b.expiry_unknown} tanpa EXP`:''}`;
+ $('packing-summary').textContent=`${b.total_qty} produk · ${b.status==='Sealed'?'Selesai':b.status}\n${b.item_name || b.item_code || '-'}\n${b.box_id}`;
+ const list=$('packing-children');list.replaceChildren();
+ for(const c of b.children||[]) {const row=document.createElement('div');row.className='history-entry';const text=document.createElement('span');text.textContent=`${c.product_qr_serial} · ${c.item_code} · ${c.batch_no||'NOBATCH'} · exp ${c.expiry_date||'unknown'}`;row.append(text);if(b.status!=='Sealed'){const button=document.createElement('button');button.className='secondary';button.textContent='Hapus';button.addEventListener('click',()=>packingAction('remove_child',{box_name:b.name,product_qr_serial:c.product_qr_serial}));row.append(button);}list.append(row);}
+ $('packing-seal').disabled=b.status==='Sealed'||!b.total_qty;$('packing-reopen').disabled=b.status!=='Sealed';$('packing-print').disabled=b.status!=='Sealed';
+ $('packing-seal').classList.add('hidden');$('packing-print').classList.remove('hidden');
+ $('packing-input').disabled=true;$('packing-scan').disabled=true;
+ try{localStorage.setItem('scanner-packing-box',b.name);}catch{}
+}
+function renderPackingPreview() {
+ const sample=!packingBox&&!packingPending.length;
+ const dates=packingPending.map(c=>c.expiry_date).filter(Boolean).sort();
+ const box=packingBox || (sample ? {item_name:'Roti Coklat',item_code:'ROTI-01',total_qty:12,box_id:'BOX-20261009-00001',receipt_date:'2026-10-09',earliest_expiry:'2026-10-15'} : {...packingPending[0],total_qty:packingPending.length,earliest_expiry:dates[0],expiry_unknown:packingPending.length-dates.length,receipt_unknown:packingPending.length});
+ const text=PackingLabel.content(box);
+ for(const field of ['id','name','sku','qty','receipt','expiry'])$('packing-preview-'+field).textContent=text[field];
+ $('packing-preview-note').textContent=sample?'Contoh label — bukan data box tersimpan.':packingBox?'Isi label box tersimpan.':'Preview dari scan. ID box dan RCP tersedia setelah selesai.';
+}
+function savePackingPending(){try{localStorage.setItem('scanner-packing-pending',JSON.stringify({children:packingPending,request_key:packingRequestKey}));}catch{message('Daftar scan tidak dapat disimpan di perangkat. Jangan tutup halaman.','error');}}
+function newPackingRequestKey(){if(typeof crypto.randomUUID==='function')return crypto.randomUUID();const bytes=crypto.getRandomValues(new Uint8Array(16));bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;const hex=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;}
+async function packingAction(method,args={}) {if(packingBusy)return;packingBusy=true;try{packingBox=await call(method,args,true,packingApi);renderPacking();}finally{packingBusy=false;}}
+async function submitPackingScan(code) {if(packingSubmitting||packingBusy)return 'Scan sedang diproses';packingSubmitting=true;try{return await packingScan(code);}finally{packingSubmitting=false;renderPacking();}}
+async function packingScan(value) {
+ const code=String(value||'').trim();$('packing-input').value='';if(!code)return '';
+ if(/^BOX:/.test(code)||/^BOX-/.test(code)) {if(packingPending.length)throw Error('Selesaikan daftar scan dahulu sebelum membuka riwayat box.');packingBox=await call('read_box',{name:code},false,packingApi);renderPacking();return `Opened ${packingBox.box_id}`;}
+ if(packingBox) throw Error('Pilih Packing baru untuk mulai scan produk.');
+ if(packingBusy) throw Error('Packing sedang diselesaikan.');
+ const child=await call('validate_scan',{qr_payload:code},true,packingApi);
+ if(packingPending.some(c=>c.product_qr_serial===child.product_qr_serial))throw Error('QR produk sudah ada di daftar scan.');
+ if(packingPending.length && packingPending[0].item_code!==child.item_code)throw Error('Satu box hanya boleh satu Item; Batch boleh berbeda.');
+ packingPending.push(child);packingRequestKey=null;savePackingPending();renderPacking();$('packing-input').focus();return `Produk ditambahkan · ${packingPending.length} total`;
+}
+function initPackingQzSettings() {
+ if(packingQzSettingsLoaded)return;packingQzSettingsLoaded=true;
+ let saved=null;try{saved=JSON.parse(localStorage.getItem('scanner-packing-qz')||'null');if(saved&&!saved.mode)saved.mode='remote';if(saved)localStorage.setItem('scanner-packing-qz-'+saved.mode,JSON.stringify(saved));}catch{}
+ applyPackingQzSettings(saved||{mode:'local'});
+}
+function applyPackingQzSettings(config) {
+ const local=config.mode==='local',secure=local?location.protocol!=='http:':true;
+ $('packing-qz-mode').value=local?'local':'remote';
+ $('packing-qz-host').value=local?'localhost':config.host||'';$('packing-qz-host').readOnly=local;
+ $('packing-qz-port').value=config.port||(secure?8181:8182);
+ $('packing-qz-port-label').textContent=secure?'Port WSS':'Port WS lokal';
+ const select=$('packing-qz-printer');select.replaceChildren();
+ const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Pilih setelah terhubung';select.append(placeholder);select.value='';
+ if(config.printer){const option=document.createElement('option');option.value=option.textContent=config.printer;select.append(option);select.value=config.printer;}
+ $('packing-qz-status').textContent=local?'QZ Tray harus berjalan di komputer yang membuka browser ini. Klik Hubungkan & Cari Printer.':'Hubungkan ke QZ Tray pada IP PC printer melalui WSS.';
+}
+function getPackingQzSettings() {
+ return RemotePackingQz.settings({mode:$('packing-qz-mode').value,host:$('packing-qz-host').value,port:$('packing-qz-port').value,printer:$('packing-qz-printer').value});
+}
+function savePackingQzSettings(config) {
+ try{localStorage.setItem('scanner-packing-qz',JSON.stringify(config));localStorage.setItem('scanner-packing-qz-'+config.mode,JSON.stringify(config));}catch{message('Pengaturan printer tidak dapat disimpan di browser.','error');}
+}
+function lockPackingQzSettings(locked){for(const id of ['packing-qz-mode','packing-qz-host','packing-qz-port','packing-qz-printer','packing-qz-connect'])$(id).disabled=locked;}
+function loadPackingQz() {
+ if(window.qz)return Promise.resolve(window.qz);
+ if(!packingQzLoading)packingQzLoading=new Promise((resolve,reject)=>{
+  const script=document.createElement('script');script.src='/assets/warehouse_app/js/qz-tray.js';
+  script.onload=()=>window.qz?resolve(window.qz):reject(Error('QZ Tray library tidak termuat.'));
+  script.onerror=()=>reject(Error('Pustaka QZ Tray tidak tersedia.'));document.head.append(script);
+ }).catch(e=>{packingQzLoading=null;throw e;});
+ return packingQzLoading;
+}
+function getPackingQzClient() {
+ if(!packingQzClient)packingQzClient=new RemotePackingQz.RemoteQz({load:loadPackingQz,call:(method,args)=>call(method,args,method.includes('sign'),'scanner_app.scanner_app.qz_signing.')});
+ return packingQzClient;
+}
+async function printPackingBox() {
+ if(!packingBox||packingBox.status!=='Sealed')throw Error('Selesaikan packing sebelum meminta cetak.');
+ lockPackingQzSettings(true);
+ try{
+  const config=getPackingQzSettings();
+  const box=await call('print_data',{box_name:packingBox.name},false,packingApi);
+  $('packing-print-status').textContent=`Menghubungi QZ Tray ${config.host}:${config.port}…`;
+  await getPackingQzClient().print(config,box,PackingLabel.zpl(box));savePackingQzSettings(config);
+  $('packing-print-status').textContent=`Terkirim ke ${config.printer} melalui ${config.host}. Periksa label fisik.`;
+  message('Permintaan cetak diterima QZ Tray di PC.');
+ }catch(e){$('packing-print-status').textContent='Cetak belum berhasil dikonfirmasi. Box tetap tersimpan; periksa koneksi, sertifikat dan label fisik sebelum mencoba lagi.';throw e;}
+ finally{lockPackingQzSettings(false);}
+}
 function historyLink(type,name) {
  const routes={'Stock Entry':'stock-entry','Pick List':'pick-list','Delivery Note':'delivery-note','Delivery Trip':'delivery-trip'};
  if(!routes[type] || !name) return null;
@@ -230,16 +445,22 @@ function resetRack() {
 }
 function sessionKey() { return 'scanner-session-v1:'+sessionUser; }
 function persistSession() {
- if(!sessionUser || restoringSession || savedSession) return;
+ if(!routeReady || !sessionUser || restoringSession || savedSession) return;
  try {
   if(!rows.size && !sourceGuide && !pickDraft) {localStorage.removeItem(sessionKey());return;}
   localStorage.setItem(sessionKey(),JSON.stringify({version:1,time:Date.now(),mode,stock:{...stockSnapshot(),sourceGuide,company:$('company').value,purpose:$('purpose').value,source:$('source').value,target:$('target').value},pick:{draft:pickDraft,scans:pickScans,warehouse:pickWarehouse}}));
  } catch { message('Penyimpanan sesi tidak tersedia. Hindari menutup halaman sebelum selesai.','error'); }
 }
 function sourceFingerprint(data) { return JSON.stringify({company:data.company,purpose:data.purpose,items:data.items,from_warehouse:data.from_warehouse || '',to_warehouse:data.to_warehouse || ''}); }
-async function restoreSession() {
- if(!savedSession || restoringSession) return;
+async function restoreSession(targetRoute=routeFromHash()) {
+ if(!savedSession || navigationBusy()) return;
+ const requestedRoute=routes.has(targetRoute)?targetRoute:routeFromHash();
  restoringSession=true; $('restore-session').disabled=true;
+ $('restore-session').textContent='Memulihkan sesi…';
+ $('restore-session').classList.add('hidden');
+ $('discard-session').classList.add('hidden');
+ $('session-banner').classList.remove('hidden');
+ $('session-info').textContent='Memeriksa dan memulihkan sesi tersimpan…';
  try {
   const s=savedSession.stock, p=savedSession.pick;
   let freshSource=null,freshPick=null;
@@ -260,12 +481,17 @@ async function restoreSession() {
   $('pick-load').classList.toggle('hidden',!!pickDraft);$('pick-clear').classList.toggle('hidden',!pickDraft);$('pick-summary').classList.toggle('hidden',!pickDraft);
   if(pickDraft) $('pick-summary').textContent=pickSummary(pickDraft);
   for(const id of ['pick-guide-section','pick-scan-section','pick-submit-section']) $(id).classList.toggle('hidden',!pickDraft);
-  mode=savedSession.mode==='pick'?'pick':'stock';
-  $('home').classList.add('hidden');$('stock').classList.toggle('hidden',mode!=='stock');$('pick').classList.toggle('hidden',mode!=='pick');
+  // Keep the requested page visible while rebuilding the validated session.
   rebuildQrSets();render();renderPick();$('session-banner').classList.add('hidden');savedSession=null;
+  for(const name of ['stock','pick']) $(name).inert=false;
+  restoringSession=false;setRoute(requestedRoute,true);
   message('Sesi dipulihkan. Dokumen sumber telah diperiksa kembali; validasi stok dan izin tetap dilakukan saat submit.','success');
- } catch(e) {message(e.message,'error');}
- finally {restoringSession=false;$('restore-session').disabled=false;}
+ } catch(e) {
+  $('session-banner').classList.remove('hidden');
+  $('session-info').textContent='Gagal memulihkan sesi tersimpan: '+e.message;
+  message(e.message,'error');
+ }
+ finally {restoringSession=false;$('restore-session').disabled=false;$('restore-session').textContent='Lanjutkan sesi';$('restore-session').classList.remove('hidden');$('discard-session').classList.remove('hidden');}
 }
 function scanFeedback(error=false) {
  if(!feedbackEnabled) return;
@@ -334,6 +560,7 @@ function requiresSourceRack() {
  return sourceGuide ? sourceGuide.items.some(row=>guideNeedsWarehouse(row,$('purpose').value,'s_warehouse') && guideProgress(row.key)<row.stock_qty-0.000001) : SOURCE_PURPOSES.from.has($('purpose').value);
 }
 function updateCameraPrompt() {
+  if(mode==='packing') { $('camera-title').textContent='Scan Produk untuk Packing';$('camera-help').textContent='Scan semua QR produk. Setelah selesai, tutup kamera dan pilih Selesai & Cetak QR Box.';$('camera-steps').replaceChildren();$('camera-expected').textContent=packingBox?.box_id || 'Scan QR produk — belum dibuat box';$('camera-count').textContent=(packingBox?.total_qty || packingPending.length)+' produk';$('undo-camera').classList.add('hidden');$('reset-camera-rack').classList.add('hidden');return; }
  if(mode==='delivery') {
   $('camera-title').textContent='Scan Delivery Note';
   $('camera-help').textContent='Arahkan kamera ke QR Delivery Note. Stop pengiriman akan ditandai visited.';
@@ -459,7 +686,7 @@ async function fetchSource() {
  const type=$('source-type').value, name=type==='Expired Batches'?'':$('source-document').value;
  if (!type || (type!=='Expired Batches' && !name)) { sourceMessage('Pilih dokumen sumber terlebih dahulu.'); return; }
  if (rows.size) { sourceMessage('Hapus daftar scan sebelum mengambil item dari sumber.'); return; }
- const button=$('fetch-source'); button.disabled=true; button.textContent='Memuat...';
+ sourceLoading=true;const button=$('fetch-source'); button.disabled=true; button.textContent='Memuat...';
  try {
   const options=sourceOptions();
   const action=['BOM','Work Order'].includes(type)?$('source-purpose').value:'';
@@ -478,7 +705,7 @@ async function fetchSource() {
   $('source-summary').classList.remove('hidden');
   closeSource(); render(); message(data.items.length+' baris item dimuat sebagai panduan scan.','success');
  } catch(e) { sourceMessage(e.message); }
- finally { button.disabled=!!sourceGuide || !type; button.textContent='Get Items'; }
+ finally { sourceLoading=false;button.disabled=!!sourceGuide || !type; button.textContent='Get Items'; }
 }
 function clearSource() {
  if (rows.size && !window.confirm('Hapus sumber dan seluruh hasil scan saat ini?')) return;
@@ -679,7 +906,7 @@ function enqueueScan(code) {
     const value=scanQueue.shift();
      try {
       if(mode==='delivery') { await submitDelivery(value); scanToast($('status').textContent,$('status').classList.contains('error')?'error':''); }
-      else scanToast(await (mode==='pick'?resolvePickScan(value):resolveScan(value)));
+      else scanToast(await (mode==='packing'?submitPackingScan(value):mode==='pick'?resolvePickScan(value):resolveScan(value)));
      }
     catch(e) { scanToast(e.message || String(e), 'error'); }
    }
@@ -694,15 +921,15 @@ async function stopCamera() {
  lastCode='';
 }
 async function startCamera() {
-  if (mode!=='delivery' && (mode==='pick' ? !pickDraft : !$('company').value)) { message(mode==='pick'?'Ambil draft Pick List sebelum scan.':'Pilih perusahaan sebelum scan.', 'error'); return; }
+  if (mode!=='delivery' && mode!=='packing' && (mode==='pick' ? !pickDraft : !$('company').value)) { message(mode==='pick'?'Ambil draft Pick List sebelum scan.':'Pilih perusahaan sebelum scan.', 'error'); return; }
  if (!window.Html5Qrcode) { message('Pemindai kamera belum termuat. Muat ulang halaman dan coba lagi.', 'error'); return; }
  if (camera) return;
  try {const Audio=window.AudioContext || window.webkitAudioContext;if(Audio && !audioContext) audioContext=new Audio();audioContext?.resume().catch(()=>{});} catch {}
   updateCameraPrompt();
  $('scan-toasts').replaceChildren(); $('camera-modal').classList.remove('hidden'); document.body.classList.add('scanning');
-  const button=$(mode==='delivery'?'delivery-camera-button':mode==='pick'?'pick-camera-button':'camera-button'); button.disabled=true;
+  const button=$(mode==='delivery'?'delivery-camera-button':mode==='pick'?'pick-camera-button':mode==='packing'?'packing-camera-button':'camera-button'); button.disabled=true;
  try {
-  const current=new Html5Qrcode('scanner-camera'); camera=current;
+  cameraStarting=true;const current=new Html5Qrcode('scanner-camera'); camera=current;
   await current.start({facingMode:'environment'}, {fps:20,qrbox:250}, code=>{
    lastSeen=Date.now();
     if (code !== lastCode && (mode!=='delivery' || Date.now()-deliveryLastScan>2500)) { lastCode=code; if(mode==='delivery') deliveryLastScan=Date.now(); enqueueScan(code); }
@@ -712,7 +939,7 @@ async function startCamera() {
  } catch(e) {
   await stopCamera(); $('camera-modal').classList.add('hidden'); document.body.classList.remove('scanning');
    message('Kamera tidak dapat dibuka: ' + e, 'error');
- } finally { button.disabled=false; }
+ } finally { cameraStarting=false;button.disabled=false; }
 }
 async function finishCamera() {
  const button=$('finish-camera'); button.disabled=true; button.textContent='Menyelesaikan...';
@@ -856,7 +1083,7 @@ function renderPick() {
 async function loadPick() {
  const name=$('pick-document').value;
  if(!name) { message('Pilih draft Pick List terlebih dahulu.','error'); return; }
- $('pick-load').disabled=true;
+ pickLoading=true;$('pick-load').disabled=true;
  try {
   const doc=await call('get_draft',{name},false,pickApi);
    pickDraft=doc; pickScans=doc.scans || [];rebuildQrSets(); pickWarehouse='';
@@ -867,7 +1094,7 @@ async function loadPick() {
   for(const id of ['pick-guide-section','pick-scan-section','pick-submit-section']) $(id).classList.remove('hidden');
    renderPick(); message(doc.items.length+' baris Pick List dimuat · '+pickScans.length+' scan tersimpan.','success');
  } catch(e) { message(e.message,'error'); }
- finally { $('pick-load').disabled=false; }
+ finally { pickLoading=false;$('pick-load').disabled=false; }
 }
 function clearPick() {
  if(pickBusy || scanTask) return;
@@ -919,17 +1146,55 @@ async function init() {
    const r=await fetch('/api/method/frappe.auth.get_logged_user',{credentials:'include'}); const data=await r.json(); if(!r.ok || !data.message || data.message==='Guest') return;
    sessionUser=data.message;$('user').textContent=data.message; $('login').classList.add('hidden'); setup=await call('get_setup'); fillPurposes(); fill($('company'),setup.companies,'Pilih perusahaan'); fill($('source-company'),setup.companies,'Pilih perusahaan'); if(setup.companies.includes(setup.default_company)) $('company').value=setup.default_company; updateWarehouses(); updatePurpose(); updateSourceTypes();
    try {const saved=JSON.parse(localStorage.getItem(sessionKey()) || 'null');if(saved?.version===1 && Array.isArray(saved.stock?.rows) && Array.isArray(saved.pick?.scans)) savedSession=saved;} catch {}
-   if(savedSession) {$('session-banner').classList.remove('hidden');$('session-info').textContent='Sesi '+(savedSession.mode==='pick'?'Pick List':'Stock Entry')+' · '+new Date(savedSession.time).toLocaleString('id-ID')+'. Dokumen akan diperiksa sebelum pemulihan.';}
+   const requestedRoute=location.hash ? routeFromHash() : savedSession?.mode==='pick'?'pick':savedSession?'stock':'home';
+   routeReady=true;
+   setRoute(requestedRoute,true);
+   if(savedSession) await restoreSession(requestedRoute);
   }
  catch(e) { message(e.message,'error'); }
 }
-$('choose-stock').addEventListener('click',()=>{if(savedSession){message('Lanjutkan atau hapus sesi tersimpan terlebih dahulu.');return;}mode='stock';$('home').classList.add('hidden');$('stock').classList.remove('hidden');});
-$('choose-pick').addEventListener('click',()=>{if(savedSession){message('Lanjutkan atau hapus sesi tersimpan terlebih dahulu.');return;}mode='pick';$('home').classList.add('hidden');$('pick').classList.remove('hidden');loadPickNames();});
-$('choose-delivery').addEventListener('click',()=>{mode='delivery';clearStatus();renderDeliveryHistory();$('home').classList.add('hidden');$('delivery').classList.remove('hidden');$('delivery-input').focus();});
+for(const name of ['stock','pick','delivery','packing']) $('choose-'+name).addEventListener('click',()=>navigate(name));
+window.addEventListener('hashchange',()=>applyRoute(routeFromHash()));
 $('theme-toggle').addEventListener('click',()=>{const theme=document.documentElement.dataset.theme==='light'?'dark':'light'; applyTheme(theme); try { localStorage.setItem('scanner-theme',theme); } catch {} });
-$('back').addEventListener('click',()=>{mode='stock';$('stock').classList.add('hidden');$('home').classList.remove('hidden');});
-$('pick-back').addEventListener('click',()=>{mode='stock';$('pick').classList.add('hidden');$('home').classList.remove('hidden');});
-$('delivery-back').addEventListener('click',()=>{mode='stock';$('delivery').classList.add('hidden');$('home').classList.remove('hidden');clearStatus();});
+$('back').addEventListener('click',()=>navigate('home'));
+$('pick-back').addEventListener('click',()=>navigate('home'));
+$('delivery-back').addEventListener('click',()=>navigate('home'));
+$('packing-back').addEventListener('click',()=>navigate('home'));
+$('packing-create').addEventListener('click',()=>{if(packingBusy||packingSubmitting)return;if(packingPending.length&&!window.confirm('Hapus daftar scan yang belum diselesaikan?'))return;packingBox=null;packingPending=[];packingRequestKey=null;localStorage.removeItem('scanner-packing-box');savePackingPending();renderPacking();$('packing-input').focus();});
+$('packing-scan').addEventListener('click',async()=>{try{await submitPackingScan($('packing-input').value);}catch(e){message(e.message,'error');}});
+$('packing-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('packing-scan').click();}});
+$('packing-reload').addEventListener('click',async()=>{if(packingBox){try{packingBox=await call('read_box',{name:packingBox.name},false,packingApi);renderPacking();}catch(e){message(e.message,'error');}}});
+$('packing-list').addEventListener('click',async()=>{if(packingBusy||packingSubmitting)return;if(packingPending.length){message('Selesaikan packing aktif dahulu atau pilih Packing baru untuk menghapus daftar scan.','error');return;}try{const boxes=await call('list_boxes',{},false,packingApi);const el=$('packing-boxes');el.replaceChildren();for(const b of boxes){const button=document.createElement('button');button.className='secondary';button.textContent=`${b.name} · ${b.status} · ${b.item_code||'-'} · ${b.total_qty}`;button.onclick=async()=>{if(packingBusy||packingSubmitting||packingPending.length)return;try{packingBox=await call('read_box',{name:b.name},false,packingApi);renderPacking();}catch(e){message(e.message,'error');}};el.append(button);}}catch(e){message(e.message,'error');}});
+$('packing-seal').addEventListener('click',async()=>{
+ if(packingBusy||packingSubmitting||packingBox||!packingPending.length)return;
+ if(!window.confirm(`Selesaikan packing ${packingPending.length} produk dan buat QR box?`))return;
+ packingBusy=true;renderPacking();
+ try{
+  packingRequestKey=packingRequestKey||newPackingRequestKey();savePackingPending();
+  packingBox=await call('finish_packing',{qr_payloads:packingPending.map(c=>c.qr_payload),request_key:packingRequestKey},true,packingApi);
+  packingPending=[];packingRequestKey=null;savePackingPending();renderPacking();
+  message('Box berhasil dibuat. Mengirim label ke QZ Tray di PC…');await printPackingBox();
+ }catch(e){message(packingBox?'Box sudah tersimpan. Cetak belum terkonfirmasi; periksa printer / label fisik sebelum Cetak ulang: '+e.message:'Belum dapat memastikan packing selesai. Daftar scan tetap disimpan; coba Selesai kembali: '+e.message,'error');}
+ finally{packingBusy=false;renderPacking();}
+});
+$('packing-reopen').addEventListener('click',async()=>{if(!window.confirm('Reopen box?'))return;try{await packingAction('reopen_box',{box_name:packingBox.name});}catch(e){message(e.message,'error');}});
+$('packing-print').addEventListener('click',async()=>{if(packingBusy)return;if(!window.confirm('Sudah periksa label fisik? Cetak ulang dapat menghasilkan label tambahan jika permintaan sebelumnya sudah diterima printer.'))return;packingBusy=true;try{await printPackingBox();}catch(e){message('Box tetap tersimpan; cetak belum terkonfirmasi. '+e.message,'error');}finally{packingBusy=false;}});
+$('packing-qz-connect').addEventListener('click',async()=>{
+ if(packingBusy||packingSubmitting)return;packingBusy=true;lockPackingQzSettings(true);
+ try{
+  const config=getPackingQzSettings();$('packing-qz-status').textContent=`Menghubungi ${config.usingSecure?'WSS':'WS lokal'} ${config.host}:${config.port}…`;
+  const printers=await getPackingQzClient().printers(config), select=$('packing-qz-printer');select.replaceChildren();
+  const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Pilih printer BP-TR110';select.append(placeholder);
+  for(const name of printers){const option=document.createElement('option');option.value=option.textContent=name;select.append(option);}
+  if(printers.includes(config.printer))select.value=config.printer;
+  savePackingQzSettings({...config,printer:select.value});$('packing-qz-status').textContent=`Terhubung ke ${config.host}. Pilih printer USB pada komputer tersebut.`;
+ }catch(e){$('packing-qz-status').textContent='Tidak terhubung: '+e.message+($('packing-qz-mode').value==='local'?' Jalankan QZ Tray pada komputer ini dan periksa port lokal.':' Periksa QZ Tray, firewall LAN, dan sertifikat WSS di HP.');}
+ finally{packingBusy=false;lockPackingQzSettings(false);renderPacking();}
+});
+$('packing-qz-mode').addEventListener('change',()=>{if(packingBusy)return;const mode=$('packing-qz-mode').value;let saved=null;try{saved=JSON.parse(localStorage.getItem('scanner-packing-qz-'+mode)||'null');}catch{}applyPackingQzSettings(saved||{mode});});
+for(const id of ['packing-qz-host','packing-qz-port'])$(id).addEventListener('input',()=>{if(packingBusy)return;$('packing-qz-printer').replaceChildren();$('packing-qz-printer').value='';$('packing-qz-status').textContent='Alamat berubah. Hubungkan kembali dan pilih printer.';});
+$('packing-qz-printer').addEventListener('change',()=>{try{savePackingQzSettings(getPackingQzSettings());}catch(e){$('packing-qz-status').textContent=e.message;}});
+$('packing-camera-button').addEventListener('click',startCamera);
 $('delivery-camera-button').addEventListener('click',startCamera);
 $('delivery-submit').addEventListener('click',()=>submitDelivery($('delivery-input').value));
 $('delivery-input').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();submitDelivery($('delivery-input').value);}});
@@ -951,8 +1216,8 @@ $('fetch-source').addEventListener('click',fetchSource); $('clear-source').addEv
 $('clear-warehouse').addEventListener('click',resetRack);
 $('undo-camera').addEventListener('click',undoScan);$('undo-stock').addEventListener('click',undoScan);$('reset-camera-rack').addEventListener('click',resetRack);
 $('scan-feedback-toggle').addEventListener('click',()=>{feedbackEnabled=!feedbackEnabled;try{localStorage.setItem('scanner-feedback',feedbackEnabled?'on':'off');}catch{}updateCameraPrompt();});
-$('restore-session').addEventListener('click',restoreSession);
-$('discard-session').addEventListener('click',()=>{savedSession=null;try{localStorage.removeItem(sessionKey());}catch{}$('session-banner').classList.add('hidden');});
+$('restore-session').addEventListener('click',()=>restoreSession(routeFromHash()));
+$('discard-session').addEventListener('click',()=>{if(restoringSession) return;savedSession=null;try{localStorage.removeItem(sessionKey());}catch{}$('session-banner').classList.add('hidden');for(const name of ['stock','pick']) $(name).inert=false;applyRoute(routeFromHash());});
 $('open-history').addEventListener('click',()=>{$('history-panel').classList.remove('hidden');$('open-history').setAttribute('aria-expanded','true');loadHistory();});
 $('close-history').addEventListener('click',()=>{$('history-panel').classList.add('hidden');$('open-history').setAttribute('aria-expanded','false');});
 $('history-refresh').addEventListener('click',()=>loadHistory());$('history-more').addEventListener('click',()=>loadHistory(true));

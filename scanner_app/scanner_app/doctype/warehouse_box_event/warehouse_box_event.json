@@ -1,0 +1,44 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2026-10-09 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "box_qr",
+  "action",
+  "product_serial",
+  "actor",
+  "occurred_at",
+  "item_code_snapshot",
+  "count_after",
+  "status_after"
+ ],
+ "fields": [
+  {"fieldname": "box_qr", "fieldtype": "Link", "options": "Warehouse Box QR", "label": "Box QR", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "action", "fieldtype": "Select", "options": "Create\nAdd\nRemove\nSeal\nReopen", "label": "Action", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "product_serial", "fieldtype": "Link", "options": "Product QR Serial", "label": "Product QR Serial"},
+  {"fieldname": "actor", "fieldtype": "Link", "options": "User", "label": "Actor", "read_only": 1},
+  {"fieldname": "occurred_at", "fieldtype": "Datetime", "label": "Occurred At", "read_only": 1},
+  {"fieldname": "item_code_snapshot", "fieldtype": "Link", "options": "Item", "label": "Item", "read_only": 1},
+  {"fieldname": "count_after", "fieldtype": "Int", "label": "Count After", "read_only": 1},
+  {"fieldname": "status_after", "fieldtype": "Data", "label": "Status After", "read_only": 1}
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-09 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Scanner App",
+ "name": "Warehouse Box Event",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {"read": 1, "role": "System Manager"},
+  {"read": 1, "role": "Stock Manager"},
+  {"read": 1, "role": "Stock User"}
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "track_changes": 0
+}
