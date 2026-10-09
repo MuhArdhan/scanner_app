@@ -19,7 +19,7 @@ function harness(options={}) {
   localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value),removeItem:key=>storage.delete(key)},location:{hash:'#packing',protocol:options.protocol||'https:'},history:{replaceState(){}},navigator:{},
   RemotePackingQz:{settings:value=>require('../public/remote-qz.js').settings(value,options.protocol||'https:')},
    URLSearchParams,console,setTimeout,clearTimeout,PackingLabel:{...require('../public/packing.js'),zpl:()=>'^XA^XZ'},crypto:{randomUUID:()=> '12345678-1234-1234-1234-123456789abc'}};
- const instrumented=script.replace('init();\n})();', `
+ const instrumented=script.replace(/init\(\);\s*\}\)\(\);\s*$/, `
  call=async(method,args)=>window.mockCall(method,args);
   ${options.render ? '' : 'renderPacking=()=>{};'}savePackingPending=()=>{};message=()=>{};
  ${options.direct ? "getPackingQzSettings=()=>({host:'192.168.1.5',port:8181,printer:'BP-TR110'});getPackingQzClient=()=>({print:async()=>window.printed()});" : 'printPackingBox=async()=>window.printed();'}
@@ -101,8 +101,6 @@ test('packing renders a compact scan summary and keeps membership available',asy
  assert.equal(app.elements.get('packing-summary').textContent,'2 produk · 2 batch\nBread · I-1');
  assert.equal(app.elements.get('packing-contents-title').textContent,'Lihat isi box · 2 produk');
  assert.equal(app.elements.get('packing-seal').disabled,false);
- assert.equal(app.elements.get('packing-preview-name').textContent,'Bread');
- assert.equal(app.elements.get('packing-preview-qty').textContent,'ISI : 2 pcs');
- assert.equal(app.elements.get('packing-preview-id').textContent,'BELUM DIBUAT');
- assert.equal(app.elements.get('packing-preview-receipt').textContent,'RCP : -');
+ assert.ok(!html.includes('packing-preview'));
+ assert.ok(!script.includes('renderPackingPreview'));
 });

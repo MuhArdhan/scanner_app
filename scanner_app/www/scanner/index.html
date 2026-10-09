@@ -103,14 +103,6 @@
 #packing .packing-settings>summary{color:var(--text);font-weight:600}#packing-qz-connect{width:100%;margin-top:14px}
 #packing-qz-status{margin:12px 0 0;overflow-wrap:anywhere}#packing .packing-help{margin-top:14px}#packing .packing-help p{font-size:12px;line-height:1.7;margin:10px 0 0}
 #packing-boxes{max-height:35vh;overflow:auto;margin-top:12px}#packing .packing-footnote{font-size:12px;margin:10px 0 0}
-.packing-label-preview{position:relative;aspect-ratio:3/2;width:100%;background:white;color:black;border:1px solid #ddd;margin-top:14px;border-radius:2px;container-type:inline-size;font-family:Arial,sans-serif;overflow:hidden}
-.packing-label-preview>span{position:absolute;font-weight:700;line-height:1.1;overflow:hidden;overflow-wrap:anywhere;white-space:pre-wrap}
-.packing-label-preview .preview-qr{left:7.29%;top:15.625%;width:42.29%;height:63.44%;border:2px dashed #999;display:grid;place-content:center;text-align:center;font-size:5cqw;color:#555;font-weight:400}
-.packing-label-preview .preview-id{left:5.21%;top:82.81%;width:41.67%;text-align:center;font-size:2.5cqw;white-space:nowrap}
-.packing-label-preview .preview-name{left:48.33%;top:11.25%;width:48.33%;height:19%;font-size:6.04cqw}
-.packing-label-preview .preview-sku{left:48.33%;top:36.25%;width:48.33%;height:16%;font-size:4.79cqw}
-.packing-label-preview .preview-qty,.packing-label-preview .preview-rcp,.packing-label-preview .preview-exp{left:48.33%;width:50.4%;font-size:4.79cqw;white-space:nowrap}
-.packing-label-preview .preview-qty{top:53.13%}.packing-label-preview .preview-rcp{top:65.94%}.packing-label-preview .preview-exp{top:77.5%}
 @media(max-width:380px){ #packing .card{padding:16px}#packing .packing-tools{grid-template-columns:1fr}}
 </style>
 </head>
@@ -141,13 +133,6 @@
 <div class="card">
 <p id="packing-summary" role="status" aria-live="polite" style="white-space:pre-wrap"></p>
 <details class="packing-contents"><summary id="packing-contents-title">Lihat isi box</summary><p id="packing-box-detail" class="packing-footnote hidden"></p><div id="packing-children"></div></details>
-<!-- Temporary layout review: remove this block and renderPackingPreview after approval. -->
-<details class="packing-help" id="packing-preview"><summary>Preview label · sementara</summary>
-<p id="packing-preview-note" class="packing-footnote"></p>
-<div class="packing-label-preview" role="img" aria-label="Perkiraan layout label box 60 kali 40 mm">
-<span class="preview-qr" aria-hidden="true">QR<br><small>penanda</small></span>
-<span class="preview-id" id="packing-preview-id"></span><span class="preview-name" id="packing-preview-name"></span><span class="preview-sku" id="packing-preview-sku"></span><span class="preview-qty" id="packing-preview-qty"></span><span class="preview-rcp" id="packing-preview-receipt"></span><span class="preview-exp" id="packing-preview-expiry"></span>
-</div><p class="packing-footnote">60 × 40 mm · QR hanya penanda, bukan untuk scan. Font dan margin printer dapat berbeda.</p></details>
 <div class="packing-primary"><button id="packing-seal">Selesai &amp; Cetak Label</button><button id="packing-print" class="secondary">Cetak ulang label</button><button id="packing-reopen" class="secondary hidden">Reopen</button></div>
 <p id="packing-print-status" class="count" role="status" aria-live="polite"></p>
 </div>
@@ -289,7 +274,6 @@ const scanQueue = [];
 let historyStart=0, historyRequest=0;
 function renderPacking() {
  initPackingQzSettings();
- renderPackingPreview();
  if(packingPrintBoxName!==packingBox?.name){packingPrintBoxName=packingBox?.name;$('packing-print-status').textContent='';}
  $('packing-scan-area').classList.toggle('hidden',!!packingBox);
  $('packing-contents-title').textContent=`Lihat isi box · ${packingBox?packingBox.total_qty:packingPending.length} produk`;
@@ -315,14 +299,6 @@ function renderPacking() {
  $('packing-seal').classList.add('hidden');$('packing-print').classList.remove('hidden');
  $('packing-input').disabled=true;$('packing-scan').disabled=true;
  try{localStorage.setItem('scanner-packing-box',b.name);}catch{}
-}
-function renderPackingPreview() {
- const sample=!packingBox&&!packingPending.length;
- const dates=packingPending.map(c=>c.expiry_date).filter(Boolean).sort();
- const box=packingBox || (sample ? {item_name:'Roti Coklat',item_code:'ROTI-01',total_qty:12,box_id:'BOX-20261009-00001',receipt_date:'2026-10-09',earliest_expiry:'2026-10-15'} : {...packingPending[0],total_qty:packingPending.length,earliest_expiry:dates[0],expiry_unknown:packingPending.length-dates.length,receipt_unknown:packingPending.length});
- const text=PackingLabel.content(box);
- for(const field of ['id','name','sku','qty','receipt','expiry'])$('packing-preview-'+field).textContent=text[field];
- $('packing-preview-note').textContent=sample?'Contoh label — bukan data box tersimpan.':packingBox?'Isi label box tersimpan.':'Preview dari scan. ID box dan RCP tersedia setelah selesai.';
 }
 function savePackingPending(){try{localStorage.setItem('scanner-packing-pending',JSON.stringify({children:packingPending,request_key:packingRequestKey}));}catch{message('Daftar scan tidak dapat disimpan di perangkat. Jangan tutup halaman.','error');}}
 function newPackingRequestKey(){if(typeof crypto.randomUUID==='function')return crypto.randomUUID();const bytes=crypto.getRandomValues(new Uint8Array(16));bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;const hex=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;}
