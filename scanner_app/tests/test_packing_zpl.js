@@ -4,6 +4,8 @@ const PackingLabel=require('../public/packing.js');
 const decodeText=zpl=>zpl.replace(/_([0-9a-f]{2})/gi,(_,hex)=>String.fromCharCode(parseInt(hex,16))).replace(/\\&/g,' ');
 const box={status:'Sealed',qr_payload:'BOX:BOX-20261009-00001',box_id:'BOX-20261009-00001',total_qty:12,item_code:'ROTI-01',item_name:'Roti Coklat',earliest_expiry:'2026-10-15',expiry_unknown:0,receipt_date:'2026-10-25',receipt_dates:['2026-10-25'],receipt_unknown:0};
 
+box.label_uom='pcs';
+
 test('60 x 40 label has QR on left, ID below and requested fields on right',()=>{
   const zpl=PackingLabel.zpl(box),text=decodeText(zpl);
   assert.ok(zpl.includes('^PW480'));assert.ok(zpl.includes('^LL320'));

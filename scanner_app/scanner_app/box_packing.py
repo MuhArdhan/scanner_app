@@ -21,6 +21,17 @@ SERIAL = "Product QR Serial"
 _internal = ContextVar("scanner_box_mutation", default=False)
 
 
+def _item_label_uom(item):
+	"""Display unit only: a box quantity remains the unique child QR count."""
+	# Sites may use the current inventory field or the older warehouse field.
+	for field in ("custom_default_uom", "custom_default_inventory_unit_of_measure",
+		"custom_default_uom_warehouse", "stock_uom"):
+		value = getattr(item, field, None)
+		if value:
+			return value
+	return "-"
+
+
 @frappe.whitelist(methods=["POST"])
 def validate_scan(qr_payload):
 	"""Validate a pending child without allocating any box or membership."""
@@ -30,7 +41,7 @@ def validate_scan(qr_payload):
 		frappe.throw(_("This Product QR is already packed."))
 	return {"product_qr_serial": serial.name, "qr_payload": serial.qr_payload,
 		"item_code": serial.item_code, "item_name": item.item_name,
-		"batch_no": serial.batch_no, "expiry_date": expiry}
+		"batch_no": serial.batch_no, "expiry_date": expiry, "label_uom": _item_label_uom(item)}
 
 
 @frappe.whitelist(methods=["POST"])
@@ -168,8 +179,14 @@ def _snapshot(box, lock=False):
 		frappe.get_doc("Item", c.item_code).check_permission("read")
 		if c.batch_no:
 			frappe.get_doc("Batch", c.batch_no).check_permission("read")
+	label_uom = "-"
+	if box.item_code:
+		item = frappe.get_doc("Item", box.item_code)
+		item.check_permission("read")
+		label_uom = _item_label_uom(item)
 	return {"name": box.name, "box_id": box.name, "qr_payload": box.qr_payload,
 		"status": box.status, "item_code": box.item_code, "item_name": box.item_name,
+		"label_uom": label_uom,
 		"modified": str(box.modified), "children": children, **summary(children), **_receipt_dates(children)}
 
 

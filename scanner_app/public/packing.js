@@ -37,7 +37,7 @@
     return {
       name: box.item_name || '-',
       sku: `SKU : ${box.item_code || '-'}`,
-      qty: `ISI : ${box.total_qty || 0} pcs`,
+      qty: `ISI : ${box.total_qty || 0} ${box.label_uom || '-'}`,
       receipt: `RCP : ${receiptValue}`,
       expiry: `EXP : ${expiryValue}`,
       id: box.box_id || 'BELUM DIBUAT',

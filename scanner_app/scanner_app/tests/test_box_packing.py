@@ -46,6 +46,30 @@ class BoxPackingTests(unittest.TestCase):
 		with box_packing.internal_mutation():
 			box_packing.require_internal()
 
+	def test_label_uom_prefers_custom_default_and_falls_back_to_stock(self):
+		item = types.SimpleNamespace(custom_default_uom="Galon", stock_uom="Nos")
+		self.assertEqual(box_packing._item_label_uom(item), "Galon")
+		item.custom_default_uom = ""
+		self.assertEqual(box_packing._item_label_uom(item), "Nos")
+		self.assertEqual(box_packing._item_label_uom(types.SimpleNamespace()), "-")
+
+	def test_snapshot_includes_item_label_uom_after_permission_check(self):
+		self.box.item_code = "I-1"
+		item = types.SimpleNamespace(custom_default_uom="Galon", stock_uom="Nos", check_permission=Mock())
+		with patch.object(box_packing, "_children", return_value=[]), patch.object(frappe_mock, "get_doc", return_value=item):
+			data = box_packing._snapshot(self.box)
+		self.assertEqual(data["label_uom"], "Galon")
+		item.check_permission.assert_called_once_with("read")
+
+	def test_label_uom_supports_actual_site_inventory_and_warehouse_fields(self):
+		item = types.SimpleNamespace(custom_default_inventory_unit_of_measure="Galon",
+			custom_default_uom_warehouse="Galon", stock_uom="ml")
+		self.assertEqual(box_packing._item_label_uom(item), "Galon")
+		item.custom_default_inventory_unit_of_measure = None
+		self.assertEqual(box_packing._item_label_uom(item), "Galon")
+		item.custom_default_uom_warehouse = ""
+		self.assertEqual(box_packing._item_label_uom(item), "ml")
+
 	def test_receipt_date_comes_from_submitted_source_receipt(self):
 		children = [types.SimpleNamespace(product_qr_serial="PQR-1"), types.SimpleNamespace(product_qr_serial="PQR-2")]
 		rows = [types.SimpleNamespace(product_qr_serial=c.product_qr_serial, purchase_receipt="PR-1") for c in children]

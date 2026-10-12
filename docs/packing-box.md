@@ -5,7 +5,7 @@
 3. Confirm **Selesai & Cetak QR Box**. Only now does `finish_packing` allocate the mother ID, insert memberships and audit events, seal the box, and return its snapshot.
 4. Send one 60 × 40 mm mother label at 203 dpi (480 × 320 dots, QR on the left) directly from the phone browser to QZ Tray on the selected PC, then to its USB printer. Packing baru resets the local list, not a saved box.
 
-Label layout: QR at left, full Box ID centered below it; product name, SKU, ISI (unique child count in pcs), RCP and EXP at right. Dates use DD-MM-YY. RCP is resolved from the submitted Purchase Receipt linked to each Product QR, not the packing date. Different source receipt dates print MIXED; missing/unreadable source receipts print `-`. EXP is the earliest Batch expiry when all child expiry dates are known; otherwise `-`. Batch detail remains in the application rather than printed on this layout.
+Label layout: QR at left, full Box ID centered below it; product name, SKU, ISI (unique child count with Item `custom_default_uom`, falling back to `stock_uom` or `-`), RCP and EXP at right. The unit is display-only; quantities are not converted. Dates use DD-MM-YY. RCP is resolved from the submitted Purchase Receipt linked to each Product QR, not the packing date. Different source receipt dates print MIXED; missing/unreadable source receipts print `-`. EXP is the earliest Batch expiry when all child expiry dates are known; otherwise `-`. Batch detail remains in the application rather than printed on this layout.
 
 One Product QR represents one physical unit. A box must contain one Item; mixed batches are permitted. Stock and original Product QR records are never changed.
 
