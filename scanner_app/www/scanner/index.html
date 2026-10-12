@@ -127,18 +127,6 @@
 #packing #packing-print{color:var(--text);background:var(--field-bg)}
 #packing #packing-print-status{margin:12px 0 0;font-size:12px;line-height:1.65;overflow-wrap:anywhere}
 #packing #packing-print-status:empty{display:none}
-#packing .packing-utilities{margin-top:12px;padding:0 4px;border-top:1px solid var(--line)}
-#packing #packing-list{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:52px;padding:0;text-align:left;font-size:12px;font-weight:400;border:0;background:transparent;color:var(--muted)}
-#packing #packing-list::after{content:'+';font-size:18px;flex:none}
-#packing #packing-list[aria-expanded="true"]::after{content:'−'}
-#packing .packing-settings{margin:0;padding:4px 0;border:0;border-top:1px solid var(--line)}
-#packing .packing-settings>summary{color:var(--muted);font-weight:500}
-#packing #packing-qz-connect{width:100%;margin-top:16px;background:var(--field-bg);color:var(--text)}
-#packing #packing-qz-status{font-size:12px;line-height:1.65;margin:12px 0;overflow-wrap:anywhere}
-#packing .packing-help{margin:0;padding:4px 0}
-#packing .packing-help p{font-size:12px;line-height:1.7;margin:8px 0 12px}
-#packing #packing-boxes{max-height:35vh;overflow:auto;margin-top:8px}
-#packing #packing-boxes button{font-size:12px;line-height:1.6;overflow-wrap:anywhere;padding:12px}
 #packing .packing-footnote{font-size:11px;line-height:1.7;margin:8px 0 0}
 #packing-print-modal{position:fixed;inset:0;z-index:35;display:flex;align-items:center;justify-content:center;padding:16px;background:rgb(0 0 0 / 65%)}
 #packing-print-modal .packing-print-panel{width:min(100%,420px);max-height:calc(100dvh - 32px);overflow:auto;border:1px solid var(--line);border-radius:20px;padding:24px;background:var(--card)}
@@ -155,13 +143,50 @@
 #packing-print-modal button:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
 @media(max-width:380px){ #packing .packing-workspace{padding:18px}#packing .packing-overview{gap:14px}#packing .packing-quantity{padding-right:14px;min-width:64px}#packing #packing-total{font-size:38px}#packing .packing-manual .row{flex-wrap:wrap}#packing .packing-manual .row input{flex:1 1 160px}#packing .packing-manual .row button{flex:1 1 auto}}
 </style>
+<style>
+.header-actions #open-history,.header-actions #open-settings{box-sizing:border-box;height:40px;min-height:40px}
+.header-actions #open-settings{display:inline-flex;align-items:center;justify-content:center;width:40px;padding:0;border:1px solid var(--line);border-radius:11px;background:var(--card);color:var(--text)}
+.header-actions #open-settings svg{width:20px;height:20px}
+.header-actions #open-settings[aria-expanded="true"]{border-color:var(--blue);color:var(--blue)}
+.header-actions{position:relative}
+#settings-menu{position:absolute;right:0;top:calc(100% + 8px);z-index:20;width:248px;max-width:calc(100vw - 40px);padding:6px;border:1px solid var(--line);border-radius:14px;background:var(--card);box-shadow:0 8px 28px rgb(0 0 0 / 16%)}
+#settings-menu .settings-theme{min-height:48px;padding:0 8px 0 10px;margin:0;gap:10px}
+#settings-menu .settings-label{display:flex;align-items:center;gap:10px;min-width:0;font-size:13px;font-weight:500;color:var(--text)}
+#settings-menu .settings-label svg{width:17px;height:17px;flex:none;color:var(--muted)}
+#settings-menu .settings-divider{height:1px;background:var(--line);margin:3px 10px}
+#settings-menu #theme-toggle{position:relative;display:block;width:44px;height:44px;min-height:44px;flex:none;padding:0;border:0;border-radius:10px;background:transparent;color:var(--text)}
+#settings-menu #theme-toggle svg{display:none}
+#settings-menu #theme-toggle::before{content:'';position:absolute;left:3px;top:11px;width:38px;height:22px;border-radius:20px;background:var(--line);transition:background .15s ease}
+#settings-menu #theme-toggle::after{content:'';position:absolute;left:6px;top:14px;width:16px;height:16px;border-radius:50%;background:var(--text);transition:transform .15s ease}
+#settings-menu #theme-toggle[aria-checked="true"]::before{background:var(--blue)}
+#settings-menu #theme-toggle[aria-checked="true"]::after{transform:translateX(16px);background:white}
+#settings-menu #settings-printer-open{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:48px;padding:0 10px;border:0;border-radius:9px;background:transparent;color:var(--text);text-align:left;font-size:13px;margin:0}
+#settings-menu #settings-printer-open>.settings-chevron{width:14px;height:14px;color:var(--muted);flex:none}
+#settings-menu #settings-printer-open:hover{background:color-mix(in srgb,var(--text) 5%,var(--card))}
+#settings-menu button:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+@media(prefers-reduced-motion:reduce){ #settings-menu #theme-toggle::before,#settings-menu #theme-toggle::after{transition:none}}
+#settings-panel h2{font-size:18px;margin:0}
+#settings-panel input,#settings-panel select{background:var(--card);font-size:16px;min-height:46px}
+#settings-panel #packing-qz-connect{width:100%;margin-top:16px}
+#settings-panel #packing-qz-status{font-size:12px;line-height:1.65;margin:12px 0;overflow-wrap:anywhere}
+#settings-panel .packing-help{font-size:12px;line-height:1.7;margin-top:12px}
+#settings-panel .packing-help summary{cursor:pointer;color:var(--muted);padding:10px 0}
+#settings-panel .packing-help p{margin:8px 0 0}
+#history-list .box-history-action{margin-top:10px;font-size:12px}
+</style>
 </head>
 <body>
 <div id="login"><h1>Scanner App</h1><p>Login ke ERPNext untuk mulai memindai.</p><a class="button" href="/login?redirect-to=%2Fscanner%2F">Login ke ERPNext</a></div>
 <main>
-<div class="bar app-header"><div class="brand-lockup"><div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3M7 12h10M12 7v10"/></svg></div><div><h1>Scanner App</h1><div class="count" id="user"></div></div></div><div class="header-actions"><button id="open-history" class="secondary" type="button" aria-label="Riwayat scan" aria-expanded="false" aria-controls="history-panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11a9 9 0 1 1 2.6 7M3 4v7h7M12 7v5l3 2"/></svg><span>Riwayat</span></button><button id="theme-toggle" class="secondary" type="button" role="switch" aria-label="Mode terang" aria-checked="false"></button></div></div>
+<div class="bar app-header"><div class="brand-lockup"><div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3M7 12h10M12 7v10"/></svg></div><div><h1>Scanner App</h1><div class="count" id="user"></div></div></div><div class="header-actions"><button id="open-history" class="secondary" type="button" aria-label="Riwayat" aria-expanded="false" aria-controls="history-panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11a9 9 0 1 1 2.6 7M3 4v7h7M12 7v5l3 2"/></svg><span>Riwayat</span></button><button id="open-settings" type="button" aria-label="Pengaturan" aria-expanded="false" aria-controls="settings-menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.186 4.723L10.436 2.123L13.564 2.123L13.814 4.723L15.863 5.571L17.878 3.91L20.09 6.122L18.429 8.137L19.277 10.186L21.877 10.436L21.877 13.564L19.277 13.814L18.429 15.863L20.09 17.878L17.878 20.09L15.863 18.429L13.814 19.277L13.564 21.877L10.436 21.877L10.186 19.277L8.137 18.429L6.122 20.09L3.91 17.878L5.571 15.863L4.723 13.814L2.123 13.564L2.123 10.436L4.723 10.186L5.571 8.137L3.91 6.122L6.122 3.91L8.137 5.571Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+<div id="settings-menu" class="hidden">
+<div class="bar settings-theme"><span class="settings-label" id="settings-theme-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/></svg>Mode terang</span><button id="theme-toggle" class="secondary" type="button" role="switch" aria-labelledby="settings-theme-label" aria-checked="false"></button></div>
+<div class="settings-divider" aria-hidden="true"></div>
+<button id="settings-printer-open" type="button" aria-haspopup="dialog" aria-controls="settings-panel"><span class="settings-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8V3h10v5M7 17H4V9h16v8h-3M7 14h10v7H7zM16 11h1"/></svg>Pengaturan printer</span><svg class="settings-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+</div>
+</div></div>
 <div id="status" class="status hidden" role="status" aria-live="polite"></div>
-<section id="history-panel" class="card hidden" style="margin-top:12px"><div class="bar"><h2>Riwayat scan</h2><button id="close-history" class="secondary icon-button" type="button" aria-label="Tutup riwayat scan" title="Tutup riwayat scan"><span aria-hidden="true">×</span></button></div><p class="count">Scan yang tersimpan pada transaksi berhasil. Waktu adalah waktu pencatatan server saat submit atau penandaan Delivery Note.</p><div class="history-controls"><input id="history-search" type="search" placeholder="Cari dokumen, QR, item, batch, atau rak" aria-label="Cari riwayat"><select id="history-activity" aria-label="Aktivitas"><option value="">Semua aktivitas</option><option>Stock Entry</option><option>Pick List</option><option>Delivery Note</option></select><select id="history-scope" class="hidden" aria-label="Pengguna"><option value="mine">Riwayat saya</option><option value="all">Semua pengguna</option></select><button id="history-refresh" class="secondary" type="button">Cari / Muat ulang</button></div><p id="history-status" class="count" role="status" aria-live="polite"></p><div id="history-list"></div><button id="history-more" class="secondary hidden" type="button">Muat lebih banyak</button></section>
+<section id="history-panel" class="card hidden" style="margin-top:12px"><div class="bar"><h2>Riwayat</h2><button id="close-history" class="secondary icon-button" type="button" aria-label="Tutup riwayat"><span aria-hidden="true">×</span></button></div><div class="history-controls"><input id="history-search" type="search" placeholder="Cari dokumen, QR, item, batch, atau rak" aria-label="Cari riwayat"><select id="history-activity" aria-label="Aktivitas"><option value="">Semua transaksi scan</option><option>Stock Entry</option><option>Pick List</option><option>Delivery Note</option><option>Packing Box</option></select><select id="history-scope" class="hidden" aria-label="Pengguna"><option value="mine">Riwayat saya</option><option value="all">Semua pengguna</option></select><button id="history-refresh" class="secondary" type="button">Cari / Muat ulang</button></div><p id="history-status" class="count" role="status" aria-live="polite"></p><div id="history-list"></div><button id="history-more" class="secondary hidden" type="button">Muat lebih banyak</button></section>
 <div id="session-banner" class="card hidden"><h2>Sesi scan tersimpan</h2><p id="session-info"></p><div class="session-actions"><button id="restore-session" type="button">Lanjutkan sesi</button><button id="discard-session" class="secondary" type="button">Hapus sesi</button></div></div>
 <section id="home" class="home">
 <div class="home-intro"><div class="home-eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M8 12h8"/></svg> Menu scanner</div><h2>Pilih tujuan scan</h2><p>Pilih alur kerja untuk mulai memindai barang.</p></div>
@@ -187,17 +212,7 @@
 <div class="packing-primary"><button id="packing-seal">Selesai &amp; Cetak Label</button><button id="packing-print" class="secondary">Cetak ulang label</button><button id="packing-reopen" class="secondary hidden">Reopen</button></div>
 <p id="packing-print-status" class="count" role="status" aria-live="polite"></p>
 </div>
-<div class="packing-utilities">
-<button id="packing-list" class="secondary" type="button" aria-expanded="false" aria-controls="packing-boxes">Riwayat box</button><div id="packing-boxes" class="hidden"></div>
-<details class="packing-settings"><summary>Pengaturan printer</summary>
-<label for="packing-qz-mode">Cetak melalui</label><select id="packing-qz-mode"><option value="local">PC ini — QZ Tray lokal (tes di komputer)</option><option value="remote">PC lain melalui LAN — WSS (HP)</option></select>
-<label for="packing-qz-host">IP / hostname PC printer</label><input id="packing-qz-host" placeholder="192.168.1.5" autocomplete="off" spellcheck="false">
-<label id="packing-qz-port-label" for="packing-qz-port">Port QZ</label><input id="packing-qz-port" type="number" min="1" max="65535" value="8181">
-<button id="packing-qz-connect" class="secondary" type="button">Hubungkan &amp; Cari Printer</button>
-<label for="packing-qz-printer">Printer USB pada PC</label><select id="packing-qz-printer"><option value="">Pilih setelah terhubung</option></select>
-<p id="packing-qz-status" class="count" role="status" aria-live="polite">Isi alamat PC lalu hubungkan. Pengaturan disimpan di browser perangkat ini.</p>
-<details class="packing-help"><summary>Bantuan koneksi</summary><p>PC ini memakai localhost: HTTP menggunakan WS, HTTPS menggunakan WSS. Untuk HP pilih PC lain melalui LAN dan gunakan sertifikat WSS yang dipercaya HP. QZ Tray harus aktif. Jangan membuka port QZ ke internet.</p></details></details>
-</div></section>
+</section>
 <section id="pick" class="hidden">
 <div class="card"><div class="bar"><h2>Pick List</h2><button id="pick-back" class="secondary" type="button">Kembali</button></div>
 <label for="pick-search">Cari draft Pick List</label><input id="pick-search" type="search" placeholder="Nomor Pick List atau customer">
@@ -231,6 +246,14 @@
 <div class="card"><div class="bar"><h2>Daftar barang</h2><span class="count" id="count">0 item</span></div><div id="items"></div><div class="scan-corrections"><button id="undo-stock" class="secondary" type="button" disabled>Batalkan scan terakhir</button></div><button id="save" class="full" disabled>Selesai · Submit Stock Entry</button></div>
 </section>
 </main>
+<div id="settings-panel" class="source-modal hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title"><div class="source-panel"><div class="bar"><h2 id="settings-title">Pengaturan printer</h2><button id="close-settings" class="secondary icon-button" type="button" aria-label="Tutup pengaturan printer">×</button></div>
+<label for="packing-qz-mode">Cetak melalui</label><select id="packing-qz-mode"><option value="local">PC ini — QZ Tray lokal (tes di komputer)</option><option value="remote">PC lain melalui LAN — WSS (HP)</option></select>
+<label for="packing-qz-host">IP / hostname PC printer</label><input id="packing-qz-host" placeholder="192.168.1.5" autocomplete="off" spellcheck="false">
+<label id="packing-qz-port-label" for="packing-qz-port">Port QZ</label><input id="packing-qz-port" type="number" min="1" max="65535" value="8181">
+<button id="packing-qz-connect" class="secondary" type="button">Hubungkan &amp; Cari Printer</button>
+<label for="packing-qz-printer">Printer USB pada PC</label><select id="packing-qz-printer"><option value="">Pilih setelah terhubung</option></select>
+<p id="packing-qz-status" class="count" role="status" aria-live="polite"></p>
+<details class="packing-help"><summary>Bantuan koneksi</summary><p>PC ini memakai localhost: HTTP menggunakan WS, HTTPS menggunakan WSS. Untuk HP pilih PC lain melalui LAN dan gunakan sertifikat WSS yang dipercaya HP. QZ Tray harus aktif. Jangan membuka port QZ ke internet.</p></details></div></div>
 <div id="source-modal" class="source-modal hidden" role="dialog" aria-modal="true" aria-labelledby="source-title">
  <div class="source-panel"><div class="bar"><h2 id="source-title">Get Items From</h2><button id="close-source" class="secondary icon-button" type="button" aria-label="Tutup Get Items From" title="Tutup Get Items From"><span aria-hidden="true">×</span></button></div>
 <div id="source-error" class="status error hidden" role="alert"></div>
@@ -279,7 +302,7 @@ const pickApi = 'scanner_app.scanner_app.pick_list_scan.';
 const packingApi = 'scanner_app.scanner_app.box_packing.';
 let packingBox=null, packingBusy=false, packingSubmitting=false;
  let packingPrintConfirming=false,packingPrintResolve=null,packingPrintReturnFocus=null,packingMainWasInert=false;
- let packingHistoryOpen=false, packingHistoryRequest=0;
+ let printerSettingsOpen=false,printerSettingsMainWasInert=false;
  let packingPending=[], packingRequestKey=null;
  let packingQzClient=null, packingQzLoading=null, packingQzSettingsLoaded=false, packingPrintBoxName=null;
 let setup, rows = new Map(), rowId = 0, scannedWarehouse = '', sourceGuide = null, sourceSearchTimer = null, sourceListRequest = 0, busy = false, camera = null, cameraActive = false, lastCode = '', lastSeen = 0, scanTask = null, sourceRack = '';
@@ -288,7 +311,7 @@ let mode='stock', pickDraft=null, pickScans=[], pickWarehouse='', pickListReques
  const routes=new Set(['home','stock','pick','delivery','packing']);
  function routeFromHash() { const route=location.hash.slice(1).toLowerCase(); return routes.has(route)?route:'home'; }
  function navigationBusy() {
-   return packingBusy || packingSubmitting || packingPrintConfirming || camera || cameraActive || cameraStarting || scanTask || busy || pickBusy || deliveryBusy || restoringSession || sourceLoading || pickLoading || !$('camera-modal').classList.contains('hidden');
+   return packingBusy || packingSubmitting || packingPrintConfirming || printerSettingsOpen || camera || cameraActive || cameraStarting || scanTask || busy || pickBusy || deliveryBusy || restoringSession || sourceLoading || pickLoading || !$('camera-modal').classList.contains('hidden');
  }
  function setRoute(route, replace=false) {
   if(!routeReady) return;
@@ -355,12 +378,6 @@ function closePackingPrint(confirmed=false) {
  document.querySelector('main').inert=packingMainWasInert;
  packingPrintReturnFocus?.focus();packingPrintReturnFocus=null;
  const resolve=packingPrintResolve;packingPrintResolve=null;resolve(confirmed);
-}
-function setPackingHistoryOpen(open) {
- packingHistoryOpen=open;packingHistoryRequest++;
- $('packing-boxes').classList.toggle('hidden',!open);
- $('packing-list').setAttribute('aria-expanded',String(open));
- $('packing-list').textContent=open?'Tutup riwayat box':'Riwayat box';
 }
 function renderPacking() {
  initPackingQzSettings();
@@ -482,10 +499,54 @@ function renderHistoryEntry(entry) {
  }
  return card;
 }
+function setHistoryPanel(open) {
+ $('history-panel').classList.toggle('hidden',!open);$('open-history').setAttribute('aria-expanded',String(open));
+ if(!open)historyRequest++;
+}
+function setSettingsPanel(open) {
+ $('settings-menu').classList.toggle('hidden',!open);$('open-settings').setAttribute('aria-expanded',String(open));
+}
+function openPrinterSettings() {
+ if(navigationBusy())return;
+ initPackingQzSettings();setSettingsPanel(false);
+ const main=document.querySelector('main');printerSettingsMainWasInert=!!main.inert;main.inert=true;
+ printerSettingsOpen=true;$('settings-panel').classList.remove('hidden');$('close-settings').focus();
+}
+function closePrinterSettings() {
+ if(!printerSettingsOpen)return;
+ printerSettingsOpen=false;$('settings-panel').classList.add('hidden');
+ document.querySelector('main').inert=printerSettingsMainWasInert;$('open-settings').focus();
+}
+function renderBoxHistoryEntry(box) {
+ const card=document.createElement('div');card.className='history-entry';
+ const name=document.createElement('strong');name.textContent=box.name;
+ const meta=document.createElement('small');meta.textContent=`${box.status==='Sealed'?'Selesai':box.status} · ${box.item_code||'-'} · ${box.total_qty} produk`;
+ const button=document.createElement('button');button.className='secondary box-history-action';button.type='button';button.textContent='Buka box / cetak ulang';
+ button.addEventListener('click',async()=>{
+  if(navigationBusy())return;
+  let savedPending=[];try{savedPending=JSON.parse(localStorage.getItem('scanner-packing-pending')||'null')?.children||[];}catch{}
+  if(packingPending.length||savedPending.length){message('Selesaikan packing aktif dahulu sebelum membuka box lain.','error');return;}
+  packingBusy=true;
+  try{packingBox=await call('read_box',{name:box.name},false,packingApi);}
+  catch(e){message(e.message,'error');return;}
+  finally{packingBusy=false;}
+  setHistoryPanel(false);renderPacking();navigate('packing');
+ });
+ card.append(name,meta,button);return card;
+}
 async function loadHistory(more=false) {
  const request=++historyRequest;if(!more) {historyStart=0;$('history-list').replaceChildren();}
  $('history-status').textContent='Memuat riwayat…';$('history-more').disabled=true;
  try {
+  if($('history-activity').value==='Packing Box') {
+   $('history-scope').classList.add('hidden');
+   const boxes=await call('list_boxes',{start:historyStart,search:$('history-search').value},false,packingApi);
+   if(request!==historyRequest)return;
+   boxes.forEach(box=>$('history-list').append(renderBoxHistoryEntry(box)));
+   historyStart+=boxes.length;$('history-more').classList.toggle('hidden',boxes.length<20);
+   $('history-status').textContent=$('history-list').children.length+' box'+(!boxes.length&&!more?' · belum ada riwayat yang cocok':'');
+   return;
+  }
   const data=await call('get_history',{start:historyStart,search:$('history-search').value,activity:$('history-activity').value,scope:$('history-scope').value || 'mine'},false,'scanner_app.scanner_app.scan_history.');
   if(request!==historyRequest) return;
   data.rows.forEach(entry=>$('history-list').append(renderHistoryEntry(entry)));
@@ -580,7 +641,7 @@ function applyTheme(theme) {
  const light=theme==='light';
  document.documentElement.dataset.theme=light?'light':'dark';
  const themeIcon=light?'<path d="M12 3v2M12 19v2M5.64 5.64l1.42 1.42m9.88 9.88 1.42 1.42M3 12h2m14 0h2M5.64 18.36l1.42-1.42m9.88-9.88 1.42-1.42"/><circle cx="12" cy="12" r="4"/>':'<path d="M20.2 15.1A8.5 8.5 0 0 1 8.9 3.8 8.6 8.6 0 1 0 20.2 15.1Z"/>';
- $('theme-toggle').innerHTML='<svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+themeIcon+'</svg>';
+ $('settings-theme-label').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+themeIcon+'</svg>'+(light?'Mode terang':'Mode gelap');
  $('theme-toggle').setAttribute('aria-label',light?'Aktifkan mode gelap':'Aktifkan mode terang');
  $('theme-toggle').setAttribute('title',light?'Aktifkan mode gelap':'Aktifkan mode terang');
  $('theme-toggle').setAttribute('aria-checked',String(light));
@@ -597,7 +658,7 @@ async function call(method, args = {}, post = false, namespace = api) {
  const data = await response.json();
  if (!response.ok) {
   let msg = data.message || data.exc_type || 'Terjadi kesalahan';
-  try {
+   try {
    const messages = JSON.parse(data._server_messages || '[]').map(entry => JSON.parse(entry));
    const failure = messages.filter(entry => entry.raise_exception).pop() || messages.at(-1);
    if (failure?.message) msg = failure.message;
@@ -1233,27 +1294,9 @@ $('back').addEventListener('click',()=>navigate('home'));
 $('pick-back').addEventListener('click',()=>navigate('home'));
 $('delivery-back').addEventListener('click',()=>navigate('home'));
 $('packing-back').addEventListener('click',()=>navigate('home'));
-$('packing-create').addEventListener('click',()=>{if(packingBusy||packingSubmitting)return;if(packingPending.length&&!window.confirm('Hapus daftar scan yang belum diselesaikan?'))return;setPackingHistoryOpen(false);packingBox=null;packingPending=[];packingRequestKey=null;localStorage.removeItem('scanner-packing-box');savePackingPending();renderPacking();$('packing-input').focus();});
+$('packing-create').addEventListener('click',()=>{if(packingBusy||packingSubmitting)return;if(packingPending.length&&!window.confirm('Hapus daftar scan yang belum diselesaikan?'))return;packingBox=null;packingPending=[];packingRequestKey=null;localStorage.removeItem('scanner-packing-box');savePackingPending();renderPacking();$('packing-input').focus();});
 $('packing-scan').addEventListener('click',async()=>{try{await submitPackingScan($('packing-input').value);}catch(e){message(e.message,'error');}});
 $('packing-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('packing-scan').click();}});
-$('packing-list').addEventListener('click',async()=>{
- if(packingHistoryOpen){setPackingHistoryOpen(false);return;}
- if(packingBusy||packingSubmitting)return;
- if(packingPending.length){message('Selesaikan packing aktif dahulu atau pilih Packing baru untuk menghapus daftar scan.','error');return;}
- setPackingHistoryOpen(true);
- const request=packingHistoryRequest,el=$('packing-boxes');el.textContent='Memuat riwayat…';
- try{
-  const boxes=await call('list_boxes',{},false,packingApi);
-  if(request!==packingHistoryRequest)return;
-  el.replaceChildren();
-  if(!boxes.length)el.textContent='Belum ada box tersimpan.';
-  for(const b of boxes){
-   const button=document.createElement('button');button.className='secondary';button.textContent=`${b.name} · ${b.status} · ${b.item_code||'-'} · ${b.total_qty}`;
-   button.onclick=async()=>{if(packingBusy||packingSubmitting||packingPending.length)return;try{packingBox=await call('read_box',{name:b.name},false,packingApi);setPackingHistoryOpen(false);renderPacking();}catch(e){message(e.message,'error');}};
-   el.append(button);
-  }
- }catch(e){if(request!==packingHistoryRequest)return;el.textContent='Riwayat gagal dimuat. Tutup lalu buka kembali untuk mencoba lagi.';message(e.message,'error');}
-});
 $('packing-seal').addEventListener('click',async()=>{
  if(packingBusy||packingSubmitting||packingPrintConfirming||packingBox||!packingPending.length)return;
  if(!await confirmPackingPrint())return;
@@ -1320,8 +1363,25 @@ $('undo-camera').addEventListener('click',undoScan);$('undo-stock').addEventList
 $('scan-feedback-toggle').addEventListener('click',()=>{feedbackEnabled=!feedbackEnabled;try{localStorage.setItem('scanner-feedback',feedbackEnabled?'on':'off');}catch{}updateCameraPrompt();});
 $('restore-session').addEventListener('click',()=>restoreSession(routeFromHash()));
 $('discard-session').addEventListener('click',()=>{if(restoringSession) return;savedSession=null;try{localStorage.removeItem(sessionKey());}catch{}$('session-banner').classList.add('hidden');for(const name of ['stock','pick']) $(name).inert=false;applyRoute(routeFromHash());});
-$('open-history').addEventListener('click',()=>{$('history-panel').classList.remove('hidden');$('open-history').setAttribute('aria-expanded','true');loadHistory();});
-$('close-history').addEventListener('click',()=>{$('history-panel').classList.add('hidden');$('open-history').setAttribute('aria-expanded','false');});
+$('open-history').addEventListener('click',()=>{if(!$('history-panel').classList.contains('hidden')){setHistoryPanel(false);return;}setSettingsPanel(false);setHistoryPanel(true);if(lastRoute==='packing')$('history-activity').value='Packing Box';loadHistory();});
+$('close-history').addEventListener('click',()=>{setHistoryPanel(false);$('open-history').focus();});
+$('open-settings').addEventListener('click',()=>{if(!$('settings-menu').classList.contains('hidden')){setSettingsPanel(false);return;}if(navigationBusy())return;setHistoryPanel(false);setSettingsPanel(true);});
+$('settings-printer-open').addEventListener('click',openPrinterSettings);
+$('close-settings').addEventListener('click',closePrinterSettings);
+$('settings-panel').addEventListener('click',event=>{if(event.target===$('settings-panel'))closePrinterSettings();});
+document.addEventListener('click',event=>{if(!$('settings-menu').classList.contains('hidden')&&!$('settings-menu').contains(event.target)&&!$('open-settings').contains(event.target))setSettingsPanel(false);});
+document.addEventListener('keydown',event=>{
+ if(event.key==='Escape'){
+  if(printerSettingsOpen){event.preventDefault();closePrinterSettings();}
+  else if(!$('settings-menu').classList.contains('hidden')){setSettingsPanel(false);$('open-settings').focus();}
+ }
+ if(event.key==='Tab'&&printerSettingsOpen){
+  const controls=[...$('settings-panel').querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled),summary')];
+  const first=controls[0],last=controls.at(-1);
+  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+ }
+});
 $('history-refresh').addEventListener('click',()=>loadHistory());$('history-more').addEventListener('click',()=>loadHistory(true));
 for(const id of ['history-activity','history-scope']) $(id).addEventListener('change',()=>loadHistory());
 $('history-search').addEventListener('keydown',event=>{if(event.key==='Enter') {event.preventDefault();loadHistory();}});

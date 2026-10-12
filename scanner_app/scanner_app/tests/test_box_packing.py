@@ -53,6 +53,14 @@ class BoxPackingTests(unittest.TestCase):
 		self.assertEqual(box_packing._item_label_uom(item), "Nos")
 		self.assertEqual(box_packing._item_label_uom(types.SimpleNamespace()), "-")
 
+	def test_box_history_search_uses_permission_filtered_list_and_pagination(self):
+		with patch.object(frappe_mock, "get_list", return_value=[]) as listing:
+			self.assertEqual(box_packing.list_boxes(start=20, search=" AIR "), [])
+		kwargs = listing.call_args.kwargs
+		self.assertEqual(kwargs["start"], 20)
+		self.assertEqual(kwargs["page_length"], 20)
+		self.assertEqual(kwargs["or_filters"], [[box_packing.BOX, field, "like", "%AIR%"] for field in ("name", "item_code", "item_name")])
+
 	def test_snapshot_includes_item_label_uom_after_permission_check(self):
 		self.box.item_code = "I-1"
 		item = types.SimpleNamespace(custom_default_uom="Galon", stock_uom="Nos", check_permission=Mock())

@@ -208,12 +208,14 @@ def _event(box, action, serial=None):
 
 
 @frappe.whitelist(methods=["GET"])
-def list_boxes(start=0):
+def list_boxes(start=0, search=None):
 	_require_stock_role()
 	start = int(start)
 	if start < 0:
 		frappe.throw(_("Invalid page."))
-	return frappe.get_list(BOX, fields=["name", "status", "item_code", "total_qty"],
+	search = str(search or "").strip()[:140]
+	or_filters = [[BOX, field, "like", "%" + search + "%"] for field in ("name", "item_code", "item_name")] if search else None
+	return frappe.get_list(BOX, fields=["name", "status", "item_code", "total_qty"], or_filters=or_filters,
 		order_by="creation desc", start=start, page_length=20)
 
 

@@ -93,7 +93,7 @@ test('legacy remote config is preserved when switching to local PC and back',()=
  const config=app.flow.getSettings();assert.equal(config.host,'192.168.3.51');assert.equal(config.port,8181);assert.equal(config.printer,'BP-TR110');assert.equal(config.usingSecure,true);
 });
 test('packing supporting controls are collapsed by default',()=>{
- for(const className of ['packing-manual','packing-contents','packing-settings','packing-help']) {
+ for(const className of ['packing-manual','packing-contents','packing-help']) {
   assert.ok(html.includes(`<details class="${className}">`),className);
  }
  assert.ok(!html.includes('<div class="packing-steps">'));
