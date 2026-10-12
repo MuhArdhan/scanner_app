@@ -67,7 +67,9 @@
   /**
    * Generates the ZPL string matching the reference layout image.
    */
-  const zpl = (box) => {
+  const defaults = Object.freeze({width_mm:60,height_mm:40,offset_x:0,offset_y:0,qr_x:35,qr_y:70,qr_scale:9,text_x:250,text_y:70,text_width:225,field_gap:40,id_x:25,id_y:265,id_width:200});
+  const zpl = (box, layout = defaults) => {
+    const cfg = {...defaults, ...layout};
     // 1. Validation
     const isValidQr = /^BOX:BOX-[A-Za-z0-9-]+$/.test(box.qr_payload);
     if (box.status !== 'Sealed' || !isValidQr || !box.total_qty) {
@@ -84,7 +86,7 @@
       const fontWidth = Math.max(1, size - 3);
 
       const buildCommand = (posX) =>
-        `^FO${posX},${y}^A0N,${fontHeight},${fontWidth}^FB${width},${lines},0,${align}^FH_^FD${hexData}^FS`;
+        `^FO${posX + cfg.offset_x},${y + cfg.offset_y}^A0N,${fontHeight},${fontWidth}^FB${width},${lines},0,${align}^FH_^FD${hexData}^FS`;
 
       // Overprint 1 dot to the right for extra bold effect (matching the image font)
       return `${buildCommand(x)}\n${buildCommand(x + 1)}`;
@@ -92,11 +94,11 @@
 
     const labelText = content(box);
     // Follow estimated name height while retaining the original two-line ^FB.
-    const skuY = 70 + 32 * nameLineCount(labelText.name) + 13;
+    const skuY = cfg.text_y + 32 * nameLineCount(labelText.name, cfg.text_width) + 13;
 
     // Dynamic Font Size for Box ID to fit inside the 200-dot QR column width
     const rawIdLength = String(box.box_id).length;
-    const calculatedSize = Math.floor(200 / rawIdLength) + 4;
+    const calculatedSize = Math.floor(cfg.id_width / rawIdLength) + 4;
     const idFontSize = Math.min(26, Math.max(14, calculatedSize));
 
     // =========================================================================
@@ -105,25 +107,25 @@
     const zplCommands = [
       '^XA',
       '^CI28',
-      '^PW480',
-      '^LL320',
+      `^PW${Math.round(cfg.width_mm * 8)}`,
+      `^LL${Math.round(cfg.height_mm * 8)}`,
       '^LH0,0',
       '^LS0',
 
       // --- 1. SISI KIRI: QR CODE & BOX ID ---
       // QR Code (Magnification 7) - 20 dots lower, approximately 17% larger.
-      `^FO35,70^BQN,2,9^FH_^FDQA,${encodeHexZpl(box.qr_payload)}^FS`,
+      `^FO${cfg.qr_x + cfg.offset_x},${cfg.qr_y + cfg.offset_y}^BQN,2,${cfg.qr_scale}^FH_^FDQA,${encodeHexZpl(box.qr_payload)}^FS`,
 
       // Box ID di Bawah QR Code (Center Aligned)
-      renderField(25, 265, box.box_id, idFontSize, 200, 1, 'C'),
+      renderField(cfg.id_x, cfg.id_y, box.box_id, idFontSize, cfg.id_width, 1, 'C'),
 
       // --- 2. SISI KANAN: DETAIL PRODUK ---
       // Format: renderField( X, Y, Teks, Font, Width, Lines, Align )
-      renderField(250, 70, labelText.name, 32, 225, 2, 'L'),
-      renderField(250, skuY,       labelText.sku,     24, 225, 1, 'L'),
-      renderField(250, skuY + 40,  labelText.qty,     24, 225, 1, 'L'),
-      renderField(250, skuY + 80,  labelText.receipt, 24, 225, 1, 'L'),
-      renderField(250, skuY + 120, labelText.expiry,  24, 225, 1, 'L'),
+      renderField(cfg.text_x, cfg.text_y, labelText.name, 32, cfg.text_width, 2, 'L'),
+      renderField(cfg.text_x, skuY,       labelText.sku,     24, cfg.text_width, 1, 'L'),
+      renderField(cfg.text_x, skuY + cfg.field_gap,  labelText.qty,     24, cfg.text_width, 1, 'L'),
+      renderField(cfg.text_x, skuY + cfg.field_gap * 2,  labelText.receipt, 24, cfg.text_width, 1, 'L'),
+      renderField(cfg.text_x, skuY + cfg.field_gap * 3, labelText.expiry,  24, cfg.text_width, 1, 'L'),
 
       '^XZ\n',
     ];
@@ -131,7 +133,7 @@
     return zplCommands.join('\n');
   };
 
-  const PackingLabel = { zpl, content };
+  const PackingLabel = { zpl, content, defaults };
   root.PackingLabel = PackingLabel;
 
   if (typeof module !== 'undefined' && module.exports) {

@@ -5,6 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const html = fs.readFileSync(path.resolve(__dirname, '../www/scanner/index.html'), 'utf8');
 const script = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].at(-1)[1];
+const PackingLabel = require('../public/packing.js');
 
 function harness(options={}) {
   const elements = new Map(),listeners=new Map(),main={inert:false},calls=[];let created=0;
@@ -13,20 +14,20 @@ function harness(options={}) {
       const classes=new Set(),attributes={};
       const node={id,textContent:'',value:'',dataset:{},style:{},attributes,children:[],
         classList:{add:name=>classes.add(name),remove:name=>classes.delete(name),toggle:(name,force)=>force?classes.add(name):classes.delete(name),contains:name=>classes.has(name)},
-        addEventListener:(event,fn)=>listeners.set(id+':'+event,fn),replaceChildren(){this.children=[];},append(...children){this.children.push(...children);},focus(){},setAttribute:(key,value)=>{attributes[key]=value;}};
+        addEventListener:(event,fn)=>listeners.set(id+':'+event,fn),replaceChildren(){this.children=[];},append(...children){this.children.push(...children);},reportValidity(){return true;},focus(){},setAttribute:(key,value)=>{attributes[key]=value;}};
       elements.set(id,node);
     }
     return elements.get(id);
   };
   const context = {
-    document:{getElementById:element,createElement:()=>element('created-'+created++),querySelector:selector=>selector==='main'?main:({content:''}),addEventListener(){},documentElement:{dataset:{}}},
-    window:{addEventListener(){},mockCall:async (method,args)=>{calls.push({method,args});if(method==='list_boxes')return options.listBoxes?options.listBoxes():[];if(method==='read_box')return options.box;if(method==='get_history')return {rows:[],next_start:0,can_view_all:false,has_more:false};throw Error('Unexpected '+method);}},localStorage:{getItem:key=>key==='scanner-packing-pending'&&options.savedPending?JSON.stringify({children:options.savedPending}):null,setItem(){},removeItem(){}},
-    location:{hash:'#packing'},history:{replaceState(){}},navigator:{},URLSearchParams,console,setTimeout,clearTimeout,
+    document:{getElementById:id=>[...elements.values()].reverse().find(node=>node.id===id)||element(id),createElement:()=>element('created-'+created++),querySelector:selector=>selector==='main'?main:({content:''}),addEventListener(){},documentElement:{dataset:{}}},
+    window:{addEventListener(){},mockCall:async (method,args)=>{calls.push({method,args});if(method==='get_layout')return {layout:{...PackingLabel.defaults,qr_scale:8},can_write:!!options.layoutWritable};if(method==='save_layout')return {layout:args.layout,can_write:true};if(method==='list_boxes')return options.listBoxes?options.listBoxes():[];if(method==='read_box')return options.box;if(method==='get_history')return {rows:[],next_start:0,can_view_all:false,has_more:false};throw Error('Unexpected '+method);}},localStorage:{getItem:key=>key==='scanner-packing-pending'&&options.savedPending?JSON.stringify({children:options.savedPending}):null,setItem(){},removeItem(){}},
+    PackingLabel,location:{hash:'#packing'},history:{replaceState(){}},navigator:{},URLSearchParams,console,setTimeout,clearTimeout,
   };
   const instrumented = script.replace(/init\(\);\s*\}\)\(\);\s*$/, `
     initPackingQzSettings=()=>{};
     call=async (method,args)=>window.mockCall(method,args);message=()=>{};
-    window.packingUI={render:renderPacking,setPending:children=>{packingBox=null;packingPending=children;},setBox:box=>{packingBox=box;},confirm:confirmPackingPrint,close:closePackingPrint,history:loadHistory,historyPanel:setHistoryPanel,boxEntry:renderBoxHistoryEntry};
+    window.packingUI={render:renderPacking,setPending:children=>{packingBox=null;packingPending=children;},setBox:box=>{packingBox=box;},confirm:confirmPackingPrint,close:closePackingPrint,history:loadHistory,historyPanel:setHistoryPanel,boxEntry:renderBoxHistoryEntry,loadLayout:loadPackingLayout,saveLayout:savePackingLayout};
   })();`);
   for(const id of ['camera-modal','source-modal','review-modal','history-panel','settings-panel','settings-menu'])element(id).classList.add('hidden');
   vm.runInNewContext(instrumented, context);
@@ -158,6 +159,19 @@ test('opening a history box loads it without printing and protects locally saved
  const protectedButton=protectedApp.ui.boxEntry(box).children[2];
  await protectedApp.listeners.get(protectedButton.id+':click')();
  assert.equal(protectedApp.calls.length,0);
+});
+test('layout form respects server permissions and resets only after explicit save',async()=>{
+ for(const writable of [false,true]){
+  const app=harness({layoutWritable:writable});app.listeners.get('settings-printer-open:click')();await app.ui.loadLayout();
+  assert.equal(app.elements.get('packing-layout-save').disabled,!writable);
+  assert.equal(app.elements.get('packing-layout-fields').children.length,14);
+  if(!writable){await app.ui.saveLayout();assert.ok(!app.calls.some(call=>call.method==='save_layout'));continue;}
+  app.listeners.get('packing-layout-reset:click')();
+  assert.ok(!app.calls.some(call=>call.method==='save_layout'));
+  for(const wrapper of app.elements.get('packing-layout-fields').children)wrapper.children[1].value=String(wrapper.children[1].value);
+  await app.ui.saveLayout();
+  assert.equal(app.calls.at(-1).method,'save_layout');assert.equal(app.calls.at(-1).args.layout.qr_scale,9);
+ }
 });
 test('custom popup shows pending item, unit and printer and supports cancel',async()=>{
  const app=harness();

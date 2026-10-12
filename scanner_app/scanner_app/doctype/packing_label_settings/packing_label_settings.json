@@ -1,0 +1,15 @@
+{
+ "doctype": "DocType",
+ "name": "Packing Label Settings",
+ "module": "Scanner App",
+ "issingle": 1,
+ "engine": "InnoDB",
+ "field_order": ["layout_json"],
+ "fields": [{"fieldname": "layout_json", "fieldtype": "Code", "options": "JSON", "label": "Label Layout"}],
+ "permissions": [
+  {"role": "Stock User", "read": 1},
+  {"role": "Stock Manager", "read": 1, "write": 1},
+  {"role": "System Manager", "read": 1, "write": 1}
+ ],
+ "track_changes": 1
+}

@@ -172,6 +172,11 @@
 #settings-panel .packing-help{font-size:12px;line-height:1.7;margin-top:12px}
 #settings-panel .packing-help summary{cursor:pointer;color:var(--muted);padding:10px 0}
 #settings-panel .packing-help p{margin:8px 0 0}
+#settings-panel .layout-section{margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+#settings-panel .layout-section h3{margin:0 0 8px;font-size:14px}
+#settings-panel .layout-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}
+#settings-panel .layout-grid label{font-size:12px}
+#settings-panel .layout-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 #history-list .box-history-action{margin-top:10px;font-size:12px}
 </style>
 </head>
@@ -253,7 +258,9 @@
 <button id="packing-qz-connect" class="secondary" type="button">Hubungkan &amp; Cari Printer</button>
 <label for="packing-qz-printer">Printer USB pada PC</label><select id="packing-qz-printer"><option value="">Pilih setelah terhubung</option></select>
 <p id="packing-qz-status" class="count" role="status" aria-live="polite"></p>
-<details class="packing-help"><summary>Bantuan koneksi</summary><p>PC ini memakai localhost: HTTP menggunakan WS, HTTPS menggunakan WSS. Untuk HP pilih PC lain melalui LAN dan gunakan sertifikat WSS yang dipercaya HP. QZ Tray harus aktif. Jangan membuka port QZ ke internet.</p></details></div></div>
+<details class="packing-help"><summary>Bantuan koneksi</summary><p>PC ini memakai localhost: HTTP menggunakan WS, HTTPS menggunakan WSS. Untuk HP pilih PC lain melalui LAN dan gunakan sertifikat WSS yang dipercaya HP. QZ Tray harus aktif. Jangan membuka port QZ ke internet.</p></details>
+<section class="layout-section" aria-labelledby="packing-layout-title"><h3 id="packing-layout-title">Layout label</h3><p class="count">Disimpan di server untuk semua HP/PC. Printer 203 dpi: 8 dots = 1 mm. Font nama dan wrapping tetap seperti sebelumnya. Posisi dihitung dari kiri/atas label.</p><div id="packing-layout-fields" class="layout-grid"></div><div class="layout-actions"><button id="packing-layout-save" type="button" disabled>Simpan layout</button><button id="packing-layout-reset" class="secondary" type="button" disabled>Kembalikan default</button></div><p id="packing-layout-status" class="count" role="status" aria-live="polite"></p></section>
+</div></div>
 <div id="source-modal" class="source-modal hidden" role="dialog" aria-modal="true" aria-labelledby="source-title">
  <div class="source-panel"><div class="bar"><h2 id="source-title">Get Items From</h2><button id="close-source" class="secondary icon-button" type="button" aria-label="Tutup Get Items From" title="Tutup Get Items From"><span aria-hidden="true">×</span></button></div>
 <div id="source-error" class="status error hidden" role="alert"></div>
@@ -471,7 +478,8 @@ async function printPackingBox() {
   const config=getPackingQzSettings();
   const box=await call('print_data',{box_name:packingBox.name},false,packingApi);
   $('packing-print-status').textContent=`Menghubungi QZ Tray ${config.host}:${config.port}…`;
-  await getPackingQzClient().print(config,box,PackingLabel.zpl(box));savePackingQzSettings(config);
+   const {layout}=await call('get_layout',{},false,'scanner_app.scanner_app.packing_layout.');
+   await getPackingQzClient().print(config,box,PackingLabel.zpl(box,layout));savePackingQzSettings(config);
   $('packing-print-status').textContent=`Terkirim ke ${config.printer} melalui ${config.host}. Periksa label fisik.`;
   message('Permintaan cetak diterima QZ Tray di PC.');
  }catch(e){$('packing-print-status').textContent='Cetak belum berhasil dikonfirmasi. Box tetap tersimpan; periksa koneksi, sertifikat dan label fisik sebelum mencoba lagi.';throw e;}
@@ -511,9 +519,45 @@ function openPrinterSettings() {
  initPackingQzSettings();setSettingsPanel(false);
  const main=document.querySelector('main');printerSettingsMainWasInert=!!main.inert;main.inert=true;
  printerSettingsOpen=true;$('settings-panel').classList.remove('hidden');$('close-settings').focus();
+ loadPackingLayout();
+}
+const packingLayoutFields=[['width_mm','Lebar label (mm)',20,150],['height_mm','Tinggi label (mm)',20,150],['offset_x','Offset horizontal (dots)',-100,100],['offset_y','Offset vertikal (dots)',-100,100],['qr_x','Posisi QR X (dots)',0,1200],['qr_y','Posisi QR Y (dots)',0,1200],['qr_scale','Ukuran QR (1–10)',1,10],['text_x','Kolom teks X (dots)',0,1200],['text_y','Kolom teks Y (dots)',0,1200],['text_width','Lebar kolom teks (dots)',1,1200],['field_gap','Jarak detail (dots)',1,1200],['id_x','Box ID X (dots)',0,1200],['id_y','Box ID Y (dots)',0,1200],['id_width','Lebar Box ID (dots)',1,1200]];
+let packingLayoutRequest=0,packingLayoutWritable=false,packingLayoutSaving=false;
+function renderPackingLayout(layout) {
+ const fields=$('packing-layout-fields');fields.replaceChildren();
+ for(const [key,title,min,max] of packingLayoutFields){
+  const wrapper=document.createElement('div'),label=document.createElement('label'),input=document.createElement('input');
+  input.id='packing-layout-'+key;input.type='number';input.min=min;input.max=max;input.step=key.endsWith('_mm')?'0.1':'1';input.value=layout[key];input.disabled=!packingLayoutWritable;
+  label.htmlFor=input.id;label.textContent=title;wrapper.append(label,input);fields.append(wrapper);
+ }
+ $('packing-layout-save').disabled=!packingLayoutWritable||packingLayoutSaving;$('packing-layout-reset').disabled=!packingLayoutWritable||packingLayoutSaving;
+}
+async function loadPackingLayout() {
+ const request=++packingLayoutRequest;packingLayoutWritable=false;
+ $('packing-layout-save').disabled=true;$('packing-layout-reset').disabled=true;$('packing-layout-fields').replaceChildren();
+ $('packing-layout-status').textContent='Memuat layout server…';
+ try{
+  const data=await call('get_layout',{},false,'scanner_app.scanner_app.packing_layout.');
+  if(request!==packingLayoutRequest||!printerSettingsOpen)return;
+  packingLayoutWritable=data.can_write;renderPackingLayout(data.layout);
+  $('packing-layout-status').textContent=data.can_write?'Perubahan berlaku setelah disimpan. Periksa hasil label fisik.':'Hanya Stock Manager/System Manager yang dapat mengubah layout.';
+ }catch(e){if(request===packingLayoutRequest)$('packing-layout-status').textContent='Gagal memuat layout: '+e.message;}
+}
+async function savePackingLayout() {
+ if(!packingLayoutWritable||packingLayoutSaving)return;
+ const layout={};
+ for(const [key] of packingLayoutFields){const input=$('packing-layout-'+key);if(!input.value.trim()||!input.reportValidity())return;layout[key]=Number(input.value);}
+ packingLayoutSaving=true;$('packing-layout-save').disabled=true;$('packing-layout-reset').disabled=true;
+ try{
+  const data=await call('save_layout',{layout},true,'scanner_app.scanner_app.packing_layout.');
+  renderPackingLayout(data.layout);$('packing-layout-status').textContent='Layout tersimpan untuk semua perangkat. Berlaku pada cetak berikutnya.';
+ }catch(e){$('packing-layout-status').textContent='Layout belum tersimpan: '+e.message;}
+ finally{packingLayoutSaving=false;$('packing-layout-save').disabled=!packingLayoutWritable;$('packing-layout-reset').disabled=!packingLayoutWritable;}
 }
 function closePrinterSettings() {
  if(!printerSettingsOpen)return;
+ if(packingLayoutSaving)return;
+ packingLayoutRequest++;
  printerSettingsOpen=false;$('settings-panel').classList.add('hidden');
  document.querySelector('main').inert=printerSettingsMainWasInert;$('open-settings').focus();
 }
@@ -1367,6 +1411,8 @@ $('open-history').addEventListener('click',()=>{if(!$('history-panel').classList
 $('close-history').addEventListener('click',()=>{setHistoryPanel(false);$('open-history').focus();});
 $('open-settings').addEventListener('click',()=>{if(!$('settings-menu').classList.contains('hidden')){setSettingsPanel(false);return;}if(navigationBusy())return;setHistoryPanel(false);setSettingsPanel(true);});
 $('settings-printer-open').addEventListener('click',openPrinterSettings);
+$('packing-layout-save').addEventListener('click',savePackingLayout);
+$('packing-layout-reset').addEventListener('click',()=>{if(!packingLayoutWritable||packingLayoutSaving)return;renderPackingLayout(PackingLabel.defaults);$('packing-layout-status').textContent='Default dimuat ke form. Klik Simpan layout untuk menerapkannya ke semua perangkat.';});
 $('close-settings').addEventListener('click',closePrinterSettings);
 $('settings-panel').addEventListener('click',event=>{if(event.target===$('settings-panel'))closePrinterSettings();});
 document.addEventListener('click',event=>{if(!$('settings-menu').classList.contains('hidden')&&!$('settings-menu').contains(event.target)&&!$('open-settings').contains(event.target))setSettingsPanel(false);});

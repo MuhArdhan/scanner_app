@@ -23,6 +23,32 @@ sys.modules['frappe'] = frappe_mock
 sys.modules['frappe.utils'] = types.SimpleNamespace(now_datetime=lambda: "2026-10-09 12:00:00")
 
 from scanner_app.scanner_app import box_packing
+from scanner_app.scanner_app import packing_layout
+
+class PackingLayoutTests(unittest.TestCase):
+	def test_defaults_and_valid_calibration(self):
+		self.assertEqual(packing_layout.validate_layout({}), packing_layout.DEFAULTS)
+		layout = packing_layout.validate_layout({"width_mm": 70, "offset_x": 5, "qr_scale": 7})
+		self.assertEqual(layout["offset_x"], 5)
+		self.assertEqual(layout["qr_scale"], 7)
+
+	def test_rejects_invalid_and_outside_values(self):
+		for layout in ({"qr_scale": 11}, {"qr_scale": 1.5}, {"offset_x": True}, {"text_x": float("nan")}, {"text_x": "^XA"}, {"unknown": 1}, {"width_mm": 20}, {"offset_y": -100}, [], "not json"):
+			with self.subTest(layout=layout), self.assertRaises(ValueError):
+				packing_layout.validate_layout(layout)
+
+	def test_save_requires_write_permission(self):
+		with patch.object(frappe_mock, "has_permission", return_value=False):
+			with self.assertRaises(PermissionError):
+				packing_layout.save_layout({})
+
+	def test_layout_is_saved_on_singleton_and_read_back(self):
+		doc = types.SimpleNamespace(layout_json=None, save=Mock())
+		with patch.object(frappe_mock, "get_single", return_value=doc, create=True), patch.object(frappe_mock, "has_permission", return_value=True):
+			result = packing_layout.save_layout({"qr_scale": 8})
+			self.assertEqual(result["layout"]["qr_scale"], 8)
+			doc.save.assert_called_once_with()
+			self.assertEqual(packing_layout.get_layout()["layout"], result["layout"])
 
 class BoxPackingTests(unittest.TestCase):
 	def setUp(self):

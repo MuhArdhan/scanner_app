@@ -31,6 +31,7 @@ function harness(options={}) {
   if(method==='validate_scan')return {product_qr_serial:args.qr_payload,qr_payload:args.qr_payload,item_code:args.qr_payload==='OTHER'?'I-2':'I-1',batch_no:args.qr_payload,item_name:'Bread'};
   if(method==='finish_packing'){if(options.finishFails)throw Error('Timeout');return {name:'BOX-1',status:'Sealed'};}
   if(method==='print_data')return {name:'BOX-1',status:'Sealed'};
+  if(method==='get_layout')return {layout:{}};
   throw Error('Unexpected '+method);
  };
  context.window.printed=()=>{printed++;if(options.printFails)throw Error('Printer disconnected');};
@@ -77,7 +78,7 @@ test('printer failure leaves saved box ready to reprint, not staged again',async
 });
 test('phone finish fetches sealed snapshot and prints through remote QZ without a queue',async()=>{
  const app=harness({direct:true});await app.flow.scan('A');await app.listeners.get('packing-seal:click')();
- assert.deepEqual(app.calls.map(c=>c.method),['validate_scan','finish_packing','print_data']);
+  assert.deepEqual(app.calls.map(c=>c.method),['validate_scan','finish_packing','print_data','get_layout']);
  assert.equal(app.printed(),1);
 });
 test('printer UI defaults to local PC for new users on HTTP',()=>{
