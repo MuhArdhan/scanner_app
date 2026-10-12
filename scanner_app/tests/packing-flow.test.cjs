@@ -22,6 +22,7 @@ function harness(options={}) {
  const instrumented=script.replace(/init\(\);\s*\}\)\(\);\s*$/, `
  call=async(method,args)=>window.mockCall(method,args);
   ${options.render ? '' : 'renderPacking=()=>{};'}savePackingPending=()=>{};message=()=>{};
+  confirmPackingPrint=async()=>${options.cancelPrint ? 'false' : 'true'};
  ${options.direct ? "getPackingQzSettings=()=>({host:'192.168.1.5',port:8181,printer:'BP-TR110'});getPackingQzClient=()=>({print:async()=>window.printed()});" : 'printPackingBox=async()=>window.printed();'}
  window.flow={scan:submitPackingScan,pending:()=>packingPending,box:()=>packingBox,initSettings:initPackingQzSettings,getSettings:getPackingQzSettings,saveSettings:savePackingQzSettings};
  })();`);
@@ -56,6 +57,12 @@ test('finish creates mother after scans, clears staging and then prints',async()
 });
 test('finish on empty list cannot allocate a box',async()=>{
  const app=harness();await app.listeners.get('packing-seal:click')();assert.equal(app.calls.length,0);
+});
+test('canceling custom print confirmation preserves scans without creating or printing a box',async()=>{
+ const app=harness({cancelPrint:true});await app.flow.scan('A');
+ await app.listeners.get('packing-seal:click')();
+ assert.equal(app.flow.pending().length,1);assert.equal(app.flow.box(),null);
+ assert.equal(app.calls.filter(c=>c.method==='finish_packing').length,0);assert.equal(app.printed(),0);
 });
 test('failed finalize preserves scan list and retry key',async()=>{
  const app=harness({finishFails:true});await app.flow.scan('A');

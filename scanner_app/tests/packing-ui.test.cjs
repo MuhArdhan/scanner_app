@@ -7,7 +7,7 @@ const html = fs.readFileSync(path.resolve(__dirname, '../www/scanner/index.html'
 const script = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].at(-1)[1];
 
 function harness(options={}) {
-  const elements = new Map(),listeners=new Map();
+  const elements = new Map(),listeners=new Map(),main={inert:false};
   const element = id => {
     if (!elements.has(id)) {
       const classes=new Set(),attributes={};
@@ -18,17 +18,17 @@ function harness(options={}) {
     return elements.get(id);
   };
   const context = {
-    document:{getElementById:element,createElement:()=>element(Symbol()),querySelector:()=>({content:''}),addEventListener(){},documentElement:{dataset:{}}},
+    document:{getElementById:element,createElement:()=>element(Symbol()),querySelector:selector=>selector==='main'?main:({content:''}),addEventListener(){},documentElement:{dataset:{}}},
     window:{addEventListener(){},mockCall:async method=>{if(method==='list_boxes')return options.listBoxes?options.listBoxes():[];throw Error('Unexpected '+method);}},localStorage:{getItem:()=>null,setItem(){},removeItem(){}},
     location:{hash:'#packing'},history:{replaceState(){}},navigator:{},URLSearchParams,console,setTimeout,clearTimeout,
   };
   const instrumented = script.replace(/init\(\);\s*\}\)\(\);\s*$/, `
     initPackingQzSettings=()=>{};
     call=async method=>window.mockCall(method);message=()=>{};
-    window.packingUI={render:renderPacking,setPending:children=>{packingBox=null;packingPending=children;},setBox:box=>{packingBox=box;}};
+    window.packingUI={render:renderPacking,setPending:children=>{packingBox=null;packingPending=children;},setBox:box=>{packingBox=box;},confirm:confirmPackingPrint,close:closePackingPrint};
   })();`);
   vm.runInNewContext(instrumented, context);
-  return {ui:context.window.packingUI,elements,listeners};
+  return {ui:context.window.packingUI,elements,listeners,main};
 }
 
 test('redesigned CSS is scoped exclusively to the packing page', () => {
@@ -100,4 +100,24 @@ test('closing history during loading prevents a late response from reopening it'
   await click();resolve([]);await opening;
   assert.equal(app.elements.get('packing-boxes').classList.contains('hidden'),true);
   assert.equal(app.elements.get('packing-list').attributes['aria-expanded'],'false');
+});
+test('custom popup shows pending item, unit and printer and supports cancel',async()=>{
+ const app=harness();
+ app.ui.setPending([{item_name:'Air Galon',item_code:'AIR',label_uom:'Galon'}]);
+ app.elements.get('packing-qz-printer').value='BP-TR110';
+ const result=app.ui.confirm();
+ assert.equal(app.main.inert,true);
+ assert.equal(app.elements.get('packing-confirm-item').textContent,'Air Galon');
+ assert.equal(app.elements.get('packing-confirm-qty').textContent,'1 Galon');
+ assert.equal(app.elements.get('packing-confirm-printer').textContent,'BP-TR110');
+ assert.equal(app.elements.get('packing-confirm-box').textContent,'Dibuat setelah konfirmasi');
+ app.ui.close();assert.equal(await result,false);assert.equal(app.main.inert,false);
+});
+test('reprint popup keeps duplicate-label warning and requires explicit confirmation',async()=>{
+ const app=harness();app.ui.setBox({box_id:'BOX-1210261',item_name:'Air',total_qty:12,label_uom:'Galon',status:'Sealed'});
+ const result=app.ui.confirm(true);
+ assert.equal(app.elements.get('packing-confirm-box').textContent,'BOX-1210261');
+ assert.match(app.elements.get('packing-print-warning').textContent,/label tambahan/);
+ assert.equal(await app.ui.confirm(true),false);
+ app.ui.close(true);assert.equal(await result,true);
 });
