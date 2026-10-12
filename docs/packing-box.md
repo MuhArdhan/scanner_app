@@ -31,6 +31,7 @@ Tests use mocked Frappe and browser APIs. Live concurrent-session verification, 
 Migrated `development.localhost` successfully after database backup `20261009_105509-development_localhost-database.sql.gz`. Cleared site cache. Read-only checks confirmed all three Warehouse Box tables belong to Scanner App, the `request_key` field exists, and `finish_packing` / `validate_scan` import successfully. No packing records or stock transactions were created during these checks.
 
 ## Direct HP → remote QZ Tray → USB printer
+New box IDs use `BOX-DDMMYY<sequence>`, for example `BOX-0910261`, `BOX-0910262`, then `BOX-1010261` on the next date. The server date selects a native Frappe daily counter; the sequence has no zero-padding and resets per date. Existing box IDs and QR payloads are unchanged. QR payloads still use `BOX:<box_id>`.
 
 ### Local desktop testing
 

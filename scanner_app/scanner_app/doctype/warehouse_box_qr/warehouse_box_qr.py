@@ -1,6 +1,6 @@
 import frappe
 from frappe.model.document import Document
-from frappe.model.naming import make_autoname
+from frappe.model.naming import getseries
 from frappe.utils import now_datetime
 from scanner_app.scanner_app.box_packing import require_internal
 
@@ -8,7 +8,9 @@ from scanner_app.scanner_app.box_packing import require_internal
 class WarehouseBoxQR(Document):
 	def autoname(self):
 		require_internal()
-		self.name = make_autoname("BOX-.YYYY..MM..DD.-.#####")
+		# A separate native counter per date, without zero-padding the sequence.
+		prefix = "BOX-" + now_datetime().strftime("%d%m%y")
+		self.name = prefix + getseries(prefix, 1)
 
 	def before_insert(self):
 		require_internal()

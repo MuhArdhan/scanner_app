@@ -44,6 +44,26 @@
     };
   };
 
+  // Estimate occupancy of proportional printer font 0, not characters per line.
+  // This changes only following-field positions; ^FB still wraps the original name.
+  // Ratios are deterministic on desktop/mobile, but printer font metrics may differ.
+  const nameLineCount = (value, width = 225, fontWidth = 29) => {
+    const clean = String(value ?? '').replace(/[\r\n]/g, ' ');
+    let estimatedWidth = 0;
+    for (const char of clean) {
+      let ratio = 0.56;
+      if (/\s/.test(char)) ratio = 0.28;
+      else if (/[ilI.,'!:;|]/.test(char)) ratio = 0.28;
+      else if (/[frt()\[\]]/.test(char)) ratio = 0.38;
+      else if (/[MWmw@%]/.test(char)) ratio = 0.95;
+      else if (/[A-Z]/.test(char)) ratio = 0.72;
+      else if (char.codePointAt(0) > 127) ratio = 1;
+      estimatedWidth += fontWidth * ratio;
+    }
+    // One-dot bold overlay and a small safety margin near the wrap boundary.
+    return estimatedWidth + 5 <= width ? 1 : 2;
+  };
+
   /**
    * Generates the ZPL string matching the reference layout image.
    */
@@ -71,6 +91,8 @@
     };
 
     const labelText = content(box);
+    // Follow estimated name height while retaining the original two-line ^FB.
+    const skuY = 70 + 32 * nameLineCount(labelText.name) + 13;
 
     // Dynamic Font Size for Box ID to fit inside the 200-dot QR column width
     const rawIdLength = String(box.box_id).length;
@@ -90,18 +112,18 @@
 
       // --- 1. SISI KIRI: QR CODE & BOX ID ---
       // QR Code (Magnification 7) - 20 dots lower, approximately 17% larger.
-      `^FO35,70^BQN,2,7^FH_^FDQA,${encodeHexZpl(box.qr_payload)}^FS`,
+      `^FO35,70^BQN,2,9^FH_^FDQA,${encodeHexZpl(box.qr_payload)}^FS`,
 
       // Box ID di Bawah QR Code (Center Aligned)
       renderField(25, 265, box.box_id, idFontSize, 200, 1, 'C'),
 
       // --- 2. SISI KANAN: DETAIL PRODUK ---
       // Format: renderField( X, Y, Teks, Font, Width, Lines, Align )
-      renderField(240,  70, labelText.name,    32,   225,   2,    'L'), // Nama Barang (Bold, Paling Besar)
-      renderField(240, 115, labelText.sku,     24,   225,   1,    'L'), // SKU : 123456
-      renderField(240, 155, labelText.qty,     24,   225,   1,    'L'), // ISI : 12 pcs
-      renderField(240, 195, labelText.receipt, 24,   225,   1,    'L'), // RCP : 25-10-26
-      renderField(240, 235, labelText.expiry,  24,   225,   1,    'L'), // EXP : 10-10-26
+      renderField(250, 70, labelText.name, 32, 225, 2, 'L'),
+      renderField(250, skuY,       labelText.sku,     24, 225, 1, 'L'),
+      renderField(250, skuY + 40,  labelText.qty,     24, 225, 1, 'L'),
+      renderField(250, skuY + 80,  labelText.receipt, 24, 225, 1, 'L'),
+      renderField(250, skuY + 120, labelText.expiry,  24, 225, 1, 'L'),
 
       '^XZ\n',
     ];
